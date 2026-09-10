@@ -7,7 +7,7 @@ import { DetailHeader } from '@/components/ui/DetailHeader';
 import { comparison } from '@/lib/mockData';
 import { colors, fontFamily, radius, spacing } from '@/theme/colors';
 
-export default function VergleichScreen() {
+export default function ComparisonScreen() {
   const { width } = useWindowDimensions();
   const chartWidth = width - spacing.lg * 2 - spacing.lg * 2;
 

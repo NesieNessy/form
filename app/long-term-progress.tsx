@@ -9,7 +9,7 @@ import { colors, fontFamily, spacing } from '@/theme/colors';
 
 const RANGE_OPTIONS = timeRanges.filter((r) => r.key !== '4w');
 
-export default function LangfristigeEntwicklungScreen() {
+export default function LongTermProgressScreen() {
   const [range, setRange] = useState('1y');
   const { width } = useWindowDimensions();
   const chartWidth = width - spacing.lg * 2 - spacing.lg * 2;

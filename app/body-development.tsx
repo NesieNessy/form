@@ -9,7 +9,7 @@ import { SegmentedTabs } from '@/components/ui/SegmentedTabs';
 import { bodyCompositionMonths, bodyCompositionSeries, bodyDevelopment, timeRanges } from '@/lib/mockData';
 import { colors, fontFamily, radius, spacing } from '@/theme/colors';
 
-export default function KoerperlicheEntwicklungScreen() {
+export default function BodyDevelopmentScreen() {
   const [range, setRange] = useState('1y');
   const { width } = useWindowDimensions();
   const chartWidth = width - spacing.lg * 2 - spacing.lg * 2;

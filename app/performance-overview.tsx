@@ -7,7 +7,7 @@ import { SegmentedTabs } from '@/components/ui/SegmentedTabs';
 import { performanceOverview, timeRanges } from '@/lib/mockData';
 import { colors, fontFamily, radius, spacing } from '@/theme/colors';
 
-export default function PerformanceUebersichtScreen() {
+export default function PerformanceOverviewScreen() {
   const [range, setRange] = useState('4w');
 
   return (

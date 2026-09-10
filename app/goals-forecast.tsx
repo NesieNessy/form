@@ -7,7 +7,7 @@ import { ProgressGoalBar } from '@/components/ui/ProgressGoalBar';
 import { goals, prognosis } from '@/lib/mockData';
 import { colors, fontFamily, radius, spacing } from '@/theme/colors';
 
-export default function ZielePrognosenScreen() {
+export default function GoalsForecastScreen() {
   return (
     <View style={styles.screen}>
       <DetailHeader title="Ziele & Prognosen" subtitle="Sieh, wohin die Reise geht." />

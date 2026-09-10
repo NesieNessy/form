@@ -29,28 +29,28 @@ const items: MenuItem[] = [
     color: colors.pink,
     title: 'Körperliche Entwicklung',
     subtitle: 'Sieh, wie sich dein Körper verändert.',
-    route: '/koerperliche-entwicklung',
+    route: '/body-development',
   },
   {
     icon: BarChart3,
     color: colors.blue,
     title: 'Performance Übersicht',
     subtitle: 'Alle wichtigen Kennzahlen.',
-    route: '/performance-uebersicht',
+    route: '/performance-overview',
   },
   {
     icon: Sparkles,
     color: colors.purple,
     title: 'Vergleich',
     subtitle: 'Vergleiche dich mit dir selbst.',
-    route: '/vergleich',
+    route: '/comparison',
   },
   {
     icon: Target,
     color: colors.teal,
     title: 'Ziele & Prognosen',
     subtitle: 'Sieh, wohin die Reise geht.',
-    route: '/ziele-prognosen',
+    route: '/goals-forecast',
   },
   {
     icon: Lightbulb,
@@ -64,11 +64,11 @@ const items: MenuItem[] = [
     color: colors.orange,
     title: 'Langfristige Entwicklung',
     subtitle: 'Dein Weg in einer Grafik.',
-    route: '/langfristige-entwicklung',
+    route: '/long-term-progress',
   },
 ];
 
-export default function MehrScreen() {
+export default function MoreScreen() {
   return (
     <View style={styles.screen}>
       <TabHeader />

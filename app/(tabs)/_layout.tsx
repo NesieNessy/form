@@ -44,7 +44,7 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="mehr"
+        name="more"
         options={{
           title: 'Mehr',
           tabBarIcon: ({ color, size }) => <Menu color={color} size={size} strokeWidth={iconStrokeWidth} />,
