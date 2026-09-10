@@ -2,11 +2,31 @@ import { colors } from '@/theme/colors';
 import type {
   BodyMetricPoint,
   EnduranceSession,
+  Exercise,
   Goal,
   Insight,
   Point,
   StrengthLift,
 } from './types';
+
+// Stand-in for what an on-device OCR/AI pass would pull out of a workout
+// screenshot — there's no real analysis backend, so StepAnalyzing "detects"
+// this fixed result after its simulated processing delay.
+export const mockAnalyzedWorkout: {
+  title: string;
+  intervalsLabel: string;
+  exercises: Exercise[];
+  notes: string;
+} = {
+  title: 'Squat Snatch',
+  intervalsLabel: '5 Rounds: 2:00 on / 1:00 off',
+  exercises: [
+    { id: 'ex-1', name: '10 Thrusters' },
+    { id: 'ex-2', name: '10 Pull Ups' },
+    { id: 'ex-3', name: 'Max Rep Cal', detail: 'any machine in remaining time left in the 2:00 window' },
+  ],
+  notes: 'Score total calories on the bike over the 5 rounds.\nBarbell weights: Level 1 35/25 kg, Level 2 42.5/30 kg, Level 3 52.5/35 kg.',
+};
 
 export const weekStrip = [
   { day: 'Mon', date: 7, done: true },

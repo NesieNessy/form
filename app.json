@@ -34,7 +34,8 @@
           "imageWidth": 180,
           "backgroundColor": "#080D12"
         }
-      ]
+      ],
+      "expo-image"
     ]
   }
 }

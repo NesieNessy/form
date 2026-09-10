@@ -1,20 +1,24 @@
-import { router } from 'expo-router';
 import { ChevronLeft } from 'lucide-react-native';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, fontFamily, iconStrokeWidth, spacing } from '@/theme/colors';
 
-export function DetailHeader({ title, subtitle }: { title?: string; subtitle?: string }) {
+type Props = {
+  title?: string;
+  subtitle?: string;
+  onBack: () => void;
+};
+
+// Like DetailHeader, but the back action is caller-controlled instead of
+// always calling router.back() — the workout wizard steps through a stack
+// of in-memory steps inside a single route, not through the router.
+export function WizardHeader({ title, subtitle, onBack }: Props) {
   const insets = useSafeAreaInsets();
   return (
     <View style={{ paddingTop: insets.top + spacing.sm }}>
       <View style={styles.row}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          hitSlop={12}
-          style={styles.backBtn}
-        >
+        <TouchableOpacity onPress={onBack} hitSlop={12} style={styles.backBtn}>
           <ChevronLeft size={22} strokeWidth={iconStrokeWidth} color={colors.text} />
         </TouchableOpacity>
       </View>

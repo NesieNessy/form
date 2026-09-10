@@ -19,7 +19,7 @@ export type StrengthLift = {
   points: Point[];
 };
 
-export type EnduranceDistance = '400m' | '1km' | '5km' | 'alle';
+export type EnduranceDistance = '400m' | '1km' | '5km' | 'all';
 
 export type EnduranceSession = {
   distance: EnduranceDistance;
@@ -54,4 +54,38 @@ export type Insight = {
   color: string;
   title: string;
   body: string;
+};
+
+export type Exercise = {
+  id: string;
+  name: string;
+  detail?: string;
+};
+
+export type WorkoutBodyDataSource = 'automatic' | 'screenshot' | 'manual';
+
+export type WorkoutBodyData = {
+  avgHeartRate?: string;
+  calories?: string;
+  duration?: string;
+  zonesPct?: string;
+  distance?: string;
+  pace?: string;
+  power?: string;
+  avgSpeed?: string;
+  maxHeartRate?: string;
+  device?: string;
+};
+
+export type Workout = {
+  id: string;
+  title: string;
+  dateLabel: string;
+  intervalsLabel?: string;
+  exercises: Exercise[];
+  notes?: string;
+  bodyDataSource?: WorkoutBodyDataSource;
+  bodyData?: WorkoutBodyData;
+  screenshotUri?: string;
+  createdAt: number;
 };
