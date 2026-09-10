@@ -3,7 +3,6 @@ import { ChevronLeft } from 'lucide-react-native';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Logo } from './Logo';
 import { colors, fontFamily, iconStrokeWidth, spacing } from '@/theme/colors';
 
 export function DetailHeader({ title, subtitle }: { title: string; subtitle?: string }) {
@@ -18,10 +17,6 @@ export function DetailHeader({ title, subtitle }: { title: string; subtitle?: st
         >
           <ChevronLeft size={22} strokeWidth={iconStrokeWidth} color={colors.text} />
         </TouchableOpacity>
-        <View style={styles.logoWrap}>
-          <Logo size={18} showTagline={false} />
-        </View>
-        <View style={styles.backBtn} />
       </View>
       <View style={styles.titleWrap}>
         <Text style={styles.title}>{title}</Text>
@@ -35,7 +30,6 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     paddingHorizontal: spacing.screenX,
   },
   backBtn: {
@@ -43,9 +37,6 @@ const styles = StyleSheet.create({
     height: 32,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  logoWrap: {
-    alignItems: 'center',
   },
   titleWrap: {
     paddingHorizontal: spacing.screenX,
