@@ -15,7 +15,7 @@ import {
   timeRanges,
   trendsOverview,
 } from '@/lib/mockData';
-import { colors, radius, spacing } from '@/theme/colors';
+import { colors, fontFamily, radius, spacing } from '@/theme/colors';
 
 const MAIN_TABS = [
   { key: 'uebersicht', label: 'Übersicht' },
@@ -98,13 +98,13 @@ function KoerperdatenTab({ chartWidth }: { chartWidth: number }) {
         };
       case 'muskelmasse':
         return {
-          color: colors.blue,
+          color: colors.purple,
           unit: 'kg',
           points: bodyMetricHistory.map((p) => ({ label: p.date, value: p.muscleMassKg })),
         };
       case 'bmi':
         return {
-          color: colors.teal,
+          color: colors.amber,
           unit: '',
           points: bodyMetricHistory.map((p) => ({ label: p.date, value: p.bmi })),
         };
@@ -217,12 +217,7 @@ function AusdauerTab({ chartWidth }: { chartWidth: number }) {
         </View>
         <Text style={styles.sinceLabel}>{session.deltaLabel}</Text>
         <View style={{ height: spacing.md }} />
-        <LineChart
-          points={session.points}
-          color={colors.teal}
-          width={chartWidth}
-          formatY={(v) => `${Math.floor(v)}:00`}
-        />
+        <LineChart points={session.points} color={colors.teal} width={chartWidth} />
       </Card>
 
       <View style={{ height: spacing.md }} />
@@ -262,53 +257,53 @@ function StatRow({ label, value }: { label: string; value: string }) {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
-  titleRow: { paddingHorizontal: spacing.lg, marginBottom: spacing.md },
-  title: { color: colors.text, fontSize: 22, fontWeight: '700' },
-  tabsWrap: { paddingHorizontal: spacing.lg, marginBottom: spacing.md },
-  content: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xxl },
+  titleRow: { paddingHorizontal: spacing.screenX, marginBottom: spacing.md },
+  title: { color: colors.text, fontSize: 22, fontWeight: '700', fontFamily: fontFamily.bold },
+  tabsWrap: { paddingHorizontal: spacing.screenX, marginBottom: spacing.md },
+  content: { paddingHorizontal: spacing.screenX, paddingBottom: spacing.xxl },
 
   overviewCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   overviewText: { flex: 1 },
-  overviewLabel: { color: colors.textSecondary, fontSize: 12.5, fontWeight: '500' },
-  overviewValue: { color: colors.text, fontSize: 19, fontWeight: '700', marginTop: 2 },
-  overviewDelta: { fontSize: 12, fontWeight: '600', marginTop: 2 },
+  overviewLabel: { color: colors.textSecondary, fontSize: 12.5, fontWeight: '500', fontFamily: fontFamily.medium },
+  overviewValue: { color: colors.text, fontSize: 19, fontWeight: '700', fontFamily: fontFamily.bold, marginTop: 2 },
+  overviewDelta: { fontSize: 12, fontWeight: '600', fontFamily: fontFamily.semibold, marginTop: 2 },
 
   chartHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-  chartLabel: { color: colors.textSecondary, fontSize: 13, fontWeight: '600' },
-  chartValue: { color: colors.text, fontSize: 24, fontWeight: '700', marginTop: 4 },
+  chartLabel: { color: colors.textSecondary, fontSize: 13, fontWeight: '600', fontFamily: fontFamily.semibold },
+  chartValue: { color: colors.text, fontSize: 24, fontWeight: '700', fontFamily: fontFamily.bold, marginTop: 4 },
   deltaPill: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: radius.pill },
-  deltaPillText: { fontSize: 12.5, fontWeight: '700' },
+  deltaPillText: { fontSize: 12.5, fontWeight: '700', fontFamily: fontFamily.bold },
   sinceLabel: { color: colors.textTertiary, fontSize: 12, marginTop: 6 },
 
   boxRow: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.md },
   miniBox: { flex: 1, alignItems: 'center', paddingVertical: spacing.md },
   miniBoxHighlight: { borderColor: colors.blue },
-  miniBoxLabel: { color: colors.textTertiary, fontSize: 11, fontWeight: '600' },
-  miniBoxValue: { color: colors.text, fontSize: 15, fontWeight: '700', marginTop: 4 },
+  miniBoxLabel: { color: colors.textTertiary, fontSize: 11, fontWeight: '600', fontFamily: fontFamily.semibold },
+  miniBoxValue: { color: colors.text, fontSize: 15, fontWeight: '700', fontFamily: fontFamily.bold, marginTop: 4 },
   miniBoxSub: { color: colors.textTertiary, fontSize: 10.5, marginTop: 2 },
 
   infoRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: spacing.lg },
-  infoText: { color: colors.textSecondary, fontSize: 13, fontWeight: '600' },
+  infoText: { color: colors.textSecondary, fontSize: 13, fontWeight: '600', fontFamily: fontFamily.semibold },
 
   tipCard: { marginTop: spacing.lg, backgroundColor: colors.cardAlt },
-  tipTitle: { color: colors.amber, fontSize: 12.5, fontWeight: '700', marginBottom: 4 },
+  tipTitle: { color: colors.amber, fontSize: 12.5, fontWeight: '700', fontFamily: fontFamily.bold, marginBottom: 4 },
   tipBody: { color: colors.textSecondary, fontSize: 13, lineHeight: 19 },
 
-  sectionTitle: { color: colors.text, fontSize: 16, fontWeight: '700', marginBottom: spacing.md },
+  sectionTitle: { color: colors.text, fontSize: 16, fontWeight: '700', fontFamily: fontFamily.bold, marginBottom: spacing.md },
 
   liftGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
   liftCard: { flexBasis: '47%', flexGrow: 1, gap: 4 },
-  liftName: { color: colors.textSecondary, fontSize: 12, fontWeight: '600' },
-  liftValue: { color: colors.text, fontSize: 16, fontWeight: '700', marginBottom: 2 },
-  liftDelta: { fontSize: 12, fontWeight: '700' },
+  liftName: { color: colors.textSecondary, fontSize: 12, fontWeight: '600', fontFamily: fontFamily.semibold },
+  liftValue: { color: colors.text, fontSize: 16, fontWeight: '700', fontFamily: fontFamily.bold, marginBottom: 2 },
+  liftDelta: { fontSize: 12, fontWeight: '700', fontFamily: fontFamily.bold },
 
   progressCard: { marginTop: spacing.lg, alignItems: 'center' },
-  progressLabel: { color: colors.textSecondary, fontSize: 13, fontWeight: '600' },
-  progressValue: { color: colors.amber, fontSize: 26, fontWeight: '800', marginTop: 4 },
+  progressLabel: { color: colors.textSecondary, fontSize: 13, fontWeight: '600', fontFamily: fontFamily.semibold },
+  progressValue: { color: colors.amber, fontSize: 26, fontWeight: '800', fontFamily: fontFamily.extrabold, marginTop: 4 },
   progressSub: { color: colors.textTertiary, fontSize: 12, marginTop: 2 },
 
   statsListCard: { marginTop: spacing.lg },
   statRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderTopWidth: 1, borderTopColor: colors.border },
   statRowLabel: { color: colors.textSecondary, fontSize: 13 },
-  statRowValue: { color: colors.text, fontSize: 13, fontWeight: '700' },
+  statRowValue: { color: colors.text, fontSize: 13, fontWeight: '700', fontFamily: fontFamily.bold },
 });

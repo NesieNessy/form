@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, radius } from '@/theme/colors';
+import { colors, fontFamily, radius } from '@/theme/colors';
 
 type Day = { day: string; date: number; done: boolean; today?: boolean };
 
@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
   dayLabel: {
     color: colors.textTertiary,
     fontSize: 11,
-    fontWeight: '600',
+    fontFamily: fontFamily.semibold,
   },
   dot: {
     width: 30,
@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.cardAlt,
   },
   dotDone: {
-    backgroundColor: 'rgba(52,211,153,0.16)',
+    backgroundColor: 'rgba(61,220,132,0.16)',
   },
   dotToday: {
     backgroundColor: colors.blue,
@@ -50,10 +50,10 @@ const styles = StyleSheet.create({
   dateLabel: {
     color: colors.textSecondary,
     fontSize: 12.5,
-    fontWeight: '600',
+    fontFamily: fontFamily.semibold,
   },
   dateLabelToday: {
     color: '#fff',
-    fontWeight: '700',
+    fontFamily: fontFamily.bold,
   },
 });

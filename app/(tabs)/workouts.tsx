@@ -2,7 +2,7 @@ import { Dumbbell } from 'lucide-react-native';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { TabHeader } from '@/components/ui/TabHeader';
-import { colors, spacing } from '@/theme/colors';
+import { colors, fontFamily, spacing } from '@/theme/colors';
 
 export default function WorkoutsScreen() {
   return (
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
   title: {
     color: colors.text,
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '700', fontFamily: fontFamily.bold,
   },
   body: {
     color: colors.textSecondary,

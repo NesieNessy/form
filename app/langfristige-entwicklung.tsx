@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/Card';
 import { DetailHeader } from '@/components/ui/DetailHeader';
 import { SegmentedTabs } from '@/components/ui/SegmentedTabs';
 import { longTerm, timeRanges } from '@/lib/mockData';
-import { colors, spacing } from '@/theme/colors';
+import { colors, fontFamily, spacing } from '@/theme/colors';
 
 const RANGE_OPTIONS = timeRanges.filter((r) => r.key !== '4w');
 
@@ -50,11 +50,11 @@ export default function LangfristigeEntwicklungScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
-  content: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xxl },
+  content: { paddingHorizontal: spacing.screenX, paddingBottom: spacing.xxl },
   legendRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   legendDot: { width: 8, height: 8, borderRadius: 4 },
-  legendLabel: { color: colors.textSecondary, fontSize: 11.5, fontWeight: '600' },
+  legendLabel: { color: colors.textSecondary, fontSize: 11.5, fontWeight: '600', fontFamily: fontFamily.semibold },
   captionCard: { marginTop: spacing.lg, alignItems: 'center' },
-  caption: { color: colors.text, fontSize: 14, fontWeight: '600', textAlign: 'center', lineHeight: 20 },
+  caption: { color: colors.text, fontSize: 14, fontWeight: '600', fontFamily: fontFamily.semibold, textAlign: 'center', lineHeight: 20 },
 });

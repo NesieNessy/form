@@ -1,7 +1,7 @@
 import { Tabs } from 'expo-router';
 import { Dumbbell, House, LineChart, Menu } from 'lucide-react-native';
 import React from 'react';
-import { colors } from '@/theme/colors';
+import { colors, fontFamily, iconStrokeWidth } from '@/theme/colors';
 
 export default function TabsLayout() {
   return (
@@ -18,7 +18,7 @@ export default function TabsLayout() {
         },
         tabBarLabelStyle: {
           fontSize: 11,
-          fontWeight: '600',
+          fontFamily: fontFamily.semibold,
         },
       }}
     >
@@ -26,28 +26,28 @@ export default function TabsLayout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color, size }) => <House color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => <House color={color} size={size} strokeWidth={iconStrokeWidth} />,
         }}
       />
       <Tabs.Screen
         name="workouts"
         options={{
           title: 'Workouts',
-          tabBarIcon: ({ color, size }) => <Dumbbell color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => <Dumbbell color={color} size={size} strokeWidth={iconStrokeWidth} />,
         }}
       />
       <Tabs.Screen
         name="trends"
         options={{
           title: 'Trends',
-          tabBarIcon: ({ color, size }) => <LineChart color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => <LineChart color={color} size={size} strokeWidth={iconStrokeWidth} />,
         }}
       />
       <Tabs.Screen
         name="mehr"
         options={{
           title: 'Mehr',
-          tabBarIcon: ({ color, size }) => <Menu color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => <Menu color={color} size={size} strokeWidth={iconStrokeWidth} />,
         }}
       />
     </Tabs>

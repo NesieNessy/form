@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/Card';
 import { DetailHeader } from '@/components/ui/DetailHeader';
 import { ProgressGoalBar } from '@/components/ui/ProgressGoalBar';
 import { goals, prognosis } from '@/lib/mockData';
-import { colors, radius, spacing } from '@/theme/colors';
+import { colors, fontFamily, radius, spacing } from '@/theme/colors';
 
 export default function ZielePrognosenScreen() {
   return (
@@ -41,8 +41,8 @@ export default function ZielePrognosenScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
-  content: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xxl },
-  cardTitle: { color: colors.text, fontSize: 16, fontWeight: '700', marginBottom: spacing.lg },
+  content: { paddingHorizontal: spacing.screenX, paddingBottom: spacing.xxl },
+  cardTitle: { color: colors.text, fontSize: 16, fontWeight: '700', fontFamily: fontFamily.bold, marginBottom: spacing.lg },
   prognosisCard: {
     marginTop: spacing.lg,
     flexDirection: 'row',
@@ -58,6 +58,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  prognosisTitle: { color: colors.text, fontSize: 13.5, fontWeight: '700', marginBottom: 4 },
+  prognosisTitle: { color: colors.text, fontSize: 13.5, fontWeight: '700', fontFamily: fontFamily.bold, marginBottom: 4 },
   prognosisBody: { color: colors.textSecondary, fontSize: 13, lineHeight: 19 },
 });

@@ -4,7 +4,7 @@ import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Logo } from './Logo';
-import { colors, spacing } from '@/theme/colors';
+import { colors, fontFamily, iconStrokeWidth, spacing } from '@/theme/colors';
 
 export function DetailHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   const insets = useSafeAreaInsets();
@@ -16,7 +16,7 @@ export function DetailHeader({ title, subtitle }: { title: string; subtitle?: st
           hitSlop={12}
           style={styles.backBtn}
         >
-          <ChevronLeft size={22} color={colors.text} />
+          <ChevronLeft size={22} strokeWidth={iconStrokeWidth} color={colors.text} />
         </TouchableOpacity>
         <View style={styles.logoWrap}>
           <Logo size={18} showTagline={false} />
@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: spacing.screenX,
   },
   backBtn: {
     width: 32,
@@ -48,18 +48,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   titleWrap: {
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: spacing.screenX,
     paddingTop: spacing.lg,
     paddingBottom: spacing.sm,
   },
   title: {
     color: colors.text,
     fontSize: 22,
-    fontWeight: '700',
+    fontFamily: fontFamily.semibold,
   },
   subtitle: {
     color: colors.textSecondary,
     fontSize: 13,
     marginTop: 2,
+    fontFamily: fontFamily.regular,
   },
 });

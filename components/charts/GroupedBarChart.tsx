@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Line, Rect } from 'react-native-svg';
-import { colors } from '@/theme/colors';
+import { colors, fontFamily } from '@/theme/colors';
 
 type Series = { label: string; color: string; values: number[] };
 
@@ -29,7 +29,7 @@ export function GroupedBarChart({ categories, series, width, height = 200, unit 
   return (
     <View>
       <Svg width={width} height={height}>
-        <Line x1={padLeft} x2={width - padRight} y1={height - padBottom} y2={height - padBottom} stroke={colors.border} strokeWidth={1} />
+        <Line x1={padLeft} x2={width - padRight} y1={height - padBottom} y2={height - padBottom} stroke={colors.chartGrid} strokeWidth={1} />
         {categories.map((cat, i) => {
           const groupCenter = padLeft + groupWidth * i + groupWidth / 2;
           return (
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
   },
   valueText: {
     fontSize: 10,
-    fontWeight: '700',
+    fontFamily: fontFamily.bold,
   },
   xLabels: {
     flexDirection: 'row',
@@ -109,6 +109,6 @@ const styles = StyleSheet.create({
   xLabel: {
     color: colors.textTertiary,
     fontSize: 11,
-    fontWeight: '600',
+    fontFamily: fontFamily.semibold,
   },
 });

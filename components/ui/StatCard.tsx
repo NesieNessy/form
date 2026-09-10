@@ -2,7 +2,7 @@ import { ArrowDown, ArrowUp } from 'lucide-react-native';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Card } from './Card';
-import { colors, spacing } from '@/theme/colors';
+import { colors, fontFamily, iconStrokeWidth, spacing } from '@/theme/colors';
 
 type Props = {
   label: string;
@@ -21,9 +21,9 @@ export function StatCard({ label, value, delta, positive = true, direction = 'do
       {delta ? (
         <View style={styles.deltaRow}>
           {direction === 'down' ? (
-            <ArrowDown size={12} color={positive ? colors.green : colors.red} />
+            <ArrowDown size={12} strokeWidth={iconStrokeWidth} color={positive ? colors.green : colors.red} />
           ) : (
-            <ArrowUp size={12} color={positive ? colors.green : colors.red} />
+            <ArrowUp size={12} strokeWidth={iconStrokeWidth} color={positive ? colors.green : colors.red} />
           )}
           <Text style={[styles.delta, { color: positive ? colors.green : colors.red }]}>
             {delta}
@@ -43,12 +43,12 @@ const styles = StyleSheet.create({
   label: {
     color: colors.textSecondary,
     fontSize: 12.5,
-    fontWeight: '500',
+    fontFamily: fontFamily.medium,
   },
   value: {
     color: colors.text,
     fontSize: 19,
-    fontWeight: '700',
+    fontFamily: fontFamily.bold,
     marginTop: 2,
   },
   deltaRow: {
@@ -59,6 +59,6 @@ const styles = StyleSheet.create({
   },
   delta: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: fontFamily.semibold,
   },
 });

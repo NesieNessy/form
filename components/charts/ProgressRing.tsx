@@ -1,7 +1,7 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, TextStyle, View } from 'react-native';
 import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
-import { colors } from '@/theme/colors';
+import { colors, fontFamily } from '@/theme/colors';
 
 type Props = {
   progress: number; // 0..1
@@ -9,9 +9,19 @@ type Props = {
   strokeWidth?: number;
   centerLabel?: string;
   centerSub?: string;
+  centerLabelStyle?: TextStyle;
+  centerSubStyle?: TextStyle;
 };
 
-export function ProgressRing({ progress, size = 76, strokeWidth = 8, centerLabel, centerSub }: Props) {
+export function ProgressRing({
+  progress,
+  size = 76,
+  strokeWidth = 8,
+  centerLabel,
+  centerSub,
+  centerLabelStyle,
+  centerSubStyle,
+}: Props) {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference * (1 - Math.min(1, Math.max(0, progress)));
@@ -21,8 +31,9 @@ export function ProgressRing({ progress, size = 76, strokeWidth = 8, centerLabel
       <Svg width={size} height={size}>
         <Defs>
           <LinearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
-            <Stop offset="0" stopColor={colors.ringGradient[0]} />
-            <Stop offset="1" stopColor={colors.ringGradient[1]} />
+            {colors.gradient.map((c, i) => (
+              <Stop key={c} offset={i / (colors.gradient.length - 1)} stopColor={c} />
+            ))}
           </LinearGradient>
         </Defs>
         <Circle
@@ -50,8 +61,8 @@ export function ProgressRing({ progress, size = 76, strokeWidth = 8, centerLabel
       </Svg>
       {centerLabel ? (
         <View style={[StyleSheet.absoluteFill, styles.center]}>
-          <Text style={styles.centerLabel}>{centerLabel}</Text>
-          {centerSub ? <Text style={styles.centerSub}>{centerSub}</Text> : null}
+          <Text style={[styles.centerLabel, centerLabelStyle]}>{centerLabel}</Text>
+          {centerSub ? <Text style={[styles.centerSub, centerSubStyle]}>{centerSub}</Text> : null}
         </View>
       ) : null}
     </View>
@@ -66,11 +77,12 @@ const styles = StyleSheet.create({
   centerLabel: {
     color: colors.text,
     fontSize: 15,
-    fontWeight: '700',
+    fontFamily: fontFamily.bold,
   },
   centerSub: {
     color: colors.textTertiary,
     fontSize: 9,
     marginTop: 1,
+    fontFamily: fontFamily.regular,
   },
 });

@@ -1,7 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, radius } from '@/theme/colors';
+import { colors, fontFamily, radius } from '@/theme/colors';
 
 type Props = {
   label: string;
@@ -21,7 +21,7 @@ export function ProgressGoalBar({ label, currentLabel, targetLabel, progressPct 
       </View>
       <View style={styles.track}>
         <LinearGradient
-          colors={colors.logoGradient}
+          colors={colors.gradient}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={[styles.fill, { width: `${Math.max(4, Math.min(100, progressPct))}%` }]}
@@ -45,15 +45,16 @@ const styles = StyleSheet.create({
   label: {
     color: colors.text,
     fontSize: 14.5,
-    fontWeight: '700',
+    fontFamily: fontFamily.bold,
   },
   target: {
     color: colors.textTertiary,
     fontSize: 12,
+    fontFamily: fontFamily.regular,
   },
   targetValue: {
     color: colors.textSecondary,
-    fontWeight: '700',
+    fontFamily: fontFamily.bold,
   },
   track: {
     height: 10,
@@ -69,5 +70,6 @@ const styles = StyleSheet.create({
     color: colors.textTertiary,
     fontSize: 11.5,
     marginTop: 6,
+    fontFamily: fontFamily.regular,
   },
 });

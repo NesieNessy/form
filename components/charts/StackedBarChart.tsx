@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Rect } from 'react-native-svg';
-import { colors } from '@/theme/colors';
+import { colors, fontFamily } from '@/theme/colors';
 
 type Series = { label: string; color: string; values: number[] };
 
@@ -58,6 +58,6 @@ const styles = StyleSheet.create({
   xLabel: {
     color: colors.textTertiary,
     fontSize: 11,
-    fontWeight: '600',
+    fontFamily: fontFamily.semibold,
   },
 });

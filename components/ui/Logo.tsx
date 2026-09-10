@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Defs, LinearGradient, Stop, Text as SvgText } from 'react-native-svg';
-import { colors } from '@/theme/colors';
+import { colors, fontFamily } from '@/theme/colors';
 
 type Props = {
   size?: number;
@@ -17,8 +17,8 @@ export function Logo({ size = 22, showTagline = true }: Props) {
       <Svg width={width} height={height}>
         <Defs>
           <LinearGradient id="logoGrad" x1="0" y1="0" x2="1" y2="0">
-            {colors.logoGradient.map((c, i) => (
-              <Stop key={c} offset={i / (colors.logoGradient.length - 1)} stopColor={c} />
+            {colors.gradient.map((c, i) => (
+              <Stop key={c} offset={i / (colors.gradient.length - 1)} stopColor={c} />
             ))}
           </LinearGradient>
         </Defs>
@@ -46,6 +46,6 @@ const styles = StyleSheet.create({
     color: colors.textTertiary,
     letterSpacing: 2,
     marginTop: -2,
-    fontWeight: '600',
+    fontFamily: fontFamily.semibold,
   },
 });

@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/Card';
 import { DetailHeader } from '@/components/ui/DetailHeader';
 import { Icon } from '@/components/ui/Icon';
 import { insights } from '@/lib/mockData';
-import { colors, radius, spacing } from '@/theme/colors';
+import { colors, fontFamily, radius, spacing } from '@/theme/colors';
 
 export default function InsightsScreen() {
   return (
@@ -32,8 +32,8 @@ export default function InsightsScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
-  content: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xxl },
-  sectionTitle: { color: colors.text, fontSize: 16, fontWeight: '700', marginBottom: spacing.md },
+  content: { paddingHorizontal: spacing.screenX, paddingBottom: spacing.xxl },
+  sectionTitle: { color: colors.text, fontSize: 16, fontWeight: '700', fontFamily: fontFamily.bold, marginBottom: spacing.md },
   row: { flexDirection: 'row', gap: spacing.md, alignItems: 'flex-start' },
   iconWrap: {
     width: 38,
@@ -43,6 +43,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   textWrap: { flex: 1 },
-  itemTitle: { color: colors.text, fontSize: 14.5, fontWeight: '700', marginBottom: 4 },
+  itemTitle: { color: colors.text, fontSize: 14.5, fontWeight: '700', fontFamily: fontFamily.bold, marginBottom: 4 },
   itemBody: { color: colors.textSecondary, fontSize: 13, lineHeight: 19 },
 });

@@ -18,6 +18,18 @@ export const weekStrip = [
   { day: 'So', date: 13, done: false },
 ];
 
+export const formScore = {
+  score: 82,
+  rating: 'GUT',
+  deltaLabel: '+6 diesen Monat',
+  breakdown: [
+    { label: 'Stärke', value: 86, color: colors.purple },
+    { label: 'Ausdauer', value: 78, color: colors.teal },
+    { label: 'Erholung', value: 81, color: colors.blue },
+    { label: 'Konstanz', value: 84, color: colors.green },
+  ],
+};
+
 export const homeSummary = {
   weeklyGoal: { current: 4, target: 5 },
   greeting: 'Guten Morgen! \u{1F44B}',
@@ -53,7 +65,7 @@ export const trendsOverview = [
     label: 'Körperfettanteil',
     value: '16,8 %',
     delta: '-0,4 % / Woche',
-    color: colors.purple,
+    color: colors.pink,
     points: bodyMetricHistory.map((p) => p.bodyFatPct),
     positive: true,
   },
@@ -62,7 +74,7 @@ export const trendsOverview = [
     label: 'Kraftleistung',
     value: '+18 %',
     delta: '(im Vergleich zum Start)',
-    color: colors.orange,
+    color: colors.purple,
     points: [0, 6, 11, 18],
     positive: true,
   },
@@ -161,7 +173,7 @@ export const bodyComposition: Point[][] = [];
 export const bodyCompositionMonths = ['Jul', 'Aug', 'Sep', 'Okt'];
 export const bodyCompositionSeries = [
   { label: 'Fettmasse', color: colors.pink, values: [21.2, 19.8, 18.1, 16.8] },
-  { label: 'Muskelmasse', color: colors.blue, values: [58.1, 58.4, 58.6, 58.7] },
+  { label: 'Muskelmasse', color: colors.purple, values: [58.1, 58.4, 58.6, 58.7] },
   { label: 'Sonstiges', color: colors.textTertiary, values: [20.7, 21.8, 23.3, 26.5] },
 ];
 
@@ -198,7 +210,7 @@ export const insights: Insight[] = [
   {
     id: 'strength',
     icon: 'trending-up',
-    color: colors.blue,
+    color: colors.purple,
     title: 'Starke Entwicklung',
     body: 'Deine Kraftleistung ist in den letzten 8 Wochen um 16 % gestiegen.',
   },

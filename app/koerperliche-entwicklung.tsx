@@ -7,7 +7,7 @@ import { DetailHeader } from '@/components/ui/DetailHeader';
 import { GradientButton } from '@/components/ui/GradientButton';
 import { SegmentedTabs } from '@/components/ui/SegmentedTabs';
 import { bodyCompositionMonths, bodyCompositionSeries, bodyDevelopment, timeRanges } from '@/lib/mockData';
-import { colors, radius, spacing } from '@/theme/colors';
+import { colors, fontFamily, radius, spacing } from '@/theme/colors';
 
 export default function KoerperlicheEntwicklungScreen() {
   const [range, setRange] = useState('1y');
@@ -75,8 +75,8 @@ function BodyColumn({
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
-  content: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xxl },
-  cardTitle: { color: colors.text, fontSize: 15, fontWeight: '700', marginBottom: spacing.sm },
+  content: { paddingHorizontal: spacing.screenX, paddingBottom: spacing.xxl },
+  cardTitle: { color: colors.text, fontSize: 15, fontWeight: '700', fontFamily: fontFamily.bold, marginBottom: spacing.sm },
   legendRow: { flexDirection: 'row', gap: spacing.lg },
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   legendDot: { width: 8, height: 8, borderRadius: 4 },
@@ -94,6 +94,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 6,
   },
-  bodyColLabel: { color: colors.textSecondary, fontSize: 12.5, fontWeight: '700', marginBottom: 2 },
-  bodyColMetric: { color: colors.text, fontSize: 12.5, fontWeight: '600' },
+  bodyColLabel: { color: colors.textSecondary, fontSize: 12.5, fontWeight: '700', fontFamily: fontFamily.bold, marginBottom: 2 },
+  bodyColMetric: { color: colors.text, fontSize: 12.5, fontWeight: '600', fontFamily: fontFamily.semibold },
 });

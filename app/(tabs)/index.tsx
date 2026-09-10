@@ -1,13 +1,14 @@
 import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
+import { FormScoreCard } from '@/components/ui/FormScoreCard';
 import { GradientButton } from '@/components/ui/GradientButton';
 import { StatCard } from '@/components/ui/StatCard';
 import { TabHeader } from '@/components/ui/TabHeader';
 import { WeekStrip } from '@/components/ui/WeekStrip';
 import { ProgressRing } from '@/components/charts/ProgressRing';
-import { homeSummary, weekStrip } from '@/lib/mockData';
-import { colors, spacing } from '@/theme/colors';
+import { formScore, homeSummary, weekStrip } from '@/lib/mockData';
+import { colors, fontFamily, spacing } from '@/theme/colors';
 
 export default function HomeScreen() {
   const { weeklyGoal } = homeSummary;
@@ -18,6 +19,14 @@ export default function HomeScreen() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Text style={styles.greeting}>{homeSummary.greeting}</Text>
         <Text style={styles.subGreeting}>{homeSummary.subGreeting}</Text>
+
+        <FormScoreCard
+          score={formScore.score}
+          rating={formScore.rating}
+          deltaLabel={formScore.deltaLabel}
+          breakdown={formScore.breakdown}
+        />
+        <View style={{ height: spacing.cardGap }} />
 
         <Card style={styles.goalCard}>
           <View style={styles.goalRow}>
@@ -68,13 +77,13 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg,
   },
   content: {
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: spacing.screenX,
     paddingBottom: spacing.xxl,
   },
   greeting: {
     color: colors.text,
     fontSize: 24,
-    fontWeight: '700',
+    fontWeight: '700', fontFamily: fontFamily.bold,
     marginTop: spacing.sm,
   },
   subGreeting: {
@@ -97,12 +106,12 @@ const styles = StyleSheet.create({
   goalLabel: {
     color: colors.textSecondary,
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: '600', fontFamily: fontFamily.semibold,
   },
   goalValue: {
     color: colors.text,
     fontSize: 20,
-    fontWeight: '700',
+    fontWeight: '700', fontFamily: fontFamily.bold,
     marginTop: 4,
   },
   divider: {
@@ -112,7 +121,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: colors.text,
     fontSize: 17,
-    fontWeight: '700',
+    fontWeight: '700', fontFamily: fontFamily.bold,
     marginTop: spacing.xl,
     marginBottom: spacing.md,
   },

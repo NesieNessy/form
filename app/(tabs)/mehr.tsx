@@ -13,7 +13,7 @@ import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
 import { TabHeader } from '@/components/ui/TabHeader';
-import { colors, radius, spacing } from '@/theme/colors';
+import { colors, fontFamily, radius, spacing } from '@/theme/colors';
 
 type MenuItem = {
   icon: LucideIcon;
@@ -98,10 +98,10 @@ export default function MehrScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
-  titleRow: { paddingHorizontal: spacing.lg, marginBottom: spacing.lg },
-  title: { color: colors.text, fontSize: 22, fontWeight: '700' },
+  titleRow: { paddingHorizontal: spacing.screenX, marginBottom: spacing.lg },
+  title: { color: colors.text, fontSize: 22, fontWeight: '700', fontFamily: fontFamily.bold },
   subtitle: { color: colors.textSecondary, fontSize: 13, marginTop: 4 },
-  content: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xxl, gap: spacing.md },
+  content: { paddingHorizontal: spacing.screenX, paddingBottom: spacing.xxl, gap: spacing.md },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   iconWrap: {
     width: 42,
@@ -111,6 +111,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   textWrap: { flex: 1 },
-  itemTitle: { color: colors.text, fontSize: 15, fontWeight: '700' },
+  itemTitle: { color: colors.text, fontSize: 15, fontWeight: '700', fontFamily: fontFamily.bold },
   itemSubtitle: { color: colors.textSecondary, fontSize: 12.5, marginTop: 2 },
 });

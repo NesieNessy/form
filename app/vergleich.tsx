@@ -5,7 +5,7 @@ import { GroupedBarChart } from '@/components/charts/GroupedBarChart';
 import { Card } from '@/components/ui/Card';
 import { DetailHeader } from '@/components/ui/DetailHeader';
 import { comparison } from '@/lib/mockData';
-import { colors, radius, spacing } from '@/theme/colors';
+import { colors, fontFamily, radius, spacing } from '@/theme/colors';
 
 export default function VergleichScreen() {
   const { width } = useWindowDimensions();
@@ -55,7 +55,7 @@ export default function VergleichScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
-  content: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xxl },
+  content: { paddingHorizontal: spacing.screenX, paddingBottom: spacing.xxl },
   pickerRow: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.lg },
   picker: {
     flex: 1,
@@ -69,11 +69,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: 12,
   },
-  pickerText: { color: colors.text, fontSize: 13, fontWeight: '600' },
+  pickerText: { color: colors.text, fontSize: 13, fontWeight: '600', fontFamily: fontFamily.semibold },
   legendRow: { flexDirection: 'row', gap: spacing.lg },
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   legendDot: { width: 8, height: 8, borderRadius: 4 },
-  legendLabel: { color: colors.textSecondary, fontSize: 11.5, fontWeight: '600' },
+  legendLabel: { color: colors.textSecondary, fontSize: 11.5, fontWeight: '600', fontFamily: fontFamily.semibold },
   captionCard: { marginTop: spacing.lg, alignItems: 'center' },
-  caption: { color: colors.text, fontSize: 14, fontWeight: '600', textAlign: 'center', lineHeight: 20 },
+  caption: { color: colors.text, fontSize: 14, fontWeight: '600', fontFamily: fontFamily.semibold, textAlign: 'center', lineHeight: 20 },
 });

@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { colors, radius, spacing } from '@/theme/colors';
+import { colors, fontFamily, radius, spacing } from '@/theme/colors';
 
 type Option = { key: string; label: string };
 
@@ -14,7 +14,7 @@ type Props = {
 
 export function SegmentedTabs({ options, value, onChange, scrollable, size = 'md' }: Props) {
   const content = (
-    <View style={[styles.row, scrollable && { paddingRight: spacing.lg }]}>
+    <View style={[styles.row, scrollable && { paddingRight: spacing.screenX }]}>
       {options.map((opt) => {
         const active = opt.key === value;
         return (
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: fontFamily.semibold,
   },
   labelSm: {
     fontSize: 12,

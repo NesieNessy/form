@@ -5,7 +5,7 @@ import { DetailHeader } from '@/components/ui/DetailHeader';
 import { Icon } from '@/components/ui/Icon';
 import { SegmentedTabs } from '@/components/ui/SegmentedTabs';
 import { performanceOverview, timeRanges } from '@/lib/mockData';
-import { colors, radius, spacing } from '@/theme/colors';
+import { colors, fontFamily, radius, spacing } from '@/theme/colors';
 
 export default function PerformanceUebersichtScreen() {
   const [range, setRange] = useState('4w');
@@ -36,7 +36,7 @@ export default function PerformanceUebersichtScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
-  content: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xxl },
+  content: { paddingHorizontal: spacing.screenX, paddingBottom: spacing.xxl },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
   tile: { flexBasis: '47%', flexGrow: 1, gap: 4 },
   iconWrap: {
@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 6,
   },
-  value: { color: colors.text, fontSize: 20, fontWeight: '800' },
-  label: { color: colors.text, fontSize: 12.5, fontWeight: '600', marginTop: 2 },
+  value: { color: colors.text, fontSize: 20, fontWeight: '800', fontFamily: fontFamily.extrabold },
+  label: { color: colors.text, fontSize: 12.5, fontWeight: '600', fontFamily: fontFamily.semibold, marginTop: 2 },
   sub: { color: colors.textTertiary, fontSize: 11, marginTop: 1 },
 });
