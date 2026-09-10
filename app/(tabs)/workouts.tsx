@@ -1,6 +1,6 @@
 import { Dumbbell } from 'lucide-react-native';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { TabHeader } from '@/components/ui/TabHeader';
 import { colors, fontFamily, spacing } from '@/theme/colors';
 
@@ -8,13 +8,13 @@ export default function WorkoutsScreen() {
   return (
     <View style={styles.screen}>
       <TabHeader />
-      <View style={styles.empty}>
+      <ScrollView contentContainerStyle={styles.empty} showsVerticalScrollIndicator={false}>
         <View style={styles.iconWrap}>
           <Dumbbell color={colors.textSecondary} size={28} />
         </View>
         <Text style={styles.title}>No workouts planned yet</Text>
         <Text style={styles.body}>Your training plans will show up here once you create them.</Text>
-      </View>
+      </ScrollView>
     </View>
   );
 }
@@ -22,7 +22,7 @@ export default function WorkoutsScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
   empty: {
-    flex: 1,
+    flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.xxl,
