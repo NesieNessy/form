@@ -79,3 +79,11 @@ export const typography = {
 
 // Default stroke width for the lucide-react-native outline icon set.
 export const iconStrokeWidth = 1.75;
+
+// On web, above this window width we treat the browser as desktop and
+// constrain the app to a phone-width column (see app/_layout.tsx and
+// lib/useContentWidth.ts) instead of stretching it edge to edge.
+export const layout = {
+  desktopBreakpoint: 700,
+  containerMaxWidth: 480,
+};

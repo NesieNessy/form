@@ -10,9 +10,9 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect } from 'react';
-import { Text } from 'react-native';
+import { Platform, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { colors, fontFamily } from '@/theme/colors';
+import { colors, fontFamily, layout } from '@/theme/colors';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -31,6 +31,8 @@ export default function RootLayout() {
     Inter_700Bold,
     Inter_800ExtraBold,
   });
+  const { width } = useWindowDimensions();
+  const isDesktopWeb = Platform.OS === 'web' && width >= layout.desktopBreakpoint;
 
   useEffect(() => {
     if (fontsLoaded) SplashScreen.hideAsync().catch(() => {});
@@ -41,15 +43,44 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <StatusBar style="light" />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: colors.bg },
-          animation: 'slide_from_right',
-        }}
-      >
-        <Stack.Screen name="(tabs)" />
-      </Stack>
+      <View style={[styles.backdrop, isDesktopWeb && styles.desktopBackdrop]}>
+        <View style={[styles.appContainer, isDesktopWeb && styles.desktopContainer]}>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { backgroundColor: colors.bg },
+              animation: 'slide_from_right',
+            }}
+          >
+            <Stack.Screen name="(tabs)" />
+          </Stack>
+        </View>
+      </View>
     </SafeAreaProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  backdrop: {
+    flex: 1,
+    backgroundColor: colors.bg,
+  },
+  desktopBackdrop: {
+    backgroundColor: '#000000',
+    alignItems: 'center',
+  },
+  appContainer: {
+    flex: 1,
+    width: '100%',
+  },
+  desktopContainer: {
+    maxWidth: layout.containerMaxWidth,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderColor: colors.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 48,
+  },
+});

@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { MultiLineChart } from '@/components/charts/MultiLineChart';
 import { Card } from '@/components/ui/Card';
 import { DetailHeader } from '@/components/ui/DetailHeader';
 import { SegmentedTabs } from '@/components/ui/SegmentedTabs';
 import { longTerm, timeRanges } from '@/lib/mockData';
+import { useContentWidth } from '@/lib/useContentWidth';
 import { colors, fontFamily, spacing } from '@/theme/colors';
 
 const RANGE_OPTIONS = timeRanges.filter((r) => r.key !== '4w');
 
 export default function LongTermProgressScreen() {
   const [range, setRange] = useState('1y');
-  const { width } = useWindowDimensions();
+  const width = useContentWidth();
   const chartWidth = width - spacing.lg * 2 - spacing.lg * 2;
 
   const series = [

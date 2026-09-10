@@ -1,17 +1,18 @@
 import { ArrowRight, PersonStanding, Share2 } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { StackedBarChart } from '@/components/charts/StackedBarChart';
 import { Card } from '@/components/ui/Card';
 import { DetailHeader } from '@/components/ui/DetailHeader';
 import { GradientButton } from '@/components/ui/GradientButton';
 import { SegmentedTabs } from '@/components/ui/SegmentedTabs';
 import { bodyCompositionMonths, bodyCompositionSeries, bodyDevelopment, timeRanges } from '@/lib/mockData';
+import { useContentWidth } from '@/lib/useContentWidth';
 import { colors, fontFamily, radius, spacing } from '@/theme/colors';
 
 export default function BodyDevelopmentScreen() {
   const [range, setRange] = useState('1y');
-  const { width } = useWindowDimensions();
+  const width = useContentWidth();
   const chartWidth = width - spacing.lg * 2 - spacing.lg * 2;
   const { before, after } = bodyDevelopment;
 

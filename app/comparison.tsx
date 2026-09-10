@@ -1,14 +1,15 @@
 import { ChevronDown } from 'lucide-react-native';
 import React, { useMemo } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { GroupedBarChart } from '@/components/charts/GroupedBarChart';
 import { Card } from '@/components/ui/Card';
 import { DetailHeader } from '@/components/ui/DetailHeader';
 import { comparison } from '@/lib/mockData';
+import { useContentWidth } from '@/lib/useContentWidth';
 import { colors, fontFamily, radius, spacing } from '@/theme/colors';
 
 export default function ComparisonScreen() {
-  const { width } = useWindowDimensions();
+  const width = useContentWidth();
   const chartWidth = width - spacing.lg * 2 - spacing.lg * 2;
 
   const categories = useMemo(() => Object.keys(comparison.before.values), []);

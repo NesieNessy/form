@@ -1,6 +1,6 @@
 import { Info } from 'lucide-react-native';
 import React, { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { LineChart } from '@/components/charts/LineChart';
 import { Sparkline } from '@/components/charts/Sparkline';
 import { Card } from '@/components/ui/Card';
@@ -15,6 +15,7 @@ import {
   timeRanges,
   trendsOverview,
 } from '@/lib/mockData';
+import { useContentWidth } from '@/lib/useContentWidth';
 import { colors, fontFamily, radius, spacing } from '@/theme/colors';
 
 const MAIN_TABS = [
@@ -41,7 +42,7 @@ const DISTANCE_TABS = [
 export default function TrendsScreen() {
   const [mainTab, setMainTab] = useState('overview');
   const [range, setRange] = useState('3m');
-  const { width } = useWindowDimensions();
+  const width = useContentWidth();
   const chartWidth = width - spacing.lg * 2 - spacing.lg * 2;
 
   return (
