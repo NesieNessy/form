@@ -85,5 +85,5 @@ export const iconStrokeWidth = 1.75;
 // lib/useContentWidth.ts) instead of stretching it edge to edge.
 export const layout = {
   desktopBreakpoint: 700,
-  containerMaxWidth: 480,
+  containerMaxWidth: 840,
 };
