@@ -15,14 +15,14 @@ export default function LongTermProgressScreen() {
   const chartWidth = width - spacing.lg * 2 - spacing.lg * 2;
 
   const series = [
-    { label: 'Gewicht (kg)', color: colors.blue, values: longTerm.weight },
-    { label: 'Körperfett (%)', color: colors.pink, values: longTerm.bodyFat },
-    { label: 'Kraft (Index)', color: colors.orange, values: longTerm.strengthIndex },
+    { label: 'Weight (kg)', color: colors.blue, values: longTerm.weight },
+    { label: 'Body Fat (%)', color: colors.pink, values: longTerm.bodyFat },
+    { label: 'Strength (Index)', color: colors.orange, values: longTerm.strengthIndex },
   ];
 
   return (
     <View style={styles.screen}>
-      <DetailHeader title="Langfristige Entwicklung" subtitle="Dein Weg in einer Grafik." />
+      <DetailHeader title="Long-Term Progress" subtitle="Your journey, in one chart." />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <SegmentedTabs options={RANGE_OPTIONS} value={range} onChange={setRange} scrollable size="sm" />
         <View style={{ height: spacing.lg }} />

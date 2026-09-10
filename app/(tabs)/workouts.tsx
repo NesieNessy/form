@@ -12,8 +12,8 @@ export default function WorkoutsScreen() {
         <View style={styles.iconWrap}>
           <Dumbbell color={colors.textSecondary} size={28} />
         </View>
-        <Text style={styles.title}>Noch keine Workouts geplant</Text>
-        <Text style={styles.body}>Deine Trainingspläne erscheinen hier, sobald du sie anlegst.</Text>
+        <Text style={styles.title}>No workouts planned yet</Text>
+        <Text style={styles.body}>Your training plans will show up here once you create them.</Text>
       </View>
     </View>
   );

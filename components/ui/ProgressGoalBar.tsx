@@ -16,7 +16,7 @@ export function ProgressGoalBar({ label, currentLabel, targetLabel, progressPct 
       <View style={styles.row}>
         <Text style={styles.label}>{label}</Text>
         <Text style={styles.target}>
-          Aktuell: <Text style={styles.targetValue}>{currentLabel}</Text>
+          Current: <Text style={styles.targetValue}>{currentLabel}</Text>
         </Text>
       </View>
       <View style={styles.track}>
@@ -27,7 +27,7 @@ export function ProgressGoalBar({ label, currentLabel, targetLabel, progressPct 
           style={[styles.fill, { width: `${Math.max(4, Math.min(100, progressPct))}%` }]}
         />
       </View>
-      <Text style={styles.goalLabel}>Ziel: {targetLabel} · {progressPct}%</Text>
+      <Text style={styles.goalLabel}>Target: {targetLabel} · {progressPct}%</Text>
     </View>
   );
 }

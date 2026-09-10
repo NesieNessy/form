@@ -20,7 +20,7 @@ type Props = {
 export function FormScoreCard({ score, rating, deltaLabel, breakdown }: Props) {
   return (
     <Card style={styles.card}>
-      <Text style={styles.eyebrow}>DEIN FORM</Text>
+      <Text style={styles.eyebrow}>YOUR FORM</Text>
 
       <View style={styles.top}>
         <ProgressRing

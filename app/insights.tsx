@@ -9,9 +9,9 @@ import { colors, fontFamily, radius, spacing } from '@/theme/colors';
 export default function InsightsScreen() {
   return (
     <View style={styles.screen}>
-      <DetailHeader title="Insights & Tipps" subtitle="Personalisierte Empfehlungen." />
+      <DetailHeader title="Insights & Tips" subtitle="Personalized recommendations." />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Text style={styles.sectionTitle}>Deine Insights</Text>
+        <Text style={styles.sectionTitle}>Your Insights</Text>
         <View style={{ gap: spacing.md }}>
           {insights.map((insight) => (
             <Card key={insight.id} style={styles.row}>

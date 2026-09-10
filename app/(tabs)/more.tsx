@@ -27,43 +27,43 @@ const items: MenuItem[] = [
   {
     icon: PersonStanding,
     color: colors.pink,
-    title: 'Körperliche Entwicklung',
-    subtitle: 'Sieh, wie sich dein Körper verändert.',
+    title: 'Body Development',
+    subtitle: 'See how your body is changing.',
     route: '/body-development',
   },
   {
     icon: BarChart3,
     color: colors.blue,
-    title: 'Performance Übersicht',
-    subtitle: 'Alle wichtigen Kennzahlen.',
+    title: 'Performance Overview',
+    subtitle: 'All your key metrics.',
     route: '/performance-overview',
   },
   {
     icon: Sparkles,
     color: colors.purple,
-    title: 'Vergleich',
-    subtitle: 'Vergleiche dich mit dir selbst.',
+    title: 'Comparison',
+    subtitle: 'Compare yourself to your past self.',
     route: '/comparison',
   },
   {
     icon: Target,
     color: colors.teal,
-    title: 'Ziele & Prognosen',
-    subtitle: 'Sieh, wohin die Reise geht.',
+    title: 'Goals & Forecasts',
+    subtitle: "See where you're headed.",
     route: '/goals-forecast',
   },
   {
     icon: Lightbulb,
     color: colors.amber,
-    title: 'Insights & Tipps',
-    subtitle: 'Personalisierte Empfehlungen.',
+    title: 'Insights & Tips',
+    subtitle: 'Personalized recommendations.',
     route: '/insights',
   },
   {
     icon: LineChartIcon,
     color: colors.orange,
-    title: 'Langfristige Entwicklung',
-    subtitle: 'Dein Weg in einer Grafik.',
+    title: 'Long-Term Progress',
+    subtitle: 'Your journey, in one chart.',
     route: '/long-term-progress',
   },
 ];
@@ -73,8 +73,8 @@ export default function MoreScreen() {
     <View style={styles.screen}>
       <TabHeader />
       <View style={styles.titleRow}>
-        <Text style={styles.title}>Mehr</Text>
-        <Text style={styles.subtitle}>Tiefere Einblicke in deinen Fortschritt.</Text>
+        <Text style={styles.title}>More</Text>
+        <Text style={styles.subtitle}>Deeper insights into your progress.</Text>
       </View>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {items.map((item) => (

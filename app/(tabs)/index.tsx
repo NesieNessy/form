@@ -36,7 +36,7 @@ export default function HomeScreen() {
               centerSub="Workouts"
             />
             <View style={styles.goalTextWrap}>
-              <Text style={styles.goalLabel}>Wochenziel</Text>
+              <Text style={styles.goalLabel}>Weekly Goal</Text>
               <Text style={styles.goalValue}>
                 {weeklyGoal.current} / {weeklyGoal.target} Workouts
               </Text>
@@ -47,9 +47,9 @@ export default function HomeScreen() {
         </Card>
 
         <View style={{ height: spacing.lg }} />
-        <GradientButton label="Workout starten" />
+        <GradientButton label="Start Workout" />
 
-        <Text style={styles.sectionTitle}>Deine Fortschritte</Text>
+        <Text style={styles.sectionTitle}>Your Progress</Text>
         <View style={styles.statsGrid}>
           {homeSummary.stats.map((s) => (
             <StatCard
@@ -64,7 +64,7 @@ export default function HomeScreen() {
         </View>
 
         <Card style={styles.quoteCard}>
-          <Text style={styles.quote}>„{homeSummary.quote}"</Text>
+          <Text style={styles.quote}>"{homeSummary.quote}"</Text>
         </Card>
       </ScrollView>
     </View>

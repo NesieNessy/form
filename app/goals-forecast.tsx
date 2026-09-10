@@ -10,10 +10,10 @@ import { colors, fontFamily, radius, spacing } from '@/theme/colors';
 export default function GoalsForecastScreen() {
   return (
     <View style={styles.screen}>
-      <DetailHeader title="Ziele & Prognosen" subtitle="Sieh, wohin die Reise geht." />
+      <DetailHeader title="Goals & Forecasts" subtitle="See where you're headed." />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Card>
-          <Text style={styles.cardTitle}>Deine Ziele</Text>
+          <Text style={styles.cardTitle}>Your Goals</Text>
           {goals.map((g) => (
             <ProgressGoalBar
               key={g.id}
@@ -30,7 +30,7 @@ export default function GoalsForecastScreen() {
             <TrendingUp size={18} color={colors.teal} />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.prognosisTitle}>Prognose</Text>
+            <Text style={styles.prognosisTitle}>Forecast</Text>
             <Text style={styles.prognosisBody}>{prognosis}</Text>
           </View>
         </Card>

@@ -18,16 +18,16 @@ import {
 import { colors, fontFamily, radius, spacing } from '@/theme/colors';
 
 const MAIN_TABS = [
-  { key: 'uebersicht', label: 'Übersicht' },
-  { key: 'koerperdaten', label: 'Körperdaten' },
-  { key: 'kraft', label: 'Kraft' },
-  { key: 'ausdauer', label: 'Ausdauer' },
+  { key: 'overview', label: 'Overview' },
+  { key: 'body-data', label: 'Body Data' },
+  { key: 'strength', label: 'Strength' },
+  { key: 'endurance', label: 'Endurance' },
 ];
 
 const BODY_METRIC_TABS = [
-  { key: 'gewicht', label: 'Gewicht' },
-  { key: 'koerperfett', label: 'Körperfett' },
-  { key: 'muskelmasse', label: 'Muskelmasse' },
+  { key: 'weight', label: 'Weight' },
+  { key: 'bodyfat', label: 'Body Fat' },
+  { key: 'musclemass', label: 'Muscle Mass' },
   { key: 'bmi', label: 'BMI' },
 ];
 
@@ -35,11 +35,11 @@ const DISTANCE_TABS = [
   { key: '400m', label: '400 m' },
   { key: '1km', label: '1 km' },
   { key: '5km', label: '5 km' },
-  { key: 'alle', label: 'Alle' },
+  { key: 'all', label: 'All' },
 ];
 
 export default function TrendsScreen() {
-  const [mainTab, setMainTab] = useState('uebersicht');
+  const [mainTab, setMainTab] = useState('overview');
   const [range, setRange] = useState('3m');
   const { width } = useWindowDimensions();
   const chartWidth = width - spacing.lg * 2 - spacing.lg * 2;
@@ -48,7 +48,7 @@ export default function TrendsScreen() {
     <View style={styles.screen}>
       <TabHeader />
       <View style={styles.titleRow}>
-        <Text style={styles.title}>Deine Trends</Text>
+        <Text style={styles.title}>Your Trends</Text>
       </View>
 
       <View style={styles.tabsWrap}>
@@ -59,16 +59,16 @@ export default function TrendsScreen() {
         <SegmentedTabs options={timeRanges.map((r) => ({ key: r.key, label: r.label }))} value={range} onChange={setRange} scrollable size="sm" />
         <View style={{ height: spacing.lg }} />
 
-        {mainTab === 'uebersicht' && <UebersichtTab chartWidth={Math.min(120, chartWidth * 0.32)} />}
-        {mainTab === 'koerperdaten' && <KoerperdatenTab chartWidth={chartWidth} />}
-        {mainTab === 'kraft' && <KraftTab chartWidth={chartWidth} />}
-        {mainTab === 'ausdauer' && <AusdauerTab chartWidth={chartWidth} />}
+        {mainTab === 'overview' && <OverviewTab chartWidth={Math.min(120, chartWidth * 0.32)} />}
+        {mainTab === 'body-data' && <BodyDataTab chartWidth={chartWidth} />}
+        {mainTab === 'strength' && <StrengthTab chartWidth={chartWidth} />}
+        {mainTab === 'endurance' && <EnduranceTab chartWidth={chartWidth} />}
       </ScrollView>
     </View>
   );
 }
 
-function UebersichtTab({ chartWidth }: { chartWidth: number }) {
+function OverviewTab({ chartWidth }: { chartWidth: number }) {
   return (
     <View style={{ gap: spacing.md }}>
       {trendsOverview.map((item) => (
@@ -85,18 +85,18 @@ function UebersichtTab({ chartWidth }: { chartWidth: number }) {
   );
 }
 
-function KoerperdatenTab({ chartWidth }: { chartWidth: number }) {
-  const [metric, setMetric] = useState('gewicht');
+function BodyDataTab({ chartWidth }: { chartWidth: number }) {
+  const [metric, setMetric] = useState('weight');
 
   const config = useMemo(() => {
     switch (metric) {
-      case 'koerperfett':
+      case 'bodyfat':
         return {
           color: colors.pink,
           unit: '%',
           points: bodyMetricHistory.map((p) => ({ label: p.date, value: p.bodyFatPct })),
         };
-      case 'muskelmasse':
+      case 'musclemass':
         return {
           color: colors.purple,
           unit: 'kg',
@@ -130,7 +130,7 @@ function KoerperdatenTab({ chartWidth }: { chartWidth: number }) {
           <View>
             <Text style={styles.chartLabel}>{BODY_METRIC_TABS.find((t) => t.key === metric)?.label}</Text>
             <Text style={styles.chartValue}>
-              {current.toLocaleString('de-DE', { maximumFractionDigits: 1 })} {config.unit}
+              {current.toLocaleString('en-US', { maximumFractionDigits: 1 })} {config.unit}
             </Text>
           </View>
           <View style={[styles.deltaPill, { backgroundColor: `${config.color}22` }]}>
@@ -141,7 +141,7 @@ function KoerperdatenTab({ chartWidth }: { chartWidth: number }) {
           </View>
         </View>
         <Text style={styles.sinceLabel}>
-          {(current - start).toLocaleString('de-DE', { maximumFractionDigits: 1, signDisplay: 'always' })} {config.unit} seit 01.07.2026
+          {(current - start).toLocaleString('en-US', { maximumFractionDigits: 1, signDisplay: 'always' })} {config.unit} since Jul 1, 2026
         </Text>
         <View style={{ height: spacing.md }} />
         <LineChart points={config.points} color={config.color} width={chartWidth} />
@@ -149,30 +149,30 @@ function KoerperdatenTab({ chartWidth }: { chartWidth: number }) {
 
       <View style={styles.boxRow}>
         <MiniBox label="Start" value={`${start} ${config.unit}`} />
-        <MiniBox label="Aktuell" value={`${current} ${config.unit}`} highlight />
-        <MiniBox label="Ziel" value={metric === 'gewicht' ? '70,0 kg' : '—'} />
+        <MiniBox label="Current" value={`${current} ${config.unit}`} highlight />
+        <MiniBox label="Target" value={metric === 'weight' ? '70.0 kg' : '—'} />
       </View>
 
       <TouchableOpacity style={styles.infoRow} activeOpacity={0.7}>
         <Info size={16} color={colors.textSecondary} />
-        <Text style={styles.infoText}>Wie wird das gemessen?</Text>
+        <Text style={styles.infoText}>How is this measured?</Text>
       </TouchableOpacity>
 
       <Card style={styles.tipCard}>
-        <Text style={styles.tipTitle}>Tipp</Text>
+        <Text style={styles.tipTitle}>Tip</Text>
         <Text style={styles.tipBody}>
-          Dein {BODY_METRIC_TABS.find((t) => t.key === metric)?.label} entwickelt sich konstant nach unten. Super Fortschritt!
+          Your {BODY_METRIC_TABS.find((t) => t.key === metric)?.label} is trending steadily downward. Great progress!
         </Text>
       </Card>
     </View>
   );
 }
 
-function KraftTab({ chartWidth }: { chartWidth: number }) {
+function StrengthTab({ chartWidth }: { chartWidth: number }) {
   const sparkWidth = (chartWidth - spacing.md) / 2 - spacing.lg;
   return (
     <View>
-      <Text style={styles.sectionTitle}>Deine Kraft-Entwicklung</Text>
+      <Text style={styles.sectionTitle}>Your Strength Progress</Text>
       <View style={styles.liftGrid}>
         {strengthLifts.map((lift) => (
           <Card key={lift.exercise} style={styles.liftCard}>
@@ -187,21 +187,21 @@ function KraftTab({ chartWidth }: { chartWidth: number }) {
       </View>
 
       <Card style={styles.progressCard}>
-        <Text style={styles.progressLabel}>Gesamt-Progress</Text>
-        <Text style={styles.progressValue}>+{strengthOverallProgressPct} %</Text>
-        <Text style={styles.progressSub}>(im Vergleich zum Start)</Text>
+        <Text style={styles.progressLabel}>Overall Progress</Text>
+        <Text style={styles.progressValue}>+{strengthOverallProgressPct}%</Text>
+        <Text style={styles.progressSub}>(vs. start)</Text>
       </Card>
     </View>
   );
 }
 
-function AusdauerTab({ chartWidth }: { chartWidth: number }) {
+function EnduranceTab({ chartWidth }: { chartWidth: number }) {
   const [distance, setDistance] = useState('5km');
   const session = enduranceSessions[0];
 
   return (
     <View>
-      <Text style={styles.sectionTitle}>Dauer-Performance</Text>
+      <Text style={styles.sectionTitle}>Endurance Performance</Text>
       <SegmentedTabs options={DISTANCE_TABS} value={distance} onChange={setDistance} scrollable size="sm" />
       <View style={{ height: spacing.lg }} />
 
@@ -222,15 +222,15 @@ function AusdauerTab({ chartWidth }: { chartWidth: number }) {
 
       <View style={{ height: spacing.md }} />
       <View style={styles.boxRow}>
-        <MiniBox label="Ø Herzfrequenz" value={enduranceStats.avgHeartRate.value} sub={enduranceStats.avgHeartRate.delta} />
+        <MiniBox label="Avg. Heart Rate" value={enduranceStats.avgHeartRate.value} sub={enduranceStats.avgHeartRate.delta} />
         <MiniBox label="VO2max" value={enduranceStats.vo2max.value} sub={enduranceStats.vo2max.delta} />
       </View>
 
       <Card style={styles.statsListCard}>
-        <Text style={styles.sectionTitle}>Weitere Ausdauer-Stats</Text>
-        <StatRow label="Durchschnittstempo" value={enduranceStats.avgPace} />
-        <StatRow label="Gesamtdistanz" value={enduranceStats.totalDistance} />
-        <StatRow label="Trainings" value={String(enduranceStats.sessions)} />
+        <Text style={styles.sectionTitle}>More Endurance Stats</Text>
+        <StatRow label="Avg. Pace" value={enduranceStats.avgPace} />
+        <StatRow label="Total Distance" value={enduranceStats.totalDistance} />
+        <StatRow label="Sessions" value={String(enduranceStats.sessions)} />
       </Card>
     </View>
   );

@@ -12,7 +12,7 @@ export default function PerformanceOverviewScreen() {
 
   return (
     <View style={styles.screen}>
-      <DetailHeader title="Performance Übersicht" subtitle="Alle wichtigen Kennzahlen." />
+      <DetailHeader title="Performance Overview" subtitle="All your key metrics." />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <SegmentedTabs options={timeRanges} value={range} onChange={setRange} scrollable size="sm" />
         <View style={{ height: spacing.lg }} />

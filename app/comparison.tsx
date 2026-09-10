@@ -17,7 +17,7 @@ export default function ComparisonScreen() {
 
   return (
     <View style={styles.screen}>
-      <DetailHeader title="Vergleich" subtitle="Vergleiche dich mit dir selbst." />
+      <DetailHeader title="Comparison" subtitle="Compare yourself to your past self." />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.pickerRow}>
           <TouchableOpacity style={styles.picker} activeOpacity={0.8}>
