@@ -16,27 +16,28 @@ import {
   trendsOverview,
 } from '@/lib/mockData';
 import { useContentWidth } from '@/lib/useContentWidth';
+import { strings } from '@/lib/strings';
 import { colors, fontFamily, radius, spacing } from '@/theme/colors';
 
 const MAIN_TABS = [
-  { key: 'overview', label: 'Overview' },
-  { key: 'body-data', label: 'Body Data' },
-  { key: 'strength', label: 'Strength' },
-  { key: 'endurance', label: 'Endurance' },
+  { key: 'overview', label: strings.overview },
+  { key: 'body-data', label: strings.bodyData },
+  { key: 'strength', label: strings.strength },
+  { key: 'endurance', label: strings.endurance },
 ];
 
 const BODY_METRIC_TABS = [
-  { key: 'weight', label: 'Weight' },
-  { key: 'bodyfat', label: 'Body Fat' },
-  { key: 'musclemass', label: 'Muscle Mass' },
-  { key: 'bmi', label: 'BMI' },
+  { key: 'weight', label: strings.weight },
+  { key: 'bodyfat', label: strings.bodyFat },
+  { key: 'musclemass', label: strings.muscleMass },
+  { key: 'bmi', label: strings.bmi },
 ];
 
 const DISTANCE_TABS = [
-  { key: '400m', label: '400 m' },
-  { key: '1km', label: '1 km' },
-  { key: '5km', label: '5 km' },
-  { key: 'all', label: 'All' },
+  { key: '400m', label: strings.distance400m },
+  { key: '1km', label: strings.distance1km },
+  { key: '5km', label: strings.distance5km },
+  { key: 'all', label: strings.all },
 ];
 
 export default function TrendsScreen() {
@@ -49,7 +50,7 @@ export default function TrendsScreen() {
     <View style={styles.screen}>
       <TabHeader />
       <View style={styles.titleRow}>
-        <Text style={styles.title}>Your Trends</Text>
+        <Text style={styles.title}>{strings.yourTrends}</Text>
       </View>
 
       <View style={styles.tabsWrap}>
@@ -149,20 +150,20 @@ function BodyDataTab({ chartWidth }: { chartWidth: number }) {
       </Card>
 
       <View style={styles.boxRow}>
-        <MiniBox label="Start" value={`${start} ${config.unit}`} />
-        <MiniBox label="Current" value={`${current} ${config.unit}`} highlight />
-        <MiniBox label="Target" value={metric === 'weight' ? '70.0 kg' : '—'} />
+        <MiniBox label={strings.start} value={`${start} ${config.unit}`} />
+        <MiniBox label={strings.current} value={`${current} ${config.unit}`} highlight />
+        <MiniBox label={strings.target} value={metric === 'weight' ? '70.0 kg' : '—'} />
       </View>
 
       <TouchableOpacity style={styles.infoRow} activeOpacity={0.7}>
         <Info size={16} color={colors.textSecondary} />
-        <Text style={styles.infoText}>How is this measured?</Text>
+        <Text style={styles.infoText}>{strings.howIsThisMeasured}</Text>
       </TouchableOpacity>
 
       <Card style={styles.tipCard}>
-        <Text style={styles.tipTitle}>Tip</Text>
+        <Text style={styles.tipTitle}>{strings.tip}</Text>
         <Text style={styles.tipBody}>
-          Your {BODY_METRIC_TABS.find((t) => t.key === metric)?.label} is trending steadily downward. Great progress!
+          {strings.tipBody(BODY_METRIC_TABS.find((t) => t.key === metric)?.label ?? '')}
         </Text>
       </Card>
     </View>
@@ -173,7 +174,7 @@ function StrengthTab({ chartWidth }: { chartWidth: number }) {
   const sparkWidth = (chartWidth - spacing.md) / 2 - spacing.lg;
   return (
     <View>
-      <Text style={styles.sectionTitle}>Your Strength Progress</Text>
+      <Text style={styles.sectionTitle}>{strings.yourStrengthProgress}</Text>
       <View style={styles.liftGrid}>
         {strengthLifts.map((lift) => (
           <Card key={lift.exercise} style={styles.liftCard}>
@@ -188,7 +189,7 @@ function StrengthTab({ chartWidth }: { chartWidth: number }) {
       </View>
 
       <Card style={styles.progressCard}>
-        <Text style={styles.progressLabel}>Overall Progress</Text>
+        <Text style={styles.progressLabel}>{strings.overallProgress}</Text>
         <Text style={styles.progressValue}>+{strengthOverallProgressPct}%</Text>
         <Text style={styles.progressSub}>(vs. start)</Text>
       </Card>
@@ -202,14 +203,14 @@ function EnduranceTab({ chartWidth }: { chartWidth: number }) {
 
   return (
     <View>
-      <Text style={styles.sectionTitle}>Endurance Performance</Text>
+      <Text style={styles.sectionTitle}>{strings.endurancePerformance}</Text>
       <SegmentedTabs options={DISTANCE_TABS} value={distance} onChange={setDistance} scrollable size="sm" />
       <View style={{ height: spacing.lg }} />
 
       <Card>
         <View style={styles.chartHeaderRow}>
           <View>
-            <Text style={styles.chartLabel}>5 km</Text>
+            <Text style={styles.chartLabel}>{strings.distance5km}</Text>
             <Text style={styles.chartValue}>{session.currentLabel}</Text>
           </View>
           <View style={[styles.deltaPill, { backgroundColor: `${colors.teal}22` }]}>
@@ -223,15 +224,15 @@ function EnduranceTab({ chartWidth }: { chartWidth: number }) {
 
       <View style={{ height: spacing.md }} />
       <View style={styles.boxRow}>
-        <MiniBox label="Avg. Heart Rate" value={enduranceStats.avgHeartRate.value} sub={enduranceStats.avgHeartRate.delta} />
-        <MiniBox label="VO2max" value={enduranceStats.vo2max.value} sub={enduranceStats.vo2max.delta} />
+        <MiniBox label={strings.avgHeartRate} value={enduranceStats.avgHeartRate.value} sub={enduranceStats.avgHeartRate.delta} />
+        <MiniBox label={strings.vo2max} value={enduranceStats.vo2max.value} sub={enduranceStats.vo2max.delta} />
       </View>
 
       <Card style={styles.statsListCard}>
-        <Text style={styles.sectionTitle}>More Endurance Stats</Text>
-        <StatRow label="Avg. Pace" value={enduranceStats.avgPace} />
-        <StatRow label="Total Distance" value={enduranceStats.totalDistance} />
-        <StatRow label="Sessions" value={String(enduranceStats.sessions)} />
+        <Text style={styles.sectionTitle}>{strings.moreEnduranceStats}</Text>
+        <StatRow label={strings.avgPace} value={enduranceStats.avgPace} />
+        <StatRow label={strings.totalDistance} value={enduranceStats.totalDistance} />
+        <StatRow label={strings.sessions} value={String(enduranceStats.sessions)} />
       </Card>
     </View>
   );

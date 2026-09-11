@@ -3,6 +3,7 @@ import React from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
 import { GradientButton } from '@/components/ui/GradientButton';
+import { strings } from '@/lib/strings';
 import type { Exercise } from '@/lib/types';
 import { colors, fontFamily, iconStrokeWidth, spacing } from '@/theme/colors';
 import { FieldCard } from './FieldCard';
@@ -53,26 +54,26 @@ export function StepEditWorkout({
 
   return (
     <View style={styles.screen}>
-      <WizardHeader title="Edit Workout" onBack={onBack} />
+      <WizardHeader title={strings.editWorkoutTitle} onBack={onBack} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <FieldCard label="Title" value={title} onChangeText={onTitleChange} placeholder="e.g. Squat Snatch" />
+        <FieldCard label={strings.title} value={title} onChangeText={onTitleChange} placeholder={strings.titlePlaceholder} />
 
         <Card style={styles.dateCard}>
           <Calendar size={16} color={colors.textSecondary} strokeWidth={iconStrokeWidth} />
           <View style={{ flex: 1 }}>
-            <Text style={styles.label}>Date</Text>
+            <Text style={styles.label}>{strings.date}</Text>
             <Text style={styles.dateValue}>{dateLabel}</Text>
           </View>
         </Card>
 
         <FieldCard
-          label="Intervals"
+          label={strings.intervals}
           value={intervalsLabel}
           onChangeText={onIntervalsChange}
-          placeholder="e.g. 5 Rounds: 2:00 on / 1:00 off"
+          placeholder={strings.intervalsPlaceholder}
         />
 
-        <Text style={styles.sectionTitle}>Exercises</Text>
+        <Text style={styles.sectionTitle}>{strings.exercises}</Text>
         <View style={{ gap: spacing.sm }}>
           {exercises.map((ex) => (
             <Card key={ex.id} style={styles.exerciseCard}>
@@ -81,7 +82,7 @@ export function StepEditWorkout({
                   style={styles.exerciseName}
                   value={ex.name}
                   onChangeText={(v) => updateExercise(ex.id, { name: v })}
-                  placeholder="Exercise name"
+                  placeholder={strings.exerciseNamePlaceholder}
                   placeholderTextColor={colors.textTertiary}
                 />
                 <TouchableOpacity onPress={() => removeExercise(ex.id)} hitSlop={8}>
@@ -92,7 +93,7 @@ export function StepEditWorkout({
                 style={styles.exerciseDetail}
                 value={ex.detail ?? ''}
                 onChangeText={(v) => updateExercise(ex.id, { detail: v })}
-                placeholder="Detail (optional)"
+                placeholder={strings.exerciseDetailPlaceholder}
                 placeholderTextColor={colors.textTertiary}
               />
             </Card>
@@ -100,23 +101,23 @@ export function StepEditWorkout({
         </View>
         <TouchableOpacity style={styles.addRow} activeOpacity={0.7} onPress={addExercise}>
           <Plus size={16} color={colors.blue} strokeWidth={iconStrokeWidth} />
-          <Text style={styles.addLabel}>Add Exercise</Text>
+          <Text style={styles.addLabel}>{strings.addExercise}</Text>
         </TouchableOpacity>
 
         <Card style={styles.notesCard}>
-          <Text style={styles.label}>Notes</Text>
+          <Text style={styles.label}>{strings.notes}</Text>
           <TextInput
             style={styles.notesInput}
             value={notes}
             onChangeText={onNotesChange}
-            placeholder="Anything else worth remembering about this workout"
+            placeholder={strings.notesPlaceholder}
             placeholderTextColor={colors.textTertiary}
             multiline
           />
         </Card>
       </ScrollView>
       <View style={styles.footer}>
-        <GradientButton label="Continue" onPress={onContinue} />
+        <GradientButton label={strings.continue} onPress={onContinue} />
       </View>
     </View>
   );

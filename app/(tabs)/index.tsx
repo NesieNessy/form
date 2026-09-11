@@ -8,6 +8,7 @@ import { TabHeader } from '@/components/ui/TabHeader';
 import { WeekStrip } from '@/components/ui/WeekStrip';
 import { ProgressRing } from '@/components/charts/ProgressRing';
 import { formScore, homeSummary, weekStrip } from '@/lib/mockData';
+import { strings } from '@/lib/strings';
 import { colors, fontFamily, spacing } from '@/theme/colors';
 
 export default function HomeScreen() {
@@ -33,12 +34,12 @@ export default function HomeScreen() {
             <ProgressRing
               progress={weeklyGoal.current / weeklyGoal.target}
               centerLabel={`${weeklyGoal.current}/${weeklyGoal.target}`}
-              centerSub="Workouts"
+              centerSub={strings.workouts}
             />
             <View style={styles.goalTextWrap}>
-              <Text style={styles.goalLabel}>Weekly Goal</Text>
+              <Text style={styles.goalLabel}>{strings.weeklyGoal}</Text>
               <Text style={styles.goalValue}>
-                {weeklyGoal.current} / {weeklyGoal.target} Workouts
+                {weeklyGoal.current} / {weeklyGoal.target} {strings.workouts}
               </Text>
             </View>
           </View>
@@ -47,9 +48,9 @@ export default function HomeScreen() {
         </Card>
 
         <View style={{ height: spacing.lg }} />
-        <GradientButton label="Start Workout" />
+        <GradientButton label={strings.startWorkout} />
 
-        <Text style={styles.sectionTitle}>Your Progress</Text>
+        <Text style={styles.sectionTitle}>{strings.yourProgress}</Text>
         <View style={styles.statsGrid}>
           {homeSummary.stats.map((s) => (
             <StatCard

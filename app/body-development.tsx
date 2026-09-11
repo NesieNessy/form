@@ -7,6 +7,7 @@ import { DetailHeader } from '@/components/ui/DetailHeader';
 import { GradientButton } from '@/components/ui/GradientButton';
 import { SegmentedTabs } from '@/components/ui/SegmentedTabs';
 import { bodyCompositionMonths, bodyCompositionSeries, bodyDevelopment, timeRanges } from '@/lib/mockData';
+import { strings } from '@/lib/strings';
 import { useContentWidth } from '@/lib/useContentWidth';
 import { colors, fontFamily, radius, spacing } from '@/theme/colors';
 
@@ -18,13 +19,13 @@ export default function BodyDevelopmentScreen() {
 
   return (
     <View style={styles.screen}>
-      <DetailHeader title="Body Development" subtitle="See how your body is changing." />
+      <DetailHeader title={strings.bodyDevelopmentTitle} subtitle={strings.bodyDevelopmentSubtitle} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <SegmentedTabs options={timeRanges} value={range} onChange={setRange} scrollable size="sm" />
         <View style={{ height: spacing.lg }} />
 
         <Card>
-          <Text style={styles.cardTitle}>Body Composition</Text>
+          <Text style={styles.cardTitle}>{strings.bodyComposition}</Text>
           <View style={styles.legendRow}>
             {bodyCompositionSeries.map((s) => (
               <View key={s.label} style={styles.legendItem}>
@@ -39,14 +40,14 @@ export default function BodyDevelopmentScreen() {
 
         <Card style={styles.compareCard}>
           <View style={styles.compareRow}>
-            <BodyColumn label="Before" metrics={before} tint={colors.textTertiary} />
+            <BodyColumn label={strings.before} metrics={before} tint={colors.textTertiary} />
             <ArrowRight size={20} color={colors.textTertiary} />
-            <BodyColumn label="Now" metrics={after} tint={colors.blue} />
+            <BodyColumn label={strings.now} metrics={after} tint={colors.blue} />
           </View>
         </Card>
 
         <View style={{ height: spacing.lg }} />
-        <GradientButton label="Share Progress" icon={<Share2 size={16} color="#fff" />} />
+        <GradientButton label={strings.shareProgress} icon={<Share2 size={16} color="#fff" />} />
       </ScrollView>
     </View>
   );

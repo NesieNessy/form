@@ -3,6 +3,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Card } from './Card';
 import { ProgressRing } from '@/components/charts/ProgressRing';
+import { strings } from '@/lib/strings';
 import { colors, fontFamily, iconStrokeWidth, spacing } from '@/theme/colors';
 
 type Breakdown = { label: string; value: number; color: string };
@@ -20,7 +21,7 @@ type Props = {
 export function FormScoreCard({ score, rating, deltaLabel, breakdown }: Props) {
   return (
     <Card style={styles.card}>
-      <Text style={styles.eyebrow}>YOUR FORM</Text>
+      <Text style={styles.eyebrow}>{strings.yourForm}</Text>
 
       <View style={styles.top}>
         <ProgressRing

@@ -5,15 +5,16 @@ import { Card } from '@/components/ui/Card';
 import { DetailHeader } from '@/components/ui/DetailHeader';
 import { ProgressGoalBar } from '@/components/ui/ProgressGoalBar';
 import { goals, prognosis } from '@/lib/mockData';
+import { strings } from '@/lib/strings';
 import { colors, fontFamily, radius, spacing } from '@/theme/colors';
 
 export default function GoalsForecastScreen() {
   return (
     <View style={styles.screen}>
-      <DetailHeader title="Goals & Forecasts" subtitle="See where you're headed." />
+      <DetailHeader title={strings.goalsForecastsTitle} subtitle={strings.goalsForecastsSubtitle} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Card>
-          <Text style={styles.cardTitle}>Your Goals</Text>
+          <Text style={styles.cardTitle}>{strings.yourGoals}</Text>
           {goals.map((g) => (
             <ProgressGoalBar
               key={g.id}
@@ -30,7 +31,7 @@ export default function GoalsForecastScreen() {
             <TrendingUp size={18} color={colors.teal} />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.prognosisTitle}>Forecast</Text>
+            <Text style={styles.prognosisTitle}>{strings.forecast}</Text>
             <Text style={styles.prognosisBody}>{prognosis}</Text>
           </View>
         </Card>

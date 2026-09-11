@@ -2,6 +2,7 @@ import { Clock, Dumbbell, Flame, Heart, Percent } from 'lucide-react-native';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
+import { strings } from '@/lib/strings';
 import type { Exercise, WorkoutBodyData } from '@/lib/types';
 import { colors, fontFamily, radius, spacing } from '@/theme/colors';
 
@@ -27,21 +28,21 @@ export function WorkoutSummaryView({ title, dateLabel, intervalsLabel, exercises
   return (
     <View style={{ gap: spacing.md }}>
       <Card>
-        <Text style={styles.title}>{title || 'Untitled Workout'}</Text>
+        <Text style={styles.title}>{title || strings.untitledWorkout}</Text>
         <Text style={styles.date}>{dateLabel}</Text>
         {intervalsLabel ? <Text style={styles.intervals}>{intervalsLabel}</Text> : null}
       </Card>
 
       {exercises.length > 0 ? (
         <Card style={{ gap: spacing.sm }}>
-          <Text style={styles.sectionTitle}>Exercises</Text>
+          <Text style={styles.sectionTitle}>{strings.exercises}</Text>
           {exercises.map((ex, i) => (
             <View key={ex.id} style={styles.exerciseRow}>
               <View style={styles.exerciseBullet}>
                 <Dumbbell size={13} color={colors.textSecondary} />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={styles.exerciseName}>{ex.name || `Exercise ${i + 1}`}</Text>
+                <Text style={styles.exerciseName}>{ex.name || strings.exerciseNumbered(i + 1)}</Text>
                 {ex.detail ? <Text style={styles.exerciseDetail}>{ex.detail}</Text> : null}
               </View>
             </View>
@@ -62,7 +63,7 @@ export function WorkoutSummaryView({ title, dateLabel, intervalsLabel, exercises
 
       {notes ? (
         <Card>
-          <Text style={styles.sectionTitle}>Notes</Text>
+          <Text style={styles.sectionTitle}>{strings.notes}</Text>
           <Text style={styles.notes}>{notes}</Text>
         </Card>
       ) : null}

@@ -3,6 +3,7 @@ import { ChevronRight, Dumbbell } from 'lucide-react-native';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
+import { strings } from '@/lib/strings';
 import type { Workout } from '@/lib/types';
 import { colors, fontFamily, iconStrokeWidth, radius, spacing } from '@/theme/colors';
 
@@ -18,7 +19,7 @@ export function WorkoutCard({ workout }: { workout: Workout }) {
           <Text style={styles.title} numberOfLines={1}>{workout.title}</Text>
           <Text style={styles.subtitle}>
             {workout.dateLabel}
-            {exerciseCount > 0 ? ` · ${exerciseCount} exercise${exerciseCount === 1 ? '' : 's'}` : ''}
+            {exerciseCount > 0 ? ` · ${exerciseCount} ${exerciseCount === 1 ? strings.exercise : strings.exercisePlural}` : ''}
           </Text>
         </View>
         <ChevronRight size={18} color={colors.textTertiary} />

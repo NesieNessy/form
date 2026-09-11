@@ -1,6 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { strings } from '@/lib/strings';
 import { colors, fontFamily, radius } from '@/theme/colors';
 
 type Props = {
@@ -16,7 +17,7 @@ export function ProgressGoalBar({ label, currentLabel, targetLabel, progressPct 
       <View style={styles.row}>
         <Text style={styles.label}>{label}</Text>
         <Text style={styles.target}>
-          Current: <Text style={styles.targetValue}>{currentLabel}</Text>
+          {strings.current}: <Text style={styles.targetValue}>{currentLabel}</Text>
         </Text>
       </View>
       <View style={styles.track}>
@@ -27,7 +28,7 @@ export function ProgressGoalBar({ label, currentLabel, targetLabel, progressPct 
           style={[styles.fill, { width: `${Math.max(4, Math.min(100, progressPct))}%` }]}
         />
       </View>
-      <Text style={styles.goalLabel}>Target: {targetLabel} · {progressPct}%</Text>
+      <Text style={styles.goalLabel}>{strings.target}: {targetLabel} · {progressPct}%</Text>
     </View>
   );
 }

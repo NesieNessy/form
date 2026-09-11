@@ -1,13 +1,14 @@
 import { CheckCircle2, Circle, Sparkles } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { strings } from '@/lib/strings';
 import { colors, fontFamily, spacing } from '@/theme/colors';
 
 const CHECKLIST = [
-  'Detecting text',
-  'Identifying exercises',
-  'Detecting sets & intervals',
-  'Extracting additional details',
+  strings.detectingText,
+  strings.identifyingExercises,
+  strings.detectingIntervals,
+  strings.extractingDetails,
 ];
 
 const STEP_DELAY_MS = 650;
@@ -36,8 +37,8 @@ export function StepAnalyzing({ onDone }: Props) {
       <View style={styles.iconWrap}>
         <Sparkles size={32} color={colors.blue} />
       </View>
-      <Text style={styles.title}>Analyzing your workout…</Text>
-      <Text style={styles.subtitle}>This only takes a few seconds.</Text>
+      <Text style={styles.title}>{strings.analyzingTitle}</Text>
+      <Text style={styles.subtitle}>{strings.analyzingSubtitle}</Text>
 
       <View style={styles.checklist}>
         {CHECKLIST.map((item, i) => {

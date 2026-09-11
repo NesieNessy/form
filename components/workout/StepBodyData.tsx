@@ -2,37 +2,38 @@ import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { GradientButton } from '@/components/ui/GradientButton';
 import { SegmentedTabs } from '@/components/ui/SegmentedTabs';
+import { strings } from '@/lib/strings';
 import type { WorkoutBodyData, WorkoutBodyDataSource } from '@/lib/types';
 import { colors, fontFamily, spacing } from '@/theme/colors';
 import { FieldCard } from './FieldCard';
 import { WizardHeader } from './WizardHeader';
 
 const SOURCE_OPTIONS: { key: WorkoutBodyDataSource; label: string }[] = [
-  { key: 'automatic', label: 'Automatic' },
-  { key: 'screenshot', label: 'From Screenshot' },
-  { key: 'manual', label: 'Manual' },
+  { key: 'automatic', label: strings.sourceAutomatic },
+  { key: 'screenshot', label: strings.sourceScreenshot },
+  { key: 'manual', label: strings.sourceManual },
 ];
 
 const SOURCE_CAPTION: Record<WorkoutBodyDataSource, string> = {
-  automatic: 'Synced from your smartwatch, once connected.',
-  screenshot: 'Detected from your fitness app screenshot.',
-  manual: 'Enter your data by hand below.',
+  automatic: strings.sourceAutomaticCaption,
+  screenshot: strings.sourceScreenshotCaption,
+  manual: strings.sourceManualCaption,
 };
 
 const PRIMARY_FIELDS: { key: keyof WorkoutBodyData; label: string; placeholder: string }[] = [
-  { key: 'avgHeartRate', label: 'Avg Heart Rate', placeholder: 'e.g. 156 bpm' },
-  { key: 'calories', label: 'Calories', placeholder: 'e.g. 324 kcal' },
-  { key: 'duration', label: 'Duration', placeholder: 'e.g. 28:14' },
-  { key: 'zonesPct', label: 'Zones', placeholder: 'e.g. 68%' },
+  { key: 'avgHeartRate', label: strings.avgHeartRate, placeholder: strings.avgHeartRatePlaceholder },
+  { key: 'calories', label: strings.calories, placeholder: strings.caloriesPlaceholder },
+  { key: 'duration', label: strings.duration, placeholder: strings.durationPlaceholder },
+  { key: 'zonesPct', label: strings.zones, placeholder: strings.zonesPlaceholder },
 ];
 
 const EXTRA_FIELDS: { key: keyof WorkoutBodyData; label: string; placeholder: string }[] = [
-  { key: 'distance', label: 'Distance', placeholder: 'e.g. 5 km' },
-  { key: 'pace', label: 'Pace', placeholder: 'e.g. 4:56 min/km' },
-  { key: 'power', label: 'Power (Watts)', placeholder: 'e.g. 210 W' },
-  { key: 'avgSpeed', label: 'Avg Speed', placeholder: 'e.g. 12.4 km/h' },
-  { key: 'maxHeartRate', label: 'Max Heart Rate', placeholder: 'e.g. 178 bpm' },
-  { key: 'device', label: 'Device', placeholder: 'e.g. Apple Watch' },
+  { key: 'distance', label: strings.distance, placeholder: strings.distancePlaceholder },
+  { key: 'pace', label: strings.pace, placeholder: strings.pacePlaceholder },
+  { key: 'power', label: strings.power, placeholder: strings.powerPlaceholder },
+  { key: 'avgSpeed', label: strings.avgSpeed, placeholder: strings.avgSpeedPlaceholder },
+  { key: 'maxHeartRate', label: strings.maxHeartRate, placeholder: strings.maxHeartRatePlaceholder },
+  { key: 'device', label: strings.device, placeholder: strings.devicePlaceholder },
 ];
 
 type Props = {
@@ -64,7 +65,7 @@ export function StepBodyData({ source, onSourceChange, bodyData, onBodyDataChang
 
   return (
     <View style={styles.screen}>
-      <WizardHeader title="Add Body Data" subtitle="Optional — heart rate, calories, or performance data." onBack={onBack} />
+      <WizardHeader title={strings.addBodyDataTitle} subtitle={strings.addBodyDataSubtitle} onBack={onBack} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <SegmentedTabs
           options={SOURCE_OPTIONS.map((o) => ({ key: o.key, label: o.label }))}
@@ -88,7 +89,7 @@ export function StepBodyData({ source, onSourceChange, bodyData, onBodyDataChang
           ))}
         </View>
 
-        <Text style={styles.sectionTitle}>Add More Data</Text>
+        <Text style={styles.sectionTitle}>{strings.addMoreData}</Text>
         <View style={styles.pillRow}>
           {EXTRA_FIELDS.map((f) => {
             const active = shown.has(f.key);
@@ -114,7 +115,7 @@ export function StepBodyData({ source, onSourceChange, bodyData, onBodyDataChang
         ))}
       </ScrollView>
       <View style={styles.footer}>
-        <GradientButton label="Continue" onPress={onContinue} />
+        <GradientButton label={strings.continue} onPress={onContinue} />
       </View>
     </View>
   );

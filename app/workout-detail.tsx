@@ -3,6 +3,7 @@ import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { DetailHeader } from '@/components/ui/DetailHeader';
 import { WorkoutSummaryView } from '@/components/workout/WorkoutSummaryView';
+import { strings } from '@/lib/strings';
 import { useWorkoutsStore } from '@/lib/workoutsStore';
 import { colors, fontFamily, spacing } from '@/theme/colors';
 
@@ -13,9 +14,9 @@ export default function WorkoutDetailScreen() {
   if (!workout) {
     return (
       <View style={styles.screen}>
-        <DetailHeader title="Workout" />
+        <DetailHeader title={strings.workoutFallbackTitle} />
         <View style={styles.missing}>
-          <Text style={styles.missingText}>This workout couldn't be found.</Text>
+          <Text style={styles.missingText}>{strings.workoutNotFound}</Text>
         </View>
       </View>
     );

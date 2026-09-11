@@ -5,6 +5,7 @@ import { GroupedBarChart } from '@/components/charts/GroupedBarChart';
 import { Card } from '@/components/ui/Card';
 import { DetailHeader } from '@/components/ui/DetailHeader';
 import { comparison } from '@/lib/mockData';
+import { strings } from '@/lib/strings';
 import { useContentWidth } from '@/lib/useContentWidth';
 import { colors, fontFamily, radius, spacing } from '@/theme/colors';
 
@@ -18,7 +19,7 @@ export default function ComparisonScreen() {
 
   return (
     <View style={styles.screen}>
-      <DetailHeader title="Comparison" subtitle="Compare yourself to your past self." />
+      <DetailHeader title={strings.comparisonTitle} subtitle={strings.comparisonSubtitle} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.pickerRow}>
           <TouchableOpacity style={styles.picker} activeOpacity={0.8}>

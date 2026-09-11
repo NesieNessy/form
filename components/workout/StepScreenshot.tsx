@@ -2,6 +2,7 @@ import { Image } from 'expo-image';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { GradientButton } from '@/components/ui/GradientButton';
+import { strings } from '@/lib/strings';
 import { WizardHeader } from './WizardHeader';
 import { colors, fontFamily, radius, spacing } from '@/theme/colors';
 
@@ -20,11 +21,11 @@ export function StepScreenshot({ uri, onBack, onReplace, onContinue }: Props) {
         <View style={styles.previewWrap}>
           <Image source={{ uri }} style={styles.preview} contentFit="cover" />
         </View>
-        <Text style={styles.caption}>We'll scan this screenshot for exercises, sets, and intervals.</Text>
-        <GradientButton label="Replace Image" variant="tertiary" onPress={onReplace} />
+        <Text style={styles.caption}>{strings.screenshotCaption}</Text>
+        <GradientButton label={strings.replaceImage} variant="tertiary" onPress={onReplace} />
       </View>
       <View style={styles.footer}>
-        <GradientButton label="Continue" onPress={onContinue} />
+        <GradientButton label={strings.continue} onPress={onContinue} />
       </View>
     </View>
   );

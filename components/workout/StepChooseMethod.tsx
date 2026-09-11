@@ -2,6 +2,7 @@ import { ChevronRight, Images, PenLine, Upload, type LucideIcon } from 'lucide-r
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
+import { strings } from '@/lib/strings';
 import { WizardHeader } from './WizardHeader';
 import { colors, fontFamily, iconStrokeWidth, radius, spacing } from '@/theme/colors';
 
@@ -25,29 +26,29 @@ export function StepChooseMethod({ onBack, onUploadScreenshot, onChooseFromGalle
     {
       icon: Upload,
       color: colors.blue,
-      title: 'Upload Screenshot',
-      subtitle: 'PNG, JPG or HEIC',
+      title: strings.uploadScreenshot,
+      subtitle: strings.uploadScreenshotSubtitle,
       onPress: onUploadScreenshot,
     },
     {
       icon: Images,
       color: colors.purple,
-      title: 'Choose from Gallery',
-      subtitle: 'Pick a photo from your library',
+      title: strings.chooseFromGallery,
+      subtitle: strings.chooseFromGallerySubtitle,
       onPress: onChooseFromGallery,
     },
     {
       icon: PenLine,
       color: colors.teal,
-      title: 'Enter Manually',
-      subtitle: 'Type in the details yourself',
+      title: strings.enterManually,
+      subtitle: strings.enterManuallySubtitle,
       onPress: onEnterManually,
     },
   ];
 
   return (
     <View style={styles.screen}>
-      <WizardHeader title="New Workout" subtitle="How would you like to create it?" onBack={onBack} />
+      <WizardHeader title={strings.newWorkout} subtitle={strings.newWorkoutSubtitle} onBack={onBack} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {options.map((opt) => (
           <TouchableOpacity key={opt.title} activeOpacity={0.75} onPress={opt.onPress}>

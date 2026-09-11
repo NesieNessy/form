@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/Card';
 import { DetailHeader } from '@/components/ui/DetailHeader';
 import { SegmentedTabs } from '@/components/ui/SegmentedTabs';
 import { longTerm, timeRanges } from '@/lib/mockData';
+import { strings } from '@/lib/strings';
 import { useContentWidth } from '@/lib/useContentWidth';
 import { colors, fontFamily, spacing } from '@/theme/colors';
 
@@ -16,14 +17,14 @@ export default function LongTermProgressScreen() {
   const chartWidth = width - spacing.lg * 2 - spacing.lg * 2;
 
   const series = [
-    { label: 'Weight (kg)', color: colors.blue, values: longTerm.weight },
-    { label: 'Body Fat (%)', color: colors.pink, values: longTerm.bodyFat },
-    { label: 'Strength (Index)', color: colors.orange, values: longTerm.strengthIndex },
+    { label: strings.weightKgLabel, color: colors.blue, values: longTerm.weight },
+    { label: strings.bodyFatPctLabel, color: colors.pink, values: longTerm.bodyFat },
+    { label: strings.strengthIndexLabel, color: colors.orange, values: longTerm.strengthIndex },
   ];
 
   return (
     <View style={styles.screen}>
-      <DetailHeader title="Long-Term Progress" subtitle="Your journey, in one chart." />
+      <DetailHeader title={strings.longTermProgressTitle} subtitle={strings.longTermProgressSubtitle} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <SegmentedTabs options={RANGE_OPTIONS} value={range} onChange={setRange} scrollable size="sm" />
         <View style={{ height: spacing.lg }} />

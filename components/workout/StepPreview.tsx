@@ -1,6 +1,7 @@
 import React from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { GradientButton } from '@/components/ui/GradientButton';
+import { strings } from '@/lib/strings';
 import type { Exercise, WorkoutBodyData } from '@/lib/types';
 import { colors, spacing } from '@/theme/colors';
 import { WizardHeader } from './WizardHeader';
@@ -20,7 +21,7 @@ type Props = {
 export function StepPreview({ title, dateLabel, intervalsLabel, exercises, notes, bodyData, onBack, onSave }: Props) {
   return (
     <View style={styles.screen}>
-      <WizardHeader title="Workout Preview" subtitle="Review everything before saving." onBack={onBack} />
+      <WizardHeader title={strings.workoutPreviewTitle} subtitle={strings.workoutPreviewSubtitle} onBack={onBack} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <WorkoutSummaryView
           title={title}
@@ -32,7 +33,7 @@ export function StepPreview({ title, dateLabel, intervalsLabel, exercises, notes
         />
       </ScrollView>
       <View style={styles.footer}>
-        <GradientButton label="Save Workout" onPress={onSave} />
+        <GradientButton label={strings.saveWorkout} onPress={onSave} />
       </View>
     </View>
   );

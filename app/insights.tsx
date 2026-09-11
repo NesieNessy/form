@@ -4,14 +4,15 @@ import { Card } from '@/components/ui/Card';
 import { DetailHeader } from '@/components/ui/DetailHeader';
 import { Icon } from '@/components/ui/Icon';
 import { insights } from '@/lib/mockData';
+import { strings } from '@/lib/strings';
 import { colors, fontFamily, radius, spacing } from '@/theme/colors';
 
 export default function InsightsScreen() {
   return (
     <View style={styles.screen}>
-      <DetailHeader title="Insights & Tips" subtitle="Personalized recommendations." />
+      <DetailHeader title={strings.insightsTipsTitle} subtitle={strings.insightsTipsSubtitle} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Text style={styles.sectionTitle}>Your Insights</Text>
+        <Text style={styles.sectionTitle}>{strings.yourInsights}</Text>
         <View style={{ gap: spacing.md }}>
           {insights.map((insight) => (
             <Card key={insight.id} style={styles.row}>

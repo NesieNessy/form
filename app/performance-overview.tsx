@@ -5,6 +5,7 @@ import { DetailHeader } from '@/components/ui/DetailHeader';
 import { Icon } from '@/components/ui/Icon';
 import { SegmentedTabs } from '@/components/ui/SegmentedTabs';
 import { performanceOverview, timeRanges } from '@/lib/mockData';
+import { strings } from '@/lib/strings';
 import { colors, fontFamily, radius, spacing } from '@/theme/colors';
 
 export default function PerformanceOverviewScreen() {
@@ -12,7 +13,7 @@ export default function PerformanceOverviewScreen() {
 
   return (
     <View style={styles.screen}>
-      <DetailHeader title="Performance Overview" subtitle="All your key metrics." />
+      <DetailHeader title={strings.performanceOverviewTitle} subtitle={strings.performanceOverviewSubtitle} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <SegmentedTabs options={timeRanges} value={range} onChange={setRange} scrollable size="sm" />
         <View style={{ height: spacing.lg }} />

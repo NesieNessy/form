@@ -13,6 +13,7 @@ import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
 import { TabHeader } from '@/components/ui/TabHeader';
+import { strings } from '@/lib/strings';
 import { colors, fontFamily, radius, spacing } from '@/theme/colors';
 
 type MenuItem = {
@@ -27,43 +28,43 @@ const items: MenuItem[] = [
   {
     icon: PersonStanding,
     color: colors.pink,
-    title: 'Body Development',
-    subtitle: 'See how your body is changing.',
+    title: strings.bodyDevelopmentTitle,
+    subtitle: strings.bodyDevelopmentSubtitle,
     route: '/body-development',
   },
   {
     icon: BarChart3,
     color: colors.blue,
-    title: 'Performance Overview',
-    subtitle: 'All your key metrics.',
+    title: strings.performanceOverviewTitle,
+    subtitle: strings.performanceOverviewSubtitle,
     route: '/performance-overview',
   },
   {
     icon: Sparkles,
     color: colors.purple,
-    title: 'Comparison',
-    subtitle: 'Compare yourself to your past self.',
+    title: strings.comparisonTitle,
+    subtitle: strings.comparisonSubtitle,
     route: '/comparison',
   },
   {
     icon: Target,
     color: colors.teal,
-    title: 'Goals & Forecasts',
-    subtitle: "See where you're headed.",
+    title: strings.goalsForecastsTitle,
+    subtitle: strings.goalsForecastsSubtitle,
     route: '/goals-forecast',
   },
   {
     icon: Lightbulb,
     color: colors.amber,
-    title: 'Insights & Tips',
-    subtitle: 'Personalized recommendations.',
+    title: strings.insightsTipsTitle,
+    subtitle: strings.insightsTipsSubtitle,
     route: '/insights',
   },
   {
     icon: LineChartIcon,
     color: colors.orange,
-    title: 'Long-Term Progress',
-    subtitle: 'Your journey, in one chart.',
+    title: strings.longTermProgressTitle,
+    subtitle: strings.longTermProgressSubtitle,
     route: '/long-term-progress',
   },
 ];
@@ -73,8 +74,8 @@ export default function MoreScreen() {
     <View style={styles.screen}>
       <TabHeader />
       <View style={styles.titleRow}>
-        <Text style={styles.title}>More</Text>
-        <Text style={styles.subtitle}>Deeper insights into your progress.</Text>
+        <Text style={styles.title}>{strings.more}</Text>
+        <Text style={styles.subtitle}>{strings.moreSubtitle}</Text>
       </View>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {items.map((item) => (

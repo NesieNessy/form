@@ -5,6 +5,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { GradientButton } from '@/components/ui/GradientButton';
 import { TabHeader } from '@/components/ui/TabHeader';
 import { WorkoutCard } from '@/components/workout/WorkoutCard';
+import { strings } from '@/lib/strings';
 import { useWorkoutsStore } from '@/lib/workoutsStore';
 import { colors, fontFamily, spacing } from '@/theme/colors';
 
@@ -19,10 +20,10 @@ export default function WorkoutsScreen() {
           <View style={styles.iconWrap}>
             <Dumbbell color={colors.textSecondary} size={28} />
           </View>
-          <Text style={styles.title}>No workouts planned yet</Text>
-          <Text style={styles.body}>Your training plans will show up here once you create them.</Text>
+          <Text style={styles.title}>{strings.noWorkoutsPlannedYet}</Text>
+          <Text style={styles.body}>{strings.workoutsEmptyBody}</Text>
           <View style={{ height: spacing.md }} />
-          <GradientButton label="New Workout" onPress={() => router.push('/workout-new')} />
+          <GradientButton label={strings.newWorkout} onPress={() => router.push('/workout-new')} />
         </ScrollView>
       </View>
     );
@@ -32,11 +33,11 @@ export default function WorkoutsScreen() {
     <View style={styles.screen}>
       <TabHeader />
       <View style={styles.titleRow}>
-        <Text style={styles.pageTitle}>Workouts</Text>
-        <Text style={styles.pageSubtitle}>Your training plans, all in one place.</Text>
+        <Text style={styles.pageTitle}>{strings.workouts}</Text>
+        <Text style={styles.pageSubtitle}>{strings.workoutsListSubtitle}</Text>
       </View>
       <ScrollView contentContainerStyle={styles.list} showsVerticalScrollIndicator={false}>
-        <GradientButton label="New Workout" onPress={() => router.push('/workout-new')} />
+        <GradientButton label={strings.newWorkout} onPress={() => router.push('/workout-new')} />
         {workouts.map((w) => (
           <WorkoutCard key={w.id} workout={w} />
         ))}
