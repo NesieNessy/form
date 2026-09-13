@@ -23,7 +23,11 @@ export default function WorkoutsScreen() {
           <Text style={styles.title}>{strings.noWorkoutsPlannedYet}</Text>
           <Text style={styles.body}>{strings.workoutsEmptyBody}</Text>
           <View style={{ height: spacing.md }} />
-          <GradientButton label={strings.newWorkout} onPress={() => router.push('/workout-new')} />
+          <GradientButton
+            label={strings.newWorkout}
+            onPress={() => router.push('/workout-new')}
+            style={styles.newWorkoutButton}
+          />
         </ScrollView>
       </View>
     );
@@ -58,6 +62,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: spacing.xxl,
     gap: spacing.sm,
+  },
+  newWorkoutButton: {
+    alignSelf: 'stretch',
   },
   iconWrap: {
     width: 56,

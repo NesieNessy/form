@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { StyleProp, StyleSheet, Text, TouchableOpacity, ViewStyle } from 'react-native';
 import { colors, fontFamily, radius } from '@/theme/colors';
 
 type Props = {
@@ -14,12 +14,13 @@ type Props = {
    * tertiary: text/icon only, for low-emphasis actions.
    */
   variant?: 'primary' | 'secondary' | 'tertiary';
+  style?: StyleProp<ViewStyle>;
 };
 
-export function GradientButton({ label, onPress, icon, colorsOverride, variant = 'primary' }: Props) {
+export function GradientButton({ label, onPress, icon, colorsOverride, variant = 'primary', style }: Props) {
   if (variant === 'tertiary') {
     return (
-      <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={styles.tertiary}>
+      <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={[styles.tertiary, style]}>
         {icon}
         <Text style={styles.tertiaryLabel}>{label}</Text>
       </TouchableOpacity>
@@ -28,7 +29,7 @@ export function GradientButton({ label, onPress, icon, colorsOverride, variant =
 
   if (variant === 'secondary') {
     return (
-      <TouchableOpacity onPress={onPress} activeOpacity={0.85} style={styles.secondary}>
+      <TouchableOpacity onPress={onPress} activeOpacity={0.85} style={[styles.secondary, style]}>
         {icon}
         <Text style={styles.secondaryLabel}>{label}</Text>
       </TouchableOpacity>
@@ -36,7 +37,7 @@ export function GradientButton({ label, onPress, icon, colorsOverride, variant =
   }
 
   return (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.85}>
+    <TouchableOpacity onPress={onPress} activeOpacity={0.85} style={style}>
       <LinearGradient
         colors={colorsOverride ?? colors.gradient}
         start={{ x: 0, y: 0 }}
@@ -57,6 +58,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
     paddingVertical: 16,
+    paddingHorizontal: 24,
     borderRadius: radius.button,
   },
   primaryLabel: {
