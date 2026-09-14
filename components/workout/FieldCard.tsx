@@ -1,15 +1,16 @@
 import React from 'react';
-import { StyleSheet, Text, TextInput, TextInputProps, View } from 'react-native';
+import { StyleProp, StyleSheet, Text, TextInput, TextInputProps, View, ViewStyle } from 'react-native';
 import { Card } from '@/components/ui/Card';
 import { colors, fontFamily, spacing } from '@/theme/colors';
 
 type Props = TextInputProps & {
   label: string;
+  cardStyle?: StyleProp<ViewStyle>;
 };
 
-export function FieldCard({ label, style, ...rest }: Props) {
+export function FieldCard({ label, style, cardStyle, ...rest }: Props) {
   return (
-    <Card style={styles.card}>
+    <Card style={[styles.card, cardStyle]}>
       <Text style={styles.label}>{label}</Text>
       <TextInput
         placeholderTextColor={colors.textTertiary}

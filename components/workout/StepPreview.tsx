@@ -10,6 +10,9 @@ import { WorkoutSummaryView } from './WorkoutSummaryView';
 type Props = {
   title: string;
   dateLabel: string;
+  warmup?: Exercise[];
+  strength?: Exercise[];
+  skill?: Exercise[];
   intervalsLabel: string;
   exercises: Exercise[];
   notes: string;
@@ -18,7 +21,19 @@ type Props = {
   onSave: () => void;
 };
 
-export function StepPreview({ title, dateLabel, intervalsLabel, exercises, notes, bodyData, onBack, onSave }: Props) {
+export function StepPreview({
+  title,
+  dateLabel,
+  warmup,
+  strength,
+  skill,
+  intervalsLabel,
+  exercises,
+  notes,
+  bodyData,
+  onBack,
+  onSave,
+}: Props) {
   return (
     <View style={styles.screen}>
       <WizardHeader title={strings.workoutPreviewTitle} subtitle={strings.workoutPreviewSubtitle} onBack={onBack} />
@@ -26,6 +41,9 @@ export function StepPreview({ title, dateLabel, intervalsLabel, exercises, notes
         <WorkoutSummaryView
           title={title}
           dateLabel={dateLabel}
+          warmup={warmup}
+          strength={strength}
+          skill={skill}
           intervalsLabel={intervalsLabel}
           exercises={exercises}
           notes={notes}

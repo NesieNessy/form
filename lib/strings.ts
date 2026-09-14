@@ -138,13 +138,47 @@ export const strings = {
   detectingIntervals: 'Detecting sets & intervals',
   extractingDetails: 'Extracting additional details',
 
-  // Workout wizard — step 4: edit workout
-  editWorkoutTitle: 'Edit Workout',
-  titlePlaceholder: 'e.g. Squat Snatch',
+  // Workout wizard — step 4: edit workout session
+  editWorkoutTitle: 'Edit Workout Session',
+  titlePlaceholder: 'e.g. Murph',
   intervalsPlaceholder: 'e.g. 5 Rounds: 2:00 on / 1:00 off',
   exerciseNamePlaceholder: 'Exercise name',
-  exerciseDetailPlaceholder: 'Detail (optional)',
+  repsLabel: 'Reps',
+  repsPlaceholder: 'e.g. 21-15-9',
+  loadLabel: 'Load',
+  loadPlaceholder: 'e.g. 50/35 lbs',
+  measureLabel: 'Distance / Time / Cal',
+  measurePlaceholder: 'e.g. 500m',
   notesPlaceholder: 'Anything else worth remembering about this workout',
+
+  // Workout session parts — warm-up, strength and skill work come before the WOD
+  warmup: 'Warm-up',
+  skill: 'Skill',
+  addWarmup: 'Add Warm-up',
+  addStrength: 'Add Strength',
+  addSkill: 'Add Skill',
+
+  // Workout wizard — step 4: workout of the day (WOD) type selector & type-specific setup
+  workoutOfTheDay: 'Workout of the Day',
+  workoutTypeEmom: 'EMOM',
+  workoutTypeAmrap: 'AMRAP',
+  workoutTypeForTime: 'For Time',
+  workoutTypeTabata: 'Tabata',
+  workoutTypeMix: 'Mix',
+  emomSetup: 'EMOM setup',
+  amrapSetup: 'AMRAP setup',
+  forTimeSetup: 'For Time setup',
+  tabataSetup: 'Tabata setup',
+  interval: 'Interval',
+  intervalPlaceholder: 'e.g. 1:00',
+  rounds: 'Rounds',
+  roundsPlaceholder: 'e.g. 10',
+  timeCap: 'Time cap',
+  timeCapPlaceholder: 'e.g. 12:00',
+  work: 'Work',
+  workPlaceholder: 'e.g. 0:20',
+  rest: 'Rest',
+  restPlaceholder: 'e.g. 0:10',
 
   // Workout wizard — step 5: body data
   addBodyDataTitle: 'Add Body Data',

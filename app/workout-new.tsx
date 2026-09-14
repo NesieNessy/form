@@ -8,18 +8,13 @@ import { StepChooseMethod } from '@/components/workout/StepChooseMethod';
 import { StepEditWorkout } from '@/components/workout/StepEditWorkout';
 import { StepPreview } from '@/components/workout/StepPreview';
 import { StepScreenshot } from '@/components/workout/StepScreenshot';
+import { formatDateLabel } from '@/lib/date';
 import { mockAnalyzedWorkout } from '@/lib/mockData';
-import type { Exercise, WorkoutBodyData, WorkoutBodyDataSource } from '@/lib/types';
+import { strings } from '@/lib/strings';
+import type { Exercise, WorkoutBodyData, WorkoutBodyDataSource, WorkoutSetup, WorkoutType } from '@/lib/types';
 import { useWorkoutsStore } from '@/lib/workoutsStore';
 
 type StepId = 'method' | 'screenshot' | 'analyzing' | 'edit' | 'bodyData' | 'preview';
-
-const TODAY_LABEL = new Date().toLocaleDateString('en-US', {
-  weekday: 'short',
-  month: 'short',
-  day: 'numeric',
-  year: 'numeric',
-});
 
 async function pickImage(): Promise<string | undefined> {
   try {
@@ -49,11 +44,47 @@ export default function WorkoutNewScreen() {
 
   const [screenshotUri, setScreenshotUri] = useState<string | undefined>();
   const [title, setTitle] = useState('');
+  const [date, setDate] = useState<Date>(() => new Date());
+  const [warmup, setWarmup] = useState<Exercise[]>([]);
+  const [strength, setStrength] = useState<Exercise[]>([]);
+  const [skill, setSkill] = useState<Exercise[]>([]);
+  const [workoutType, setWorkoutType] = useState<WorkoutType>('emom');
+  const [setup, setSetup] = useState<WorkoutSetup>({});
   const [intervalsLabel, setIntervalsLabel] = useState('');
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [notes, setNotes] = useState('');
   const [bodyDataSource, setBodyDataSource] = useState<WorkoutBodyDataSource>('manual');
   const [bodyData, setBodyData] = useState<WorkoutBodyData>({});
+
+  const updateSetup = (patch: Partial<WorkoutSetup>) => setSetup((prev) => ({ ...prev, ...patch }));
+
+  const buildSummaryLabel = (): string => {
+    switch (workoutType) {
+      case 'emom': {
+        const parts = [setup.interval, setup.rounds && `${setup.rounds} rounds`].filter(Boolean);
+        return [strings.workoutTypeEmom, parts.join(' · ')].filter(Boolean).join(' · ');
+      }
+      case 'amrap':
+        return [strings.workoutTypeAmrap, setup.timeCap].filter(Boolean).join(' · ');
+      case 'forTime': {
+        const parts = [
+          setup.rounds && `${setup.rounds} rounds`,
+          setup.timeCap && `Cap ${setup.timeCap}`,
+        ].filter(Boolean);
+        return [strings.workoutTypeForTime, parts.join(' · ')].filter(Boolean).join(' · ');
+      }
+      case 'tabata': {
+        const parts = [
+          (setup.work || setup.rest) && `${setup.work ?? '?'} / ${setup.rest ?? '?'}`,
+          setup.rounds && `${setup.rounds} rounds`,
+        ].filter(Boolean);
+        return [strings.workoutTypeTabata, parts.join(' · ')].filter(Boolean).join(' · ');
+      }
+      case 'mix':
+      default:
+        return intervalsLabel.trim();
+    }
+  };
 
   const pushStep = (next: StepId) => setStepStack((s) => [...s, next]);
   const handleBack = () => {
@@ -79,6 +110,7 @@ export default function WorkoutNewScreen() {
 
   const handleAnalyzed = () => {
     setTitle(mockAnalyzedWorkout.title);
+    setWorkoutType('mix');
     setIntervalsLabel(mockAnalyzedWorkout.intervalsLabel);
     setExercises(mockAnalyzedWorkout.exercises);
     setNotes(mockAnalyzedWorkout.notes);
@@ -90,8 +122,13 @@ export default function WorkoutNewScreen() {
     addWorkout({
       id: `workout-${Date.now()}`,
       title: title.trim() || 'Untitled Workout',
-      dateLabel: TODAY_LABEL,
-      intervalsLabel: intervalsLabel.trim() || undefined,
+      dateLabel: formatDateLabel(date),
+      warmup: warmup.filter((ex) => ex.name.trim().length > 0),
+      strength: strength.filter((ex) => ex.name.trim().length > 0),
+      skill: skill.filter((ex) => ex.name.trim().length > 0),
+      workoutType,
+      workoutSetup: setup,
+      intervalsLabel: buildSummaryLabel() || undefined,
       exercises: exercises.filter((ex) => ex.name.trim().length > 0),
       notes: notes.trim() || undefined,
       bodyDataSource,
@@ -128,7 +165,18 @@ export default function WorkoutNewScreen() {
         <StepEditWorkout
           title={title}
           onTitleChange={setTitle}
-          dateLabel={TODAY_LABEL}
+          date={date}
+          onDateChange={setDate}
+          warmup={warmup}
+          onWarmupChange={setWarmup}
+          strength={strength}
+          onStrengthChange={setStrength}
+          skill={skill}
+          onSkillChange={setSkill}
+          workoutType={workoutType}
+          onWorkoutTypeChange={setWorkoutType}
+          setup={setup}
+          onSetupChange={updateSetup}
           intervalsLabel={intervalsLabel}
           onIntervalsChange={setIntervalsLabel}
           exercises={exercises}
@@ -154,8 +202,11 @@ export default function WorkoutNewScreen() {
       return (
         <StepPreview
           title={title}
-          dateLabel={TODAY_LABEL}
-          intervalsLabel={intervalsLabel}
+          dateLabel={formatDateLabel(date)}
+          warmup={warmup}
+          strength={strength}
+          skill={skill}
+          intervalsLabel={buildSummaryLabel()}
           exercises={exercises}
           notes={notes}
           bodyData={bodyData}

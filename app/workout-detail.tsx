@@ -29,6 +29,9 @@ export default function WorkoutDetailScreen() {
         <WorkoutSummaryView
           title={workout.title}
           dateLabel={workout.dateLabel}
+          warmup={workout.warmup}
+          strength={workout.strength}
+          skill={workout.skill}
           intervalsLabel={workout.intervalsLabel}
           exercises={workout.exercises}
           notes={workout.notes}

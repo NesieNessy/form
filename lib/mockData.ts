@@ -21,9 +21,9 @@ export const mockAnalyzedWorkout: {
   title: 'Squat Snatch',
   intervalsLabel: '5 Rounds: 2:00 on / 1:00 off',
   exercises: [
-    { id: 'ex-1', name: '10 Thrusters' },
-    { id: 'ex-2', name: '10 Pull Ups' },
-    { id: 'ex-3', name: 'Max Rep Cal', detail: 'any machine in remaining time left in the 2:00 window' },
+    { id: 'ex-1', name: 'Thrusters', reps: '10' },
+    { id: 'ex-2', name: 'Pull Ups', reps: '10' },
+    { id: 'ex-3', name: 'Cal, any machine', reps: 'Max' },
   ],
   notes: 'Score total calories on the bike over the 5 rounds.\nBarbell weights: Level 1 35/25 kg, Level 2 42.5/30 kg, Level 3 52.5/35 kg.',
 };

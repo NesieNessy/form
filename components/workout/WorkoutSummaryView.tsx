@@ -9,6 +9,9 @@ import { colors, fontFamily, radius, spacing } from '@/theme/colors';
 type Props = {
   title: string;
   dateLabel: string;
+  warmup?: Exercise[];
+  strength?: Exercise[];
+  skill?: Exercise[];
   intervalsLabel?: string;
   exercises: Exercise[];
   notes?: string;
@@ -22,7 +25,45 @@ const BODY_DATA_CHIPS: { key: keyof WorkoutBodyData; icon: typeof Heart; color: 
   { key: 'zonesPct', icon: Percent, color: colors.teal },
 ];
 
-export function WorkoutSummaryView({ title, dateLabel, intervalsLabel, exercises, notes, bodyData }: Props) {
+function formatExerciseMeta(ex: Exercise): string | undefined {
+  const parts = [ex.reps, ex.load, ex.measure].filter(Boolean);
+  return parts.length > 0 ? parts.join(' · ') : undefined;
+}
+
+function ExerciseListCard({ title, exercises }: { title: string; exercises: Exercise[] }) {
+  if (exercises.length === 0) return null;
+  return (
+    <Card style={{ gap: spacing.sm }}>
+      <Text style={styles.sectionTitle}>{title}</Text>
+      {exercises.map((ex, i) => {
+        const meta = formatExerciseMeta(ex);
+        return (
+          <View key={ex.id} style={styles.exerciseRow}>
+            <View style={styles.exerciseBullet}>
+              <Dumbbell size={13} color={colors.textSecondary} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.exerciseName}>{ex.name || strings.exerciseNumbered(i + 1)}</Text>
+              {meta ? <Text style={styles.exerciseDetail}>{meta}</Text> : null}
+            </View>
+          </View>
+        );
+      })}
+    </Card>
+  );
+}
+
+export function WorkoutSummaryView({
+  title,
+  dateLabel,
+  warmup,
+  strength,
+  skill,
+  intervalsLabel,
+  exercises,
+  notes,
+  bodyData,
+}: Props) {
   const filledChips = BODY_DATA_CHIPS.filter((c) => bodyData?.[c.key]);
 
   return (
@@ -33,22 +74,10 @@ export function WorkoutSummaryView({ title, dateLabel, intervalsLabel, exercises
         {intervalsLabel ? <Text style={styles.intervals}>{intervalsLabel}</Text> : null}
       </Card>
 
-      {exercises.length > 0 ? (
-        <Card style={{ gap: spacing.sm }}>
-          <Text style={styles.sectionTitle}>{strings.exercises}</Text>
-          {exercises.map((ex, i) => (
-            <View key={ex.id} style={styles.exerciseRow}>
-              <View style={styles.exerciseBullet}>
-                <Dumbbell size={13} color={colors.textSecondary} />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.exerciseName}>{ex.name || strings.exerciseNumbered(i + 1)}</Text>
-                {ex.detail ? <Text style={styles.exerciseDetail}>{ex.detail}</Text> : null}
-              </View>
-            </View>
-          ))}
-        </Card>
-      ) : null}
+      <ExerciseListCard title={strings.warmup} exercises={warmup ?? []} />
+      <ExerciseListCard title={strings.strength} exercises={strength ?? []} />
+      <ExerciseListCard title={strings.skill} exercises={skill ?? []} />
+      <ExerciseListCard title={strings.workoutOfTheDay} exercises={exercises} />
 
       {filledChips.length > 0 ? (
         <Card style={styles.chipRow}>

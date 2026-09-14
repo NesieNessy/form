@@ -59,7 +59,21 @@ export type Insight = {
 export type Exercise = {
   id: string;
   name: string;
-  detail?: string;
+  reps?: string;
+  load?: string;
+  measure?: string;
+};
+
+export type WorkoutType = 'emom' | 'amrap' | 'forTime' | 'tabata' | 'mix';
+
+export type WorkoutPartKey = 'warmup' | 'strength' | 'skill';
+
+export type WorkoutSetup = {
+  interval?: string;
+  rounds?: string;
+  timeCap?: string;
+  work?: string;
+  rest?: string;
 };
 
 export type WorkoutBodyDataSource = 'automatic' | 'screenshot' | 'manual';
@@ -81,6 +95,11 @@ export type Workout = {
   id: string;
   title: string;
   dateLabel: string;
+  warmup?: Exercise[];
+  strength?: Exercise[];
+  skill?: Exercise[];
+  workoutType?: WorkoutType;
+  workoutSetup?: WorkoutSetup;
   intervalsLabel?: string;
   exercises: Exercise[];
   notes?: string;
