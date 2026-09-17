@@ -58,6 +58,13 @@ const items: MenuItem[] = [
     subtitle: strings.longTermProgressSubtitle,
     route: '/long-term-progress',
   },
+  {
+    icon: Icons.layers,
+    color: colors.green,
+    title: strings.targetedWorkoutsTitle,
+    subtitle: strings.targetedWorkoutsSubtitle,
+    route: '/targeted-workouts',
+  },
 ];
 
 export default function MoreScreen() {

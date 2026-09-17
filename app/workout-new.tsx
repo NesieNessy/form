@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
 import { StepBasicInfo } from '@/components/workout/StepBasicInfo';
 import { StepExerciseDetail } from '@/components/workout/StepExerciseDetail';
@@ -33,18 +33,21 @@ type WizardStep =
   | { screen: 'saveContinue' };
 
 export default function WorkoutNewScreen() {
+  const { presetTitle, presetSections } = useLocalSearchParams<{ presetTitle?: string; presetSections?: string }>();
   const addWorkout = useWorkoutsStore((s) => s.addWorkout);
   const updateWorkout = useWorkoutsStore((s) => s.updateWorkout);
 
   const [stepStack, setStepStack] = useState<WizardStep[]>([{ screen: 'basicInfo' }]);
   const step = stepStack[stepStack.length - 1];
 
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState(() => presetTitle ?? '');
   const [category, setCategory] = useState<WorkoutCategory>('crossfit');
   const [date, setDate] = useState(() => new Date());
   const [startTime, setStartTime] = useState(() => new Date());
   const [notes, setNotes] = useState('');
-  const [sections, setSections] = useState<WorkoutSection[]>([{ key: 'wod', exercises: [] }]);
+  const [sections, setSections] = useState<WorkoutSection[]>(() =>
+    presetSections ? (JSON.parse(presetSections) as WorkoutSection[]) : [{ key: 'wod', exercises: [] }]
+  );
   const [durationLabel, setDurationLabel] = useState('');
   const [totalVolumeLabel, setTotalVolumeLabel] = useState('');
   const [savedWorkoutId, setSavedWorkoutId] = useState<string | null>(null);

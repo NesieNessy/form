@@ -117,9 +117,16 @@ export const strings = {
   insightsTipsSubtitle: 'Personalized recommendations.',
   longTermProgressTitle: 'Long-Term Progress',
   longTermProgressSubtitle: 'Your journey, in one chart.',
+  targetedWorkoutsTitle: 'Targeted Workouts',
+  targetedWorkoutsSubtitle: 'Browse preset workouts by focus area.',
 
   // More screen
   moreSubtitle: 'Deeper insights into your progress.',
+
+  // Targeted Workouts screen
+  videos: 'Videos',
+  edit: 'Edit',
+  next: 'Next',
 
   // Workout wizard — step 1: basic information
   basicInfoTitle: 'New Workout',
