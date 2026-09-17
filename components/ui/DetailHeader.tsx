@@ -1,9 +1,9 @@
 import { router } from 'expo-router';
-import { ChevronLeft } from 'lucide-react-native';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, fontFamily, iconStrokeWidth, spacing } from '@/theme/colors';
+import { Icons } from '@/theme/icons';
 
 export function DetailHeader({ title, subtitle }: { title?: string; subtitle?: string }) {
   const insets = useSafeAreaInsets();
@@ -15,7 +15,7 @@ export function DetailHeader({ title, subtitle }: { title?: string; subtitle?: s
           hitSlop={12}
           style={styles.backBtn}
         >
-          <ChevronLeft size={22} strokeWidth={iconStrokeWidth} color={colors.text} />
+          <Icons.chevronLeft size={22} strokeWidth={iconStrokeWidth} color={colors.text} />
         </TouchableOpacity>
       </View>
       {title ? (

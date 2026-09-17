@@ -1,4 +1,3 @@
-import { CheckCircle2 } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { GradientButton } from '@/components/ui/GradientButton';
@@ -6,6 +5,7 @@ import { Toast } from '@/components/ui/Toast';
 import { FieldCard } from '@/components/workout/FieldCard';
 import { strings } from '@/lib/strings';
 import { colors, fontFamily, spacing } from '@/theme/colors';
+import { Icons } from '@/theme/icons';
 
 type Props = {
   durationLabel: string;
@@ -37,7 +37,7 @@ export function StepSaveContinue({
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.successWrap}>
           <View style={styles.checkCircle}>
-            <CheckCircle2 size={48} color={colors.teal} strokeWidth={1.5} />
+            <Icons.checkCircle size={48} color={colors.teal} strokeWidth={1.5} />
           </View>
           <Text style={styles.title}>{strings.workoutSavedTitle}</Text>
           <Text style={styles.subtitle}>{strings.workoutSavedSubtitle}</Text>

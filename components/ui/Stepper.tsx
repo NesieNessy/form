@@ -1,7 +1,7 @@
-import { Minus, Plus } from 'lucide-react-native';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors, fontFamily, iconStrokeWidth, radius, spacing } from '@/theme/colors';
+import { Icons } from '@/theme/icons';
 
 type Props = {
   value: number;
@@ -22,7 +22,7 @@ export function Stepper({ value, onChange, min = 0, max = Infinity, step = 1, su
         onPress={() => onChange(clamp(value - step))}
         hitSlop={8}
       >
-        <Minus size={16} color={colors.text} strokeWidth={iconStrokeWidth} />
+        <Icons.minus size={16} color={colors.text} strokeWidth={iconStrokeWidth} />
       </TouchableOpacity>
       <Text style={styles.value}>
         {value}
@@ -34,7 +34,7 @@ export function Stepper({ value, onChange, min = 0, max = Infinity, step = 1, su
         onPress={() => onChange(clamp(value + step))}
         hitSlop={8}
       >
-        <Plus size={16} color={colors.text} strokeWidth={iconStrokeWidth} />
+        <Icons.plus size={16} color={colors.text} strokeWidth={iconStrokeWidth} />
       </TouchableOpacity>
     </View>
   );

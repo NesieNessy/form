@@ -1,4 +1,3 @@
-import { TrendingUp } from 'lucide-react-native';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
@@ -7,6 +6,7 @@ import { ProgressGoalBar } from '@/components/ui/ProgressGoalBar';
 import { goals, prognosis } from '@/lib/mockData';
 import { strings } from '@/lib/strings';
 import { colors, fontFamily, radius, spacing } from '@/theme/colors';
+import { Icons } from '@/theme/icons';
 
 export default function GoalsForecastScreen() {
   return (
@@ -28,7 +28,7 @@ export default function GoalsForecastScreen() {
 
         <Card style={styles.prognosisCard}>
           <View style={styles.prognosisIconWrap}>
-            <TrendingUp size={18} color={colors.teal} />
+            <Icons.trendingUp size={18} color={colors.teal} />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.prognosisTitle}>{strings.forecast}</Text>

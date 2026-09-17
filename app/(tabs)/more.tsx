@@ -1,20 +1,11 @@
 import { router } from 'expo-router';
-import {
-  BarChart3,
-  ChevronRight,
-  LineChart as LineChartIcon,
-  Lightbulb,
-  Sparkles,
-  Target,
-  PersonStanding,
-  type LucideIcon,
-} from 'lucide-react-native';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
 import { TabHeader } from '@/components/ui/TabHeader';
 import { strings } from '@/lib/strings';
 import { colors, fontFamily, radius, spacing } from '@/theme/colors';
+import { Icons, type LucideIcon } from '@/theme/icons';
 
 type MenuItem = {
   icon: LucideIcon;
@@ -26,42 +17,42 @@ type MenuItem = {
 
 const items: MenuItem[] = [
   {
-    icon: PersonStanding,
+    icon: Icons.personStanding,
     color: colors.pink,
     title: strings.bodyDevelopmentTitle,
     subtitle: strings.bodyDevelopmentSubtitle,
     route: '/body-development',
   },
   {
-    icon: BarChart3,
+    icon: Icons.barChart,
     color: colors.blue,
     title: strings.performanceOverviewTitle,
     subtitle: strings.performanceOverviewSubtitle,
     route: '/performance-overview',
   },
   {
-    icon: Sparkles,
+    icon: Icons.sparkles,
     color: colors.purple,
     title: strings.comparisonTitle,
     subtitle: strings.comparisonSubtitle,
     route: '/comparison',
   },
   {
-    icon: Target,
+    icon: Icons.target,
     color: colors.teal,
     title: strings.goalsForecastsTitle,
     subtitle: strings.goalsForecastsSubtitle,
     route: '/goals-forecast',
   },
   {
-    icon: Lightbulb,
+    icon: Icons.lightbulb,
     color: colors.amber,
     title: strings.insightsTipsTitle,
     subtitle: strings.insightsTipsSubtitle,
     route: '/insights',
   },
   {
-    icon: LineChartIcon,
+    icon: Icons.lineChart,
     color: colors.orange,
     title: strings.longTermProgressTitle,
     subtitle: strings.longTermProgressSubtitle,
@@ -88,7 +79,7 @@ export default function MoreScreen() {
                 <Text style={styles.itemTitle}>{item.title}</Text>
                 <Text style={styles.itemSubtitle}>{item.subtitle}</Text>
               </View>
-              <ChevronRight size={18} color={colors.textTertiary} />
+              <Icons.chevronRight size={18} color={colors.textTertiary} />
             </Card>
           </TouchableOpacity>
         ))}

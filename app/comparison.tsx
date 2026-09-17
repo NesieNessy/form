@@ -1,4 +1,3 @@
-import { ChevronDown } from 'lucide-react-native';
 import React, { useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { GroupedBarChart } from '@/components/charts/GroupedBarChart';
@@ -8,6 +7,7 @@ import { comparison } from '@/lib/mockData';
 import { strings } from '@/lib/strings';
 import { useContentWidth } from '@/lib/useContentWidth';
 import { colors, fontFamily, radius, spacing } from '@/theme/colors';
+import { Icons } from '@/theme/icons';
 
 export default function ComparisonScreen() {
   const width = useContentWidth();
@@ -24,11 +24,11 @@ export default function ComparisonScreen() {
         <View style={styles.pickerRow}>
           <TouchableOpacity style={styles.picker} activeOpacity={0.8}>
             <Text style={styles.pickerText}>{comparison.metric}</Text>
-            <ChevronDown size={14} color={colors.textSecondary} />
+            <Icons.chevronDown size={14} color={colors.textSecondary} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.picker} activeOpacity={0.8}>
             <Text style={styles.pickerText}>{comparison.exercise}</Text>
-            <ChevronDown size={14} color={colors.textSecondary} />
+            <Icons.chevronDown size={14} color={colors.textSecondary} />
           </TouchableOpacity>
         </View>
 

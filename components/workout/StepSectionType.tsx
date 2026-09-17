@@ -1,4 +1,3 @@
-import { Dumbbell, Infinity as InfinityIcon, Repeat, Shuffle, Timer, Users, Zap } from 'lucide-react-native';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { GradientButton } from '@/components/ui/GradientButton';
@@ -8,16 +7,17 @@ import { strings } from '@/lib/strings';
 import type { SectionWorkoutType, StructureKind, WorkoutSection } from '@/lib/types';
 import { SECTION_META, defaultStructureForKind } from '@/lib/workoutSections';
 import { colors, fontFamily, spacing } from '@/theme/colors';
+import { Icons } from '@/theme/icons';
 import { WizardHeader } from './WizardHeader';
 
 const WORKOUT_TYPE_OPTIONS = [
-  { key: 'forTime' as const, label: strings.workoutTypeForTime, icon: Timer },
-  { key: 'amrap' as const, label: strings.workoutTypeAmrap, icon: InfinityIcon },
-  { key: 'emom' as const, label: strings.workoutTypeEmom, icon: Repeat },
-  { key: 'tabata' as const, label: strings.workoutTypeTabata, icon: Zap },
-  { key: 'strength' as const, label: strings.strength, icon: Dumbbell },
-  { key: 'partnerWod' as const, label: strings.workoutTypePartnerWod, icon: Users },
-  { key: 'custom' as const, label: strings.workoutTypeCustom, icon: Shuffle },
+  { key: 'forTime' as const, label: strings.workoutTypeForTime, icon: Icons.timer },
+  { key: 'amrap' as const, label: strings.workoutTypeAmrap, icon: Icons.infinity },
+  { key: 'emom' as const, label: strings.workoutTypeEmom, icon: Icons.repeat },
+  { key: 'tabata' as const, label: strings.workoutTypeTabata, icon: Icons.zap },
+  { key: 'strength' as const, label: strings.strength, icon: Icons.dumbbell },
+  { key: 'partnerWod' as const, label: strings.workoutTypePartnerWod, icon: Icons.users },
+  { key: 'custom' as const, label: strings.workoutTypeCustom, icon: Icons.shuffle },
 ];
 
 const STRUCTURE_KIND_OPTIONS: { key: StructureKind; label: string }[] = [

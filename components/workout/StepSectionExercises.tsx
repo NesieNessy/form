@@ -1,4 +1,3 @@
-import { Plus, Search } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
@@ -7,6 +6,7 @@ import { searchExerciseLibrary, type ExerciseLibraryEntry } from '@/lib/exercise
 import { strings } from '@/lib/strings';
 import type { Exercise, WorkoutSection } from '@/lib/types';
 import { colors, fontFamily, iconStrokeWidth, radius, spacing } from '@/theme/colors';
+import { Icons } from '@/theme/icons';
 import { ExerciseRow } from './ExerciseRow';
 import { WizardHeader } from './WizardHeader';
 
@@ -68,14 +68,14 @@ export function StepSectionExercises({
         <GradientButton
           label={strings.addExercise}
           variant="secondary"
-          icon={<Plus size={16} color={colors.text} strokeWidth={iconStrokeWidth} />}
+          icon={<Icons.plus size={16} color={colors.text} strokeWidth={iconStrokeWidth} />}
           style={styles.addBtn}
           onPress={onAddExercise}
         />
 
         <Text style={styles.libraryTitle}>{strings.exerciseLibrary}</Text>
         <Card style={styles.searchCard}>
-          <Search size={16} color={colors.textTertiary} strokeWidth={iconStrokeWidth} />
+          <Icons.search size={16} color={colors.textTertiary} strokeWidth={iconStrokeWidth} />
           <TextInput
             style={styles.searchInput}
             value={query}
@@ -95,7 +95,7 @@ export function StepSectionExercises({
             >
               <Text style={styles.libraryName}>{entry.name}</Text>
               <View style={styles.libraryAddBtn}>
-                <Plus size={15} color={colors.blue} strokeWidth={iconStrokeWidth} />
+                <Icons.plus size={15} color={colors.blue} strokeWidth={iconStrokeWidth} />
               </View>
             </TouchableOpacity>
           ))}

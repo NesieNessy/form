@@ -1,4 +1,3 @@
-import { Repeat, Ruler, Flame as CaloriesIcon, Clock, Dumbbell, Hash, Type } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
@@ -10,16 +9,17 @@ import { FieldCard } from '@/components/workout/FieldCard';
 import { strings } from '@/lib/strings';
 import type { DistanceUnit, Exercise, ExercisePrimary, ExerciseTarget } from '@/lib/types';
 import { colors, fontFamily, spacing } from '@/theme/colors';
+import { Icons } from '@/theme/icons';
 import { WizardHeader } from './WizardHeader';
 
 const TARGET_OPTIONS = [
-  { key: 'reps' as const, label: strings.targetReps, icon: Hash },
-  { key: 'weight' as const, label: strings.targetWeight, icon: Dumbbell },
-  { key: 'time' as const, label: strings.targetTime, icon: Clock },
-  { key: 'distance' as const, label: strings.targetDistance, icon: Ruler },
-  { key: 'calories' as const, label: strings.targetCalories, icon: CaloriesIcon },
-  { key: 'rounds' as const, label: strings.targetRounds, icon: Repeat },
-  { key: 'custom' as const, label: strings.targetCustom, icon: Type },
+  { key: 'reps' as const, label: strings.targetReps, icon: Icons.hash },
+  { key: 'weight' as const, label: strings.targetWeight, icon: Icons.dumbbell },
+  { key: 'time' as const, label: strings.targetTime, icon: Icons.clock },
+  { key: 'distance' as const, label: strings.targetDistance, icon: Icons.ruler },
+  { key: 'calories' as const, label: strings.targetCalories, icon: Icons.flame },
+  { key: 'rounds' as const, label: strings.targetRounds, icon: Icons.repeat },
+  { key: 'custom' as const, label: strings.targetCustom, icon: Icons.type },
 ];
 
 const NOTES_MAX = 100;

@@ -1,5 +1,4 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { Dumbbell } from 'lucide-react-native';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
@@ -9,6 +8,7 @@ import type { Exercise, WorkoutSection } from '@/lib/types';
 import { formatExerciseTarget, formatSectionHeadline } from '@/lib/workoutFormat';
 import { SECTION_META } from '@/lib/workoutSections';
 import { colors, fontFamily, radius, spacing } from '@/theme/colors';
+import { Icons } from '@/theme/icons';
 
 type Props = {
   title: string;
@@ -23,7 +23,7 @@ function ExerciseLine({ exercise, index }: { exercise: Exercise; index: number }
   return (
     <View style={styles.exerciseRow}>
       <View style={styles.exerciseBullet}>
-        <Dumbbell size={13} color={colors.textSecondary} />
+        <Icons.dumbbell size={13} color={colors.textSecondary} />
       </View>
       <View style={{ flex: 1 }}>
         <Text style={styles.exerciseName}>{exercise.name || strings.exerciseNumbered(index + 1)}</Text>

@@ -1,8 +1,8 @@
-import { ChevronLeft } from 'lucide-react-native';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, fontFamily, iconStrokeWidth, spacing } from '@/theme/colors';
+import { Icons } from '@/theme/icons';
 
 type Props = {
   title?: string;
@@ -19,7 +19,7 @@ export function WizardHeader({ title, subtitle, onBack }: Props) {
     <View style={{ paddingTop: insets.top + spacing.sm }}>
       <View style={styles.row}>
         <TouchableOpacity onPress={onBack} hitSlop={12} style={styles.backBtn}>
-          <ChevronLeft size={22} strokeWidth={iconStrokeWidth} color={colors.text} />
+          <Icons.chevronLeft size={22} strokeWidth={iconStrokeWidth} color={colors.text} />
         </TouchableOpacity>
       </View>
       {title ? (

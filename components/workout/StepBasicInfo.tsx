@@ -1,4 +1,3 @@
-import { Calendar, ChevronDown, Clock, Dumbbell, Flame, HeartPulse, MoreHorizontal } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
@@ -9,15 +8,16 @@ import { formatDateLabel, formatTimeLabel } from '@/lib/date';
 import { strings } from '@/lib/strings';
 import type { WorkoutCategory } from '@/lib/types';
 import { colors, fontFamily, iconStrokeWidth, spacing } from '@/theme/colors';
+import { Icons } from '@/theme/icons';
 import { DatePickerModal } from './DatePickerModal';
 import { TimePickerModal } from './TimePickerModal';
 import { WizardHeader } from './WizardHeader';
 
 const CATEGORY_OPTIONS = [
-  { key: 'crossfit' as const, label: strings.categoryCrossfit, icon: Flame },
-  { key: 'strength' as const, label: strings.categoryStrength, icon: Dumbbell },
-  { key: 'endurance' as const, label: strings.categoryEndurance, icon: HeartPulse },
-  { key: 'other' as const, label: strings.categoryOther, icon: MoreHorizontal },
+  { key: 'crossfit' as const, label: strings.categoryCrossfit, icon: Icons.flame },
+  { key: 'strength' as const, label: strings.categoryStrength, icon: Icons.dumbbell },
+  { key: 'endurance' as const, label: strings.categoryEndurance, icon: Icons.heartPulse },
+  { key: 'other' as const, label: strings.categoryOther, icon: Icons.moreHorizontal },
 ];
 
 const NOTES_MAX = 200;
@@ -68,17 +68,17 @@ export function StepBasicInfo({
         <View style={styles.row}>
           <TouchableOpacity style={{ flex: 1 }} activeOpacity={0.8} onPress={() => setDatePickerVisible(true)}>
             <Card style={styles.pickerCard}>
-              <Calendar size={16} color={colors.textSecondary} strokeWidth={iconStrokeWidth} />
+              <Icons.calendar size={16} color={colors.textSecondary} strokeWidth={iconStrokeWidth} />
               <View style={{ flex: 1 }}>
                 <Text style={styles.label}>{strings.date}</Text>
                 <Text style={styles.pickerValue}>{formatDateLabel(date)}</Text>
               </View>
-              <ChevronDown size={16} color={colors.textTertiary} strokeWidth={iconStrokeWidth} />
+              <Icons.chevronDown size={16} color={colors.textTertiary} strokeWidth={iconStrokeWidth} />
             </Card>
           </TouchableOpacity>
           <TouchableOpacity style={{ flex: 1 }} activeOpacity={0.8} onPress={() => setTimePickerVisible(true)}>
             <Card style={styles.pickerCard}>
-              <Clock size={16} color={colors.textSecondary} strokeWidth={iconStrokeWidth} />
+              <Icons.clock size={16} color={colors.textSecondary} strokeWidth={iconStrokeWidth} />
               <View style={{ flex: 1 }}>
                 <Text style={styles.label}>{strings.startTime}</Text>
                 <Text style={styles.pickerValue}>{formatTimeLabel(startTime)}</Text>

@@ -1,5 +1,4 @@
 import { router } from 'expo-router';
-import { ChevronRight, Dumbbell } from 'lucide-react-native';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
@@ -7,6 +6,7 @@ import { strings } from '@/lib/strings';
 import type { Workout } from '@/lib/types';
 import { countWorkoutExercises } from '@/lib/workoutFormat';
 import { colors, fontFamily, iconStrokeWidth, radius, spacing } from '@/theme/colors';
+import { Icons } from '@/theme/icons';
 
 export function WorkoutCard({ workout }: { workout: Workout }) {
   const exerciseCount = countWorkoutExercises(workout.sections);
@@ -14,7 +14,7 @@ export function WorkoutCard({ workout }: { workout: Workout }) {
     <TouchableOpacity activeOpacity={0.75} onPress={() => router.push(`/workout-detail?id=${workout.id}`)}>
       <Card style={styles.row}>
         <View style={styles.iconWrap}>
-          <Dumbbell size={20} color={colors.blue} strokeWidth={iconStrokeWidth} />
+          <Icons.dumbbell size={20} color={colors.blue} strokeWidth={iconStrokeWidth} />
         </View>
         <View style={styles.textWrap}>
           <Text style={styles.title} numberOfLines={1}>{workout.title}</Text>
@@ -23,7 +23,7 @@ export function WorkoutCard({ workout }: { workout: Workout }) {
             {exerciseCount > 0 ? ` · ${exerciseCount} ${exerciseCount === 1 ? strings.exercise : strings.exercisePlural}` : ''}
           </Text>
         </View>
-        <ChevronRight size={18} color={colors.textTertiary} />
+        <Icons.chevronRight size={18} color={colors.textTertiary} />
       </Card>
     </TouchableOpacity>
   );

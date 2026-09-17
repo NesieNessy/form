@@ -1,4 +1,3 @@
-import { Info } from 'lucide-react-native';
 import React, { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { LineChart } from '@/components/charts/LineChart';
@@ -18,6 +17,7 @@ import {
 import { useContentWidth } from '@/lib/useContentWidth';
 import { strings } from '@/lib/strings';
 import { colors, fontFamily, radius, spacing } from '@/theme/colors';
+import { Icons } from '@/theme/icons';
 
 const MAIN_TABS = [
   { key: 'overview', label: strings.overview },
@@ -156,7 +156,7 @@ function BodyDataTab({ chartWidth }: { chartWidth: number }) {
       </View>
 
       <TouchableOpacity style={styles.infoRow} activeOpacity={0.7}>
-        <Info size={16} color={colors.textSecondary} />
+        <Icons.info size={16} color={colors.textSecondary} />
         <Text style={styles.infoText}>{strings.howIsThisMeasured}</Text>
       </TouchableOpacity>
 

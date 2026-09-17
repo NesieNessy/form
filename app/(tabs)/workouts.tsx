@@ -1,5 +1,4 @@
 import { router } from 'expo-router';
-import { Dumbbell } from 'lucide-react-native';
 import React, { useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { GradientButton } from '@/components/ui/GradientButton';
@@ -8,6 +7,7 @@ import { WorkoutCard } from '@/components/workout/WorkoutCard';
 import { strings } from '@/lib/strings';
 import { useWorkoutsStore } from '@/lib/workoutsStore';
 import { colors, fontFamily, spacing } from '@/theme/colors';
+import { Icons } from '@/theme/icons';
 
 export default function WorkoutsScreen() {
   const workouts = useWorkoutsStore((s) => s.workouts);
@@ -22,7 +22,7 @@ export default function WorkoutsScreen() {
         <TabHeader />
         <ScrollView contentContainerStyle={styles.empty} showsVerticalScrollIndicator={false}>
           <View style={styles.iconWrap}>
-            <Dumbbell color={colors.textSecondary} size={28} />
+            <Icons.dumbbell color={colors.textSecondary} size={28} />
           </View>
           <Text style={styles.title}>{strings.noWorkoutsPlannedYet}</Text>
           <Text style={styles.body}>{strings.workoutsEmptyBody}</Text>

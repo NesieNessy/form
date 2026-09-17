@@ -1,4 +1,3 @@
-import { ChevronDown, ChevronUp, Plus, Trash2 } from 'lucide-react-native';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
@@ -7,6 +6,7 @@ import { strings } from '@/lib/strings';
 import type { WorkoutSection } from '@/lib/types';
 import { SECTION_KEYS_IN_DEFAULT_ORDER, SECTION_META } from '@/lib/workoutSections';
 import { colors, fontFamily, iconStrokeWidth, radius, spacing } from '@/theme/colors';
+import { Icons } from '@/theme/icons';
 import { WizardHeader } from './WizardHeader';
 
 type Props = {
@@ -59,7 +59,7 @@ export function StepWorkoutStructure({ sections, onSectionsChange, onBack, onCon
                     hitSlop={6}
                     style={styles.actionBtn}
                   >
-                    <ChevronUp size={16} color={index === 0 ? colors.textTertiary : colors.textSecondary} strokeWidth={iconStrokeWidth} />
+                    <Icons.chevronUp size={16} color={index === 0 ? colors.textTertiary : colors.textSecondary} strokeWidth={iconStrokeWidth} />
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => moveSection(index, 1)}
@@ -67,7 +67,7 @@ export function StepWorkoutStructure({ sections, onSectionsChange, onBack, onCon
                     hitSlop={6}
                     style={styles.actionBtn}
                   >
-                    <ChevronDown
+                    <Icons.chevronDown
                       size={16}
                       color={index === sections.length - 1 ? colors.textTertiary : colors.textSecondary}
                       strokeWidth={iconStrokeWidth}
@@ -75,7 +75,7 @@ export function StepWorkoutStructure({ sections, onSectionsChange, onBack, onCon
                   </TouchableOpacity>
                   {!meta.required ? (
                     <TouchableOpacity onPress={() => removeSection(index)} hitSlop={6} style={styles.actionBtn}>
-                      <Trash2 size={15} color={colors.textTertiary} strokeWidth={iconStrokeWidth} />
+                      <Icons.trash size={15} color={colors.textTertiary} strokeWidth={iconStrokeWidth} />
                     </TouchableOpacity>
                   ) : null}
                 </View>
@@ -90,7 +90,7 @@ export function StepWorkoutStructure({ sections, onSectionsChange, onBack, onCon
             <View style={styles.chipRow}>
               {availableKeys.map((key) => (
                 <TouchableOpacity key={key} style={styles.chip} activeOpacity={0.8} onPress={() => addSection(key)}>
-                  <Plus size={13} color={colors.textSecondary} strokeWidth={iconStrokeWidth} />
+                  <Icons.plus size={13} color={colors.textSecondary} strokeWidth={iconStrokeWidth} />
                   <Text style={styles.chipLabel}>{SECTION_META[key].label}</Text>
                 </TouchableOpacity>
               ))}

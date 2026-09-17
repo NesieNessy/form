@@ -1,8 +1,8 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import type { LucideIcon } from 'lucide-react-native';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors, fontFamily, iconStrokeWidth, radius, spacing } from '@/theme/colors';
+import type { LucideIcon } from '@/theme/icons';
 
 export type IconPillOption<T extends string> = { key: T; label: string; icon: LucideIcon };
 

@@ -1,8 +1,8 @@
-import { ArrowDown, ArrowUp } from 'lucide-react-native';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Card } from './Card';
 import { colors, fontFamily, iconStrokeWidth, spacing } from '@/theme/colors';
+import { Icons } from '@/theme/icons';
 
 type Props = {
   label: string;
@@ -21,9 +21,9 @@ export function StatCard({ label, value, delta, positive = true, direction = 'do
       {delta ? (
         <View style={styles.deltaRow}>
           {direction === 'down' ? (
-            <ArrowDown size={12} strokeWidth={iconStrokeWidth} color={positive ? colors.green : colors.red} />
+            <Icons.arrowDown size={12} strokeWidth={iconStrokeWidth} color={positive ? colors.green : colors.red} />
           ) : (
-            <ArrowUp size={12} strokeWidth={iconStrokeWidth} color={positive ? colors.green : colors.red} />
+            <Icons.arrowUp size={12} strokeWidth={iconStrokeWidth} color={positive ? colors.green : colors.red} />
           )}
           <Text style={[styles.delta, { color: positive ? colors.green : colors.red }]}>
             {delta}

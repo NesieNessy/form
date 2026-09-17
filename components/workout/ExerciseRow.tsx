@@ -1,4 +1,3 @@
-import { ChevronDown, ChevronUp, Trash2 } from 'lucide-react-native';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
@@ -6,6 +5,7 @@ import { strings } from '@/lib/strings';
 import { formatExerciseTarget } from '@/lib/workoutFormat';
 import type { Exercise } from '@/lib/types';
 import { colors, fontFamily, iconStrokeWidth, radius, spacing } from '@/theme/colors';
+import { Icons } from '@/theme/icons';
 
 type Props = {
   index: number;
@@ -30,13 +30,13 @@ export function ExerciseRow({ index, exercise, onPress, onMoveUp, onMoveDown, on
       </TouchableOpacity>
       <View style={styles.actions}>
         <TouchableOpacity onPress={onMoveUp} disabled={!onMoveUp} hitSlop={6} style={styles.actionBtn}>
-          <ChevronUp size={16} color={onMoveUp ? colors.textSecondary : colors.textTertiary} strokeWidth={iconStrokeWidth} />
+          <Icons.chevronUp size={16} color={onMoveUp ? colors.textSecondary : colors.textTertiary} strokeWidth={iconStrokeWidth} />
         </TouchableOpacity>
         <TouchableOpacity onPress={onMoveDown} disabled={!onMoveDown} hitSlop={6} style={styles.actionBtn}>
-          <ChevronDown size={16} color={onMoveDown ? colors.textSecondary : colors.textTertiary} strokeWidth={iconStrokeWidth} />
+          <Icons.chevronDown size={16} color={onMoveDown ? colors.textSecondary : colors.textTertiary} strokeWidth={iconStrokeWidth} />
         </TouchableOpacity>
         <TouchableOpacity onPress={onRemove} hitSlop={6} style={styles.actionBtn}>
-          <Trash2 size={15} color={colors.textTertiary} strokeWidth={iconStrokeWidth} />
+          <Icons.trash size={15} color={colors.textTertiary} strokeWidth={iconStrokeWidth} />
         </TouchableOpacity>
       </View>
     </Card>

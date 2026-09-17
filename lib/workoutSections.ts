@@ -1,4 +1,4 @@
-import { Dumbbell, Flame, LayoutGrid, Star, Target, Wind, type LucideIcon } from 'lucide-react-native';
+import { Icons, type LucideIcon } from '@/theme/icons';
 import { strings } from './strings';
 import type { SectionKey, StructureKind, WorkoutStructure } from './types';
 
@@ -12,12 +12,12 @@ export const SECTION_KEYS_IN_DEFAULT_ORDER: SectionKey[] = [
 ];
 
 export const SECTION_META: Record<SectionKey, { label: string; icon: LucideIcon; required: boolean }> = {
-  warmup: { label: strings.warmup, icon: Flame, required: false },
-  skill: { label: strings.skill, icon: Target, required: false },
-  strength: { label: strings.strength, icon: Dumbbell, required: false },
-  accessory: { label: strings.accessory, icon: LayoutGrid, required: false },
-  wod: { label: strings.workoutOfTheDay, icon: Star, required: true },
-  cooldown: { label: strings.coolDown, icon: Wind, required: false },
+  warmup: { label: strings.warmup, icon: Icons.flame, required: false },
+  skill: { label: strings.skill, icon: Icons.target, required: false },
+  strength: { label: strings.strength, icon: Icons.dumbbell, required: false },
+  accessory: { label: strings.accessory, icon: Icons.layoutGrid, required: false },
+  wod: { label: strings.workoutOfTheDay, icon: Icons.star, required: true },
+  cooldown: { label: strings.coolDown, icon: Icons.wind, required: false },
 };
 
 export function defaultStructureForKind(kind: StructureKind): WorkoutStructure {

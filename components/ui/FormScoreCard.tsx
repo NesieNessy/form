@@ -1,10 +1,10 @@
-import { ArrowUp } from 'lucide-react-native';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Card } from './Card';
 import { ProgressRing } from '@/components/charts/ProgressRing';
 import { strings } from '@/lib/strings';
 import { colors, fontFamily, iconStrokeWidth, spacing } from '@/theme/colors';
+import { Icons } from '@/theme/icons';
 
 type Breakdown = { label: string; value: number; color: string };
 
@@ -34,7 +34,7 @@ export function FormScoreCard({ score, rating, deltaLabel, breakdown }: Props) {
           centerSubStyle={styles.ringRating}
         />
         <View style={styles.deltaRow}>
-          <ArrowUp size={14} strokeWidth={iconStrokeWidth} color={colors.green} />
+          <Icons.arrowUp size={14} strokeWidth={iconStrokeWidth} color={colors.green} />
           <Text style={styles.deltaLabel}>{deltaLabel}</Text>
         </View>
       </View>

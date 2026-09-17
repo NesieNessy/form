@@ -1,4 +1,3 @@
-import { ArrowRight, PersonStanding, Share2 } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { StackedBarChart } from '@/components/charts/StackedBarChart';
@@ -10,6 +9,7 @@ import { bodyCompositionMonths, bodyCompositionSeries, bodyDevelopment, timeRang
 import { strings } from '@/lib/strings';
 import { useContentWidth } from '@/lib/useContentWidth';
 import { colors, fontFamily, radius, spacing } from '@/theme/colors';
+import { Icons } from '@/theme/icons';
 
 export default function BodyDevelopmentScreen() {
   const [range, setRange] = useState('1y');
@@ -41,13 +41,13 @@ export default function BodyDevelopmentScreen() {
         <Card style={styles.compareCard}>
           <View style={styles.compareRow}>
             <BodyColumn label={strings.before} metrics={before} tint={colors.textTertiary} />
-            <ArrowRight size={20} color={colors.textTertiary} />
+            <Icons.arrowRight size={20} color={colors.textTertiary} />
             <BodyColumn label={strings.now} metrics={after} tint={colors.blue} />
           </View>
         </Card>
 
         <View style={{ height: spacing.lg }} />
-        <GradientButton label={strings.shareProgress} icon={<Share2 size={16} color="#fff" />} />
+        <GradientButton label={strings.shareProgress} icon={<Icons.share size={16} color="#fff" />} />
       </ScrollView>
     </View>
   );
@@ -65,7 +65,7 @@ function BodyColumn({
   return (
     <View style={styles.bodyCol}>
       <View style={[styles.silhouetteWrap, { borderColor: `${tint}55` }]}>
-        <PersonStanding size={40} color={tint} />
+        <Icons.personStanding size={40} color={tint} />
       </View>
       <Text style={styles.bodyColLabel}>{label}</Text>
       <Text style={styles.bodyColMetric}>{metrics.weightKg} kg</Text>

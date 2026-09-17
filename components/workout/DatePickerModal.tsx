@@ -1,7 +1,7 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors, fontFamily, iconStrokeWidth, radius, spacing } from '@/theme/colors';
+import { Icons } from '@/theme/icons';
 
 type Props = {
   visible: boolean;
@@ -45,11 +45,11 @@ export function DatePickerModal({ visible, date, onClose, onSelect }: Props) {
         <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
           <View style={styles.header}>
             <TouchableOpacity onPress={() => goMonth(-1)} hitSlop={10} style={styles.navBtn}>
-              <ChevronLeft size={18} color={colors.text} strokeWidth={iconStrokeWidth} />
+              <Icons.chevronLeft size={18} color={colors.text} strokeWidth={iconStrokeWidth} />
             </TouchableOpacity>
             <Text style={styles.monthLabel}>{monthLabel}</Text>
             <TouchableOpacity onPress={() => goMonth(1)} hitSlop={10} style={styles.navBtn}>
-              <ChevronRight size={18} color={colors.text} strokeWidth={iconStrokeWidth} />
+              <Icons.chevronRight size={18} color={colors.text} strokeWidth={iconStrokeWidth} />
             </TouchableOpacity>
           </View>
 
