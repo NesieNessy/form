@@ -5,10 +5,11 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
 import { strings } from '@/lib/strings';
 import type { Workout } from '@/lib/types';
+import { countWorkoutExercises } from '@/lib/workoutFormat';
 import { colors, fontFamily, iconStrokeWidth, radius, spacing } from '@/theme/colors';
 
 export function WorkoutCard({ workout }: { workout: Workout }) {
-  const exerciseCount = workout.exercises.length;
+  const exerciseCount = countWorkoutExercises(workout.sections);
   return (
     <TouchableOpacity activeOpacity={0.75} onPress={() => router.push(`/workout-detail?id=${workout.id}`)}>
       <Card style={styles.row}>

@@ -2,53 +2,26 @@ import React from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { GradientButton } from '@/components/ui/GradientButton';
 import { strings } from '@/lib/strings';
-import type { Exercise, WorkoutBodyData } from '@/lib/types';
+import type { WorkoutSection } from '@/lib/types';
 import { colors, spacing } from '@/theme/colors';
 import { WizardHeader } from './WizardHeader';
 import { WorkoutSummaryView } from './WorkoutSummaryView';
 
 type Props = {
   title: string;
-  dateLabel: string;
-  warmup?: Exercise[];
-  strength?: Exercise[];
-  skill?: Exercise[];
-  intervalsLabel: string;
-  exercises: Exercise[];
+  dateTimeMs: number;
+  sections: WorkoutSection[];
   notes: string;
-  bodyData: WorkoutBodyData;
   onBack: () => void;
   onSave: () => void;
 };
 
-export function StepPreview({
-  title,
-  dateLabel,
-  warmup,
-  strength,
-  skill,
-  intervalsLabel,
-  exercises,
-  notes,
-  bodyData,
-  onBack,
-  onSave,
-}: Props) {
+export function StepWorkoutPreview({ title, dateTimeMs, sections, notes, onBack, onSave }: Props) {
   return (
     <View style={styles.screen}>
       <WizardHeader title={strings.workoutPreviewTitle} subtitle={strings.workoutPreviewSubtitle} onBack={onBack} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <WorkoutSummaryView
-          title={title}
-          dateLabel={dateLabel}
-          warmup={warmup}
-          strength={strength}
-          skill={skill}
-          intervalsLabel={intervalsLabel}
-          exercises={exercises}
-          notes={notes}
-          bodyData={bodyData}
-        />
+        <WorkoutSummaryView title={title} dateTimeMs={dateTimeMs} sections={sections} notes={notes || undefined} />
       </ScrollView>
       <View style={styles.footer}>
         <GradientButton label={strings.saveWorkout} onPress={onSave} />

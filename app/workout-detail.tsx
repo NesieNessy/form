@@ -28,14 +28,11 @@ export default function WorkoutDetailScreen() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <WorkoutSummaryView
           title={workout.title}
-          dateLabel={workout.dateLabel}
-          warmup={workout.warmup}
-          strength={workout.strength}
-          skill={workout.skill}
-          intervalsLabel={workout.intervalsLabel}
-          exercises={workout.exercises}
+          dateTimeMs={workout.dateTimeMs}
+          sections={workout.sections}
           notes={workout.notes}
-          bodyData={workout.bodyData}
+          durationLabel={workout.durationLabel}
+          totalVolumeLabel={workout.totalVolumeLabel}
         />
       </ScrollView>
     </View>

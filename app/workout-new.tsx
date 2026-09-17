@@ -1,219 +1,224 @@
-import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { Platform } from 'react-native';
-import { StepAnalyzing } from '@/components/workout/StepAnalyzing';
-import { StepBodyData } from '@/components/workout/StepBodyData';
-import { StepChooseMethod } from '@/components/workout/StepChooseMethod';
-import { StepEditWorkout } from '@/components/workout/StepEditWorkout';
-import { StepPreview } from '@/components/workout/StepPreview';
-import { StepScreenshot } from '@/components/workout/StepScreenshot';
-import { formatDateLabel } from '@/lib/date';
-import { mockAnalyzedWorkout } from '@/lib/mockData';
+import { StepBasicInfo } from '@/components/workout/StepBasicInfo';
+import { StepExerciseDetail } from '@/components/workout/StepExerciseDetail';
+import { StepSaveContinue } from '@/components/workout/StepSaveContinue';
+import { StepSectionExercises } from '@/components/workout/StepSectionExercises';
+import { StepSectionStructure } from '@/components/workout/StepSectionStructure';
+import { StepSectionType } from '@/components/workout/StepSectionType';
+import { StepWorkoutPreview } from '@/components/workout/StepWorkoutPreview';
+import { StepWorkoutStructure } from '@/components/workout/StepWorkoutStructure';
+import { combineDateAndTime, formatDateLabel } from '@/lib/date';
+import { buildExerciseFromLibraryEntry, type ExerciseLibraryEntry } from '@/lib/exerciseLibrary';
+import { generateId } from '@/lib/id';
 import { strings } from '@/lib/strings';
-import type { Exercise, WorkoutBodyData, WorkoutBodyDataSource, WorkoutSetup, WorkoutType } from '@/lib/types';
+import type {
+  Exercise,
+  SectionWorkoutType,
+  Workout,
+  WorkoutCategory,
+  WorkoutSection,
+  WorkoutStructure,
+} from '@/lib/types';
 import { useWorkoutsStore } from '@/lib/workoutsStore';
 
-type StepId = 'method' | 'screenshot' | 'analyzing' | 'edit' | 'bodyData' | 'preview';
-
-async function pickImage(): Promise<string | undefined> {
-  try {
-    if (Platform.OS !== 'web') {
-      const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (perm.status !== 'granted') return undefined;
-    }
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      quality: 0.8,
-    });
-    if (!result.canceled && result.assets?.[0]?.uri) {
-      return result.assets[0].uri;
-    }
-  } catch {
-    // No picker available (e.g. permission denied, unsupported environment) — stay put.
-  }
-  return undefined;
-}
+type WizardStep =
+  | { screen: 'basicInfo' }
+  | { screen: 'structure' }
+  | { screen: 'sectionType'; sectionIndex: number }
+  | { screen: 'sectionStructure'; sectionIndex: number }
+  | { screen: 'sectionExercises'; sectionIndex: number }
+  | { screen: 'exerciseDetail'; sectionIndex: number; exerciseId: string | null }
+  | { screen: 'preview' }
+  | { screen: 'saveContinue' };
 
 export default function WorkoutNewScreen() {
   const addWorkout = useWorkoutsStore((s) => s.addWorkout);
+  const updateWorkout = useWorkoutsStore((s) => s.updateWorkout);
 
-  const [stepStack, setStepStack] = useState<StepId[]>(['method']);
+  const [stepStack, setStepStack] = useState<WizardStep[]>([{ screen: 'basicInfo' }]);
   const step = stepStack[stepStack.length - 1];
 
-  const [screenshotUri, setScreenshotUri] = useState<string | undefined>();
   const [title, setTitle] = useState('');
-  const [date, setDate] = useState<Date>(() => new Date());
-  const [warmup, setWarmup] = useState<Exercise[]>([]);
-  const [strength, setStrength] = useState<Exercise[]>([]);
-  const [skill, setSkill] = useState<Exercise[]>([]);
-  const [workoutType, setWorkoutType] = useState<WorkoutType>('emom');
-  const [setup, setSetup] = useState<WorkoutSetup>({});
-  const [intervalsLabel, setIntervalsLabel] = useState('');
-  const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [category, setCategory] = useState<WorkoutCategory>('crossfit');
+  const [date, setDate] = useState(() => new Date());
+  const [startTime, setStartTime] = useState(() => new Date());
   const [notes, setNotes] = useState('');
-  const [bodyDataSource, setBodyDataSource] = useState<WorkoutBodyDataSource>('manual');
-  const [bodyData, setBodyData] = useState<WorkoutBodyData>({});
+  const [sections, setSections] = useState<WorkoutSection[]>([{ key: 'wod', exercises: [] }]);
+  const [durationLabel, setDurationLabel] = useState('');
+  const [totalVolumeLabel, setTotalVolumeLabel] = useState('');
+  const [savedWorkoutId, setSavedWorkoutId] = useState<string | null>(null);
 
-  const updateSetup = (patch: Partial<WorkoutSetup>) => setSetup((prev) => ({ ...prev, ...patch }));
-
-  const buildSummaryLabel = (): string => {
-    switch (workoutType) {
-      case 'emom': {
-        const parts = [setup.interval, setup.rounds && `${setup.rounds} rounds`].filter(Boolean);
-        return [strings.workoutTypeEmom, parts.join(' · ')].filter(Boolean).join(' · ');
-      }
-      case 'amrap':
-        return [strings.workoutTypeAmrap, setup.timeCap].filter(Boolean).join(' · ');
-      case 'forTime': {
-        const parts = [
-          setup.rounds && `${setup.rounds} rounds`,
-          setup.timeCap && `Cap ${setup.timeCap}`,
-        ].filter(Boolean);
-        return [strings.workoutTypeForTime, parts.join(' · ')].filter(Boolean).join(' · ');
-      }
-      case 'tabata': {
-        const parts = [
-          (setup.work || setup.rest) && `${setup.work ?? '?'} / ${setup.rest ?? '?'}`,
-          setup.rounds && `${setup.rounds} rounds`,
-        ].filter(Boolean);
-        return [strings.workoutTypeTabata, parts.join(' · ')].filter(Boolean).join(' · ');
-      }
-      case 'mix':
-      default:
-        return intervalsLabel.trim();
-    }
-  };
-
-  const pushStep = (next: StepId) => setStepStack((s) => [...s, next]);
+  const pushStep = (s: WizardStep) => setStepStack((prev) => [...prev, s]);
   const handleBack = () => {
     if (stepStack.length <= 1) {
       router.back();
     } else {
-      setStepStack((s) => s.slice(0, -1));
+      setStepStack((prev) => prev.slice(0, -1));
     }
   };
 
-  const handlePickAndGo = async () => {
-    const uri = await pickImage();
-    if (uri) {
-      setScreenshotUri(uri);
-      pushStep('screenshot');
-    }
-  };
+  const updateSection = (index: number, patch: Partial<WorkoutSection>) =>
+    setSections((prev) => prev.map((s, i) => (i === index ? { ...s, ...patch } : s)));
+  const updateSectionExercises = (index: number, exercises: Exercise[]) => updateSection(index, { exercises });
 
-  const handleEnterManually = () => {
-    setBodyDataSource('manual');
-    pushStep('edit');
-  };
-
-  const handleAnalyzed = () => {
-    setTitle(mockAnalyzedWorkout.title);
-    setWorkoutType('mix');
-    setIntervalsLabel(mockAnalyzedWorkout.intervalsLabel);
-    setExercises(mockAnalyzedWorkout.exercises);
-    setNotes(mockAnalyzedWorkout.notes);
-    setBodyDataSource('screenshot');
-    pushStep('edit');
-  };
-
-  const handleSave = () => {
-    addWorkout({
-      id: `workout-${Date.now()}`,
-      title: title.trim() || 'Untitled Workout',
+  const handleSaveWorkout = () => {
+    const id = generateId('workout');
+    const now = Date.now();
+    const workout: Workout = {
+      id,
+      title: title.trim() || strings.untitledWorkout,
+      category,
+      dateTimeMs: combineDateAndTime(date, startTime),
       dateLabel: formatDateLabel(date),
-      warmup: warmup.filter((ex) => ex.name.trim().length > 0),
-      strength: strength.filter((ex) => ex.name.trim().length > 0),
-      skill: skill.filter((ex) => ex.name.trim().length > 0),
-      workoutType,
-      workoutSetup: setup,
-      intervalsLabel: buildSummaryLabel() || undefined,
-      exercises: exercises.filter((ex) => ex.name.trim().length > 0),
       notes: notes.trim() || undefined,
-      bodyDataSource,
-      bodyData,
-      screenshotUri,
-      createdAt: Date.now(),
-    });
-    router.back();
+      sections: sections.map((s) => ({
+        ...s,
+        exercises: s.exercises.filter((ex) => ex.name.trim().length > 0),
+      })),
+      createdAt: now,
+      updatedAt: now,
+    };
+    addWorkout(workout);
+    setSavedWorkoutId(id);
+    pushStep({ screen: 'saveContinue' });
   };
 
-  switch (step) {
-    case 'method':
+  const handleDurationChange = (v: string) => {
+    setDurationLabel(v);
+    if (savedWorkoutId) updateWorkout(savedWorkoutId, { durationLabel: v || undefined });
+  };
+  const handleTotalVolumeChange = (v: string) => {
+    setTotalVolumeLabel(v);
+    if (savedWorkoutId) updateWorkout(savedWorkoutId, { totalVolumeLabel: v || undefined });
+  };
+
+  switch (step.screen) {
+    case 'basicInfo':
       return (
-        <StepChooseMethod
-          onBack={handleBack}
-          onUploadScreenshot={handlePickAndGo}
-          onChooseFromGallery={handlePickAndGo}
-          onEnterManually={handleEnterManually}
-        />
-      );
-    case 'screenshot':
-      return (
-        <StepScreenshot
-          uri={screenshotUri ?? ''}
-          onBack={handleBack}
-          onReplace={handlePickAndGo}
-          onContinue={() => pushStep('analyzing')}
-        />
-      );
-    case 'analyzing':
-      return <StepAnalyzing onDone={handleAnalyzed} />;
-    case 'edit':
-      return (
-        <StepEditWorkout
+        <StepBasicInfo
           title={title}
           onTitleChange={setTitle}
           date={date}
           onDateChange={setDate}
-          warmup={warmup}
-          onWarmupChange={setWarmup}
-          strength={strength}
-          onStrengthChange={setStrength}
-          skill={skill}
-          onSkillChange={setSkill}
-          workoutType={workoutType}
-          onWorkoutTypeChange={setWorkoutType}
-          setup={setup}
-          onSetupChange={updateSetup}
-          intervalsLabel={intervalsLabel}
-          onIntervalsChange={setIntervalsLabel}
-          exercises={exercises}
-          onExercisesChange={setExercises}
+          startTime={startTime}
+          onStartTimeChange={setStartTime}
+          category={category}
+          onCategoryChange={setCategory}
           notes={notes}
           onNotesChange={setNotes}
           onBack={handleBack}
-          onContinue={() => pushStep('bodyData')}
+          onContinue={() => pushStep({ screen: 'structure' })}
         />
       );
-    case 'bodyData':
+
+    case 'structure':
       return (
-        <StepBodyData
-          source={bodyDataSource}
-          onSourceChange={setBodyDataSource}
-          bodyData={bodyData}
-          onBodyDataChange={(patch) => setBodyData((prev) => ({ ...prev, ...patch }))}
+        <StepWorkoutStructure
+          sections={sections}
+          onSectionsChange={setSections}
           onBack={handleBack}
-          onContinue={() => pushStep('preview')}
+          onContinue={() => pushStep({ screen: 'sectionType', sectionIndex: 0 })}
         />
       );
+
+    case 'sectionType': {
+      const idx = step.sectionIndex;
+      return (
+        <StepSectionType
+          section={sections[idx]}
+          sectionIndex={idx}
+          totalSections={sections.length}
+          onWorkoutTypeChange={(t: SectionWorkoutType) => updateSection(idx, { workoutType: t })}
+          onStructureChange={(structure: WorkoutStructure) => updateSection(idx, { structure })}
+          onBack={handleBack}
+          onContinue={() => pushStep({ screen: 'sectionStructure', sectionIndex: idx })}
+        />
+      );
+    }
+
+    case 'sectionStructure': {
+      const idx = step.sectionIndex;
+      return (
+        <StepSectionStructure
+          section={sections[idx]}
+          sectionIndex={idx}
+          totalSections={sections.length}
+          onStructureChange={(structure) => updateSection(idx, { structure })}
+          onBack={handleBack}
+          onContinue={() => pushStep({ screen: 'sectionExercises', sectionIndex: idx })}
+        />
+      );
+    }
+
+    case 'sectionExercises': {
+      const idx = step.sectionIndex;
+      const section = sections[idx];
+      return (
+        <StepSectionExercises
+          section={section}
+          sectionIndex={idx}
+          totalSections={sections.length}
+          onExercisesChange={(exercises) => updateSectionExercises(idx, exercises)}
+          onEditExercise={(exerciseId) => pushStep({ screen: 'exerciseDetail', sectionIndex: idx, exerciseId })}
+          onAddExercise={() => pushStep({ screen: 'exerciseDetail', sectionIndex: idx, exerciseId: null })}
+          onQuickAdd={(entry: ExerciseLibraryEntry) =>
+            updateSectionExercises(idx, [...section.exercises, buildExerciseFromLibraryEntry(entry, generateId('ex'))])
+          }
+          onBack={handleBack}
+          onContinue={() =>
+            idx + 1 < sections.length
+              ? pushStep({ screen: 'sectionType', sectionIndex: idx + 1 })
+              : pushStep({ screen: 'preview' })
+          }
+        />
+      );
+    }
+
+    case 'exerciseDetail': {
+      const { sectionIndex, exerciseId } = step;
+      const section = sections[sectionIndex];
+      const existing = exerciseId ? section.exercises.find((e) => e.id === exerciseId) : undefined;
+      const initial: Exercise = existing ?? { id: generateId('ex'), name: '', primary: { target: 'reps', reps: 10 } };
+      return (
+        <StepExerciseDetail
+          initial={initial}
+          isEditing={Boolean(existing)}
+          onBack={handleBack}
+          onSave={(exercise) => {
+            const next = existing
+              ? section.exercises.map((e) => (e.id === exercise.id ? exercise : e))
+              : [...section.exercises, exercise];
+            updateSectionExercises(sectionIndex, next);
+            handleBack();
+          }}
+        />
+      );
+    }
+
     case 'preview':
       return (
-        <StepPreview
+        <StepWorkoutPreview
           title={title}
-          dateLabel={formatDateLabel(date)}
-          warmup={warmup}
-          strength={strength}
-          skill={skill}
-          intervalsLabel={buildSummaryLabel()}
-          exercises={exercises}
+          dateTimeMs={combineDateAndTime(date, startTime)}
+          sections={sections}
           notes={notes}
-          bodyData={bodyData}
           onBack={handleBack}
-          onSave={handleSave}
+          onSave={handleSaveWorkout}
         />
       );
+
+    case 'saveContinue':
+      return (
+        <StepSaveContinue
+          durationLabel={durationLabel}
+          onDurationChange={handleDurationChange}
+          totalVolumeLabel={totalVolumeLabel}
+          onTotalVolumeChange={handleTotalVolumeChange}
+          onDone={() => router.back()}
+        />
+      );
+
     default:
       return null;
   }

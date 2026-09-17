@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { Dumbbell } from 'lucide-react-native';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { GradientButton } from '@/components/ui/GradientButton';
 import { TabHeader } from '@/components/ui/TabHeader';
@@ -11,6 +11,10 @@ import { colors, fontFamily, spacing } from '@/theme/colors';
 
 export default function WorkoutsScreen() {
   const workouts = useWorkoutsStore((s) => s.workouts);
+  const sortedWorkouts = useMemo(
+    () => [...workouts].sort((a, b) => b.dateTimeMs - a.dateTimeMs),
+    [workouts]
+  );
 
   if (workouts.length === 0) {
     return (
@@ -42,7 +46,7 @@ export default function WorkoutsScreen() {
       </View>
       <ScrollView contentContainerStyle={styles.list} showsVerticalScrollIndicator={false}>
         <GradientButton label={strings.newWorkout} onPress={() => router.push('/workout-new')} />
-        {workouts.map((w) => (
+        {sortedWorkouts.map((w) => (
           <WorkoutCard key={w.id} workout={w} />
         ))}
       </ScrollView>

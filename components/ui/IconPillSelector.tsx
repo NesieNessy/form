@@ -1,31 +1,22 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { Infinity as InfinityIcon, Repeat, Shuffle, Timer, Zap } from 'lucide-react-native';
+import type { LucideIcon } from 'lucide-react-native';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { strings } from '@/lib/strings';
-import type { WorkoutType } from '@/lib/types';
 import { colors, fontFamily, iconStrokeWidth, radius, spacing } from '@/theme/colors';
 
-type Option = { key: WorkoutType; label: string; icon: typeof Repeat };
+export type IconPillOption<T extends string> = { key: T; label: string; icon: LucideIcon };
 
-const OPTIONS: Option[] = [
-  { key: 'emom', label: strings.workoutTypeEmom, icon: Repeat },
-  { key: 'amrap', label: strings.workoutTypeAmrap, icon: InfinityIcon },
-  { key: 'forTime', label: strings.workoutTypeForTime, icon: Timer },
-  { key: 'tabata', label: strings.workoutTypeTabata, icon: Zap },
-  { key: 'mix', label: strings.workoutTypeMix, icon: Shuffle },
-];
-
-type Props = {
-  value: WorkoutType;
-  onChange: (type: WorkoutType) => void;
+type Props<T extends string> = {
+  options: IconPillOption<T>[];
+  value: T;
+  onChange: (key: T) => void;
 };
 
-export function WorkoutTypeSelector({ value, onChange }: Props) {
+export function IconPillSelector<T extends string>({ options, value, onChange }: Props<T>) {
   return (
     <View style={styles.wrap}>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row}>
-        {OPTIONS.map((opt) => {
+        {options.map((opt) => {
           const active = opt.key === value;
           const Icon = opt.icon;
           if (active) {

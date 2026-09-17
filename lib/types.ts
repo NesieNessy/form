@@ -56,55 +56,66 @@ export type Insight = {
   body: string;
 };
 
+// Workout wizard — data model
+export type WorkoutCategory = 'crossfit' | 'strength' | 'endurance' | 'other';
+
+export type SectionKey = 'warmup' | 'skill' | 'strength' | 'accessory' | 'wod' | 'cooldown';
+
+export type SectionWorkoutType =
+  | 'forTime'
+  | 'amrap'
+  | 'emom'
+  | 'tabata'
+  | 'strength'
+  | 'partnerWod'
+  | 'custom';
+
+export type StructureKind = 'fixedRounds' | 'repScheme' | 'timeBased' | 'custom';
+
+export type WorkoutStructure =
+  | { kind: 'fixedRounds'; rounds: number }
+  | { kind: 'repScheme'; scheme: string }
+  | { kind: 'timeBased'; minutes: number; seconds: number }
+  | { kind: 'custom'; text: string };
+
+export type ExerciseTarget = 'reps' | 'weight' | 'time' | 'distance' | 'calories' | 'rounds' | 'custom';
+
+export type DistanceUnit = 'm' | 'km';
+
+export type ExercisePrimary =
+  | { target: 'reps'; reps: number }
+  | { target: 'rounds'; rounds: number }
+  | { target: 'calories'; calories: number }
+  | { target: 'time'; minutes: number; seconds: number }
+  | { target: 'distance'; value: number; unit: DistanceUnit }
+  | { target: 'weight'; value: number }
+  | { target: 'custom'; text: string };
+
 export type Exercise = {
   id: string;
   name: string;
-  reps?: string;
-  load?: string;
-  measure?: string;
+  primary: ExercisePrimary;
+  weight?: { value: number; mode: 'each' | 'total' };
+  notes?: string;
 };
 
-export type WorkoutType = 'emom' | 'amrap' | 'forTime' | 'tabata' | 'mix';
-
-export type WorkoutPartKey = 'warmup' | 'strength' | 'skill';
-
-export type WorkoutSetup = {
-  interval?: string;
-  rounds?: string;
-  timeCap?: string;
-  work?: string;
-  rest?: string;
-};
-
-export type WorkoutBodyDataSource = 'automatic' | 'screenshot' | 'manual';
-
-export type WorkoutBodyData = {
-  avgHeartRate?: string;
-  calories?: string;
-  duration?: string;
-  zonesPct?: string;
-  distance?: string;
-  pace?: string;
-  power?: string;
-  avgSpeed?: string;
-  maxHeartRate?: string;
-  device?: string;
+export type WorkoutSection = {
+  key: SectionKey;
+  workoutType?: SectionWorkoutType;
+  structure?: WorkoutStructure;
+  exercises: Exercise[];
 };
 
 export type Workout = {
   id: string;
   title: string;
+  category: WorkoutCategory;
+  dateTimeMs: number;
   dateLabel: string;
-  warmup?: Exercise[];
-  strength?: Exercise[];
-  skill?: Exercise[];
-  workoutType?: WorkoutType;
-  workoutSetup?: WorkoutSetup;
-  intervalsLabel?: string;
-  exercises: Exercise[];
   notes?: string;
-  bodyDataSource?: WorkoutBodyDataSource;
-  bodyData?: WorkoutBodyData;
-  screenshotUri?: string;
+  sections: WorkoutSection[];
+  durationLabel?: string;
+  totalVolumeLabel?: string;
   createdAt: number;
+  updatedAt: number;
 };
