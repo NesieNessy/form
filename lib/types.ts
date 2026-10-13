@@ -1,5 +1,4 @@
-export type RangeKey = '4w' | '3m' | '1y' | 'all';
-
+// Shapes of the bundled sample data (lib/mockData.ts) and its charts.
 export type Point = { label: string; value: number };
 
 export type BodyMetricPoint = {
@@ -19,10 +18,8 @@ export type StrengthLift = {
   points: Point[];
 };
 
-export type EnduranceDistance = '400m' | '1km' | '5km' | 'all';
-
 export type EnduranceSession = {
-  distance: EnduranceDistance;
+  distance: '400m' | '1km' | '5km' | 'all';
   currentLabel: string;
   deltaPct: number;
   deltaLabel: string;
@@ -56,7 +53,8 @@ export type Insight = {
   body: string;
 };
 
-// Workout wizard — data model
+// Form state of the workout creation wizard. What gets stored is the
+// canonical model in lib/workout/model.ts; lib/workout/fromWizard.ts converts.
 export type WorkoutCategory = 'crossfit' | 'strength' | 'endurance' | 'other';
 
 export type SectionKey = 'warmup' | 'skill' | 'strength' | 'accessory' | 'wod' | 'cooldown';
@@ -106,7 +104,8 @@ export type WorkoutSection = {
   exercises: Exercise[];
 };
 
-export type Workout = {
+/** A record of the first local store format. Only read when migrating an old install. */
+export type LegacyWorkout = {
   id: string;
   title: string;
   category: WorkoutCategory;

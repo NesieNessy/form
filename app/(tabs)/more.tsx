@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { AccountCard } from '@/components/account/AccountCard';
 import { Card } from '@/components/ui/Card';
 import { TabHeader } from '@/components/ui/TabHeader';
 import { strings } from '@/lib/strings';
@@ -14,6 +15,30 @@ type MenuItem = {
   subtitle: string;
   route: string;
 };
+
+const accountItems: MenuItem[] = [
+  {
+    icon: Icons.personStanding,
+    color: colors.blue,
+    title: strings.profileTitle,
+    subtitle: strings.profileMenuSubtitle,
+    route: '/profile',
+  },
+  {
+    icon: Icons.users,
+    color: colors.teal,
+    title: strings.sharingTitle,
+    subtitle: strings.sharingMenuSubtitle,
+    route: '/sharing',
+  },
+  {
+    icon: Icons.info,
+    color: colors.amber,
+    title: strings.notificationsTitle,
+    subtitle: strings.notificationsMenuSubtitle,
+    route: '/notifications',
+  },
+];
 
 const items: MenuItem[] = [
   {
@@ -76,7 +101,8 @@ export default function MoreScreen() {
         <Text style={styles.subtitle}>{strings.moreSubtitle}</Text>
       </View>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {items.map((item) => (
+        <AccountCard />
+        {[...accountItems, ...items].map((item) => (
           <TouchableOpacity key={item.route} activeOpacity={0.75} onPress={() => router.push(item.route as never)}>
             <Card style={styles.row}>
               <View style={[styles.iconWrap, { backgroundColor: `${item.color}22` }]}>

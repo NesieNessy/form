@@ -1,6 +1,6 @@
 import { generateId } from './id';
+import { strings } from './strings';
 import { formatSectionHeadline } from './workoutFormat';
-import { SECTION_META } from './workoutSections';
 import type { Exercise, ExercisePrimary, WorkoutSection } from './types';
 
 export type WorkoutPreset = {
@@ -203,7 +203,7 @@ export function formatPresetShareText(preset: WorkoutPreset): string {
   const headline = formatSectionHeadline(preset.section);
   const lines = [
     preset.title,
-    [SECTION_META.wod.label, headline].filter(Boolean).join(' — '),
+    [strings.workoutOfTheDay, headline].filter(Boolean).join(' — '),
     '',
     ...preset.section.exercises.map((e) => e.name),
   ];

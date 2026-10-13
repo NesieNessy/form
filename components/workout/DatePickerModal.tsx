@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { buildMonthGrid, isSameDay } from '@/lib/date';
 import { colors, fontFamily, iconStrokeWidth, radius, spacing } from '@/theme/colors';
 import { Icons } from '@/theme/icons';
 
@@ -11,21 +12,6 @@ type Props = {
 };
 
 const WEEKDAY_LABELS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-
-function isSameDay(a: Date, b: Date) {
-  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
-}
-
-function buildMonthGrid(monthStart: Date): Date[] {
-  const year = monthStart.getFullYear();
-  const month = monthStart.getMonth();
-  const startOffset = new Date(year, month, 1).getDay();
-  const gridStart = new Date(year, month, 1 - startOffset);
-  return Array.from(
-    { length: 42 },
-    (_, i) => new Date(gridStart.getFullYear(), gridStart.getMonth(), gridStart.getDate() + i)
-  );
-}
 
 export function DatePickerModal({ visible, date, onClose, onSelect }: Props) {
   const [viewMonth, setViewMonth] = useState(() => new Date(date.getFullYear(), date.getMonth(), 1));

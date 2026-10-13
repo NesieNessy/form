@@ -4,67 +4,94 @@ This is the build order for FORM, derived from the concept documents in [concept
 
 The order follows three rules taken from the concepts: finish a reliable workout core and the permission foundation first, build deterministic logic before any AI on top of it, and serve the individual athlete before the professional roles.
 
-## Starting point (October 2026)
+## Where the code started (October 2026)
 
-FORM is an Expo / React Native app with a Supabase client. It has a workout creation wizard, workout detail, presets, and trend, goal and insight screens.
-
-- Workouts are client-side only (`lib/workoutsStore.ts`); the `workouts` table in `supabase/schema.sql` holds only a date and a completed flag.
-- Most screens fall back to mock data (`lib/api.ts`, `lib/mockData.ts`).
-- There is no sign-in flow, although row-level security already assumes a signed-in user.
-- The workout type in `lib/types.ts` has sections and exercises, but no versions, no planned-versus-completed split, and no nesting.
+Before Step 1, FORM was an Expo / React Native app with a workout creation wizard, presets, and trend, goal and insight screens running on sample data. Workouts lived on the device only, there was no sign-in, and the workout type had no versions, no planned-versus-completed split and no nesting. Steps 1 and 2 replaced all of that; the leftover code from that stage was removed after Step 2.
 
 ## Step 0 — Decisions to make before coding
 
-- [ ] Workout player or library only? This shapes the schema; the rest of the concepts assume athletes execute workouts in the app.
-- [ ] Backend shape: row-level security plus Edge Functions, or a separate API, for server-side authorization and validation.
-- [ ] Is offline session logging in the first release?
-- [ ] Physiotherapy scope: wellness coordination only, or intended medical use (triggers medical-device regulation).
-- [ ] Launch country, hosting region, and pricing model.
+Recorded in [DECISIONS.md](DECISIONS.md).
+
+- [x] Workout player or library only? **Player.**
+- [x] Backend shape: **row-level security plus database functions**; Edge Functions arrive with Step 3.
+- [x] Is offline session logging in the first release? **Yes, local-first with background sync.**
+- [ ] Physiotherapy scope: wellness coordination only, or intended medical use (triggers medical-device regulation). *Open; needed before Step 8.*
+- [ ] Launch country, hosting region, and pricing model. *Open; needed before Step 2 ships to real users.*
 
 ## Step 1 — Workout Core
 
 Source: [workout_data_model_concept.md](concepts/workout_data_model_concept.md), [workout_ai_agents_concept.md](concepts/workout_ai_agents_concept.md) (Phase 1)
 
-- [ ] Sign-up, sign-in and session handling with Supabase Auth.
-- [ ] Real schema: `workouts`, `workout_versions`, `blocks`, `steps`, `activities`, `scheduled_workouts`, `sessions`, `session_results`.
-- [ ] Migrate types to the four-level model (workout, block, step, prescription), with block purpose separate from block format.
-- [ ] Six core formats: `for_time`, `amrap`, `repeating_interval`, `sets_reps`, `continuous`, `sequence`, plus nested repeating groups.
-- [ ] Canonical exercise catalog table with units, equipment and sport tags.
-- [ ] Deterministic validator (schema, block logic, units, exercise references), callable from app and server.
-- [ ] Draft, approved, published lifecycle and workout versioning.
-- [ ] Planned and actual kept separate; a completed session stores a snapshot of what was prescribed.
-- [ ] Persist wizard workouts to Supabase.
-- [ ] Workout player: local timers that survive connection loss, live result entry, scoring (time, rounds plus reps, load, distance).
-- [ ] Training calendar for planned and completed sessions.
-- [ ] Replace mock data on trends, goals and insights screens with numbers computed from real sessions.
+- [x] Sign-up, sign-in and session handling with Supabase Auth. With no Supabase project configured the app runs in local mode without sign-in.
+- [x] Real schema: `workouts`, `workout_versions`, `blocks`, `steps`, `activities`, `scheduled_workouts`, `sessions`, `session_results` (`supabase/migrations/0002_workout_core.sql`).
+- [x] Four-level model (workout, block, step, prescription), with block purpose separate from block format (`lib/workout/model.ts`).
+- [x] Six core formats plus nested repeating groups, in the model, validator, database and player.
+- [x] Canonical exercise catalog, in the app and seeded into the database from the same source.
+- [x] Deterministic validator in the app (`lib/workout/validate.ts`) and a matching publish check in the database.
+- [x] Workout versioning with draft, published and archived states.
+- [x] Planned and actual kept separate; a completed session stores a snapshot of what was prescribed.
+- [x] Wizard workouts saved to the local store and synced to Supabase (`lib/sync`).
+- [x] Workout player with device-clock timers, live result entry and scoring; plus logging results after the fact.
+- [x] Training calendar for planned and completed sessions; reusable templates.
+- [x] Home, Trends (strength, endurance), Performance Overview and Insights computed from real sessions.
+
+Left over from Step 1:
+
+- [x] Migration applied to the live Supabase project; sign-in and two-device sync (including deletes) verified against it.
+- [ ] Run the player on a physical iOS and Android device (screen stays awake, haptics, backgrounding). Verified so far in a desktop browser only.
+- [ ] The wizard cannot yet build nested groups or edit a saved workout; both exist in the model (`reviseWorkout`) without a screen.
+- [ ] An "approved" state between draft and published is not modelled; it arrives with AI proposals in Step 3.
+- [ ] Body weight, body fat, the FORM score, goals and the comparison screen still show sample values, labelled as such. They need body-measurement entry (not built yet) and the goal model (Step 10).
+- [ ] Sync pulls everything on each run; add incremental pull before data grows past a thousand rows per table.
 
 ## Step 2 — Athlete Intelligence Foundation
 
 Source: [03-stage-1](concepts/03-stage-1-athlete-intelligence-foundation.md), [02-multi-role-access](concepts/02-multi-role-access-and-business-model.md), [09-api-and-data-contracts](concepts/09-api-and-data-contracts.md)
 
-- [ ] Athlete profile: sports, equipment, availability, benchmarks (FTP, 1RM, threshold pace) with date and source.
-- [ ] Data categories as separate tables, not one profile blob: training, health, nutrition, rehab, video, notes.
-- [ ] Consent model: `data_share_grant` scoped by recipient, athlete, category, purpose, operation and expiry; deny by default.
-- [ ] Grants enforced in row-level security and server functions, never only in the UI.
-- [ ] Append-only audit log and a "who accessed my data" screen.
-- [ ] Event tables and outbox (`WorkoutScheduled`, `WorkoutCompleted`, `DataGrantRevoked`, …) carrying IDs only.
-- [ ] Organization, membership and professional-relationship tables as a skeleton.
-- [ ] Notifications with quiet hours and preferences.
-- [ ] Data export and deletion flows.
-- [ ] Automated negative-access tests: revoked grant, expired grant, guessed IDs, cross-tenant reads.
+- [x] Athlete profile: sports, equipment, usual training days, weekly target, and benchmarks (1RM, FTP, threshold and CSS pace, max heart rate) with date and source. A workout prescribing a percentage of 1RM suggests the load from the newest benchmark.
+- [x] Data categories: a registry of 13 categories, five of them available today (profile, benchmarks, workout plans, session results, performance summary). The rest switch on as their modules arrive.
+- [x] Consent model: one grant per recipient, athlete, category, purpose, operation and expiry; deny by default; withdrawn grants are kept as a record.
+- [x] Enforcement in the database: other people read an athlete's data only through `get_shared_context()`, never through the tables.
+- [x] Append-only audit log and a "Who accessed your data" list in the app.
+- [x] Event outbox (`WorkoutScheduled`, `WorkoutCompleted`, `DataGrantCreated`, `DataGrantRevoked`, `RelationshipEnded`, `AthleteBenchmarkUpdated`) carrying IDs only.
+- [x] Organization, membership and professional-relationship tables. Membership grants no data access.
+- [x] Notifications: in-app inbox, per-category mute and quiet-hours settings.
+- [x] Data export (one file) and account deletion (removes every row, ends every connection).
+- [x] Negative-access tests: no relationship, no grant, revoked grant, expired grant, ended relationship, guessed IDs, another professional, a studio owner, signed-out callers.
 
+Verified against the live project with temporary athlete and coach accounts, and in local mode.
+
+Left over from Step 2:
+
+- [ ] Push delivery. Notifications are in-app only; quiet hours are stored but nothing is pushed yet, so they have no effect so far.
+- [ ] Invitations are passed on as a code by the athlete. The app sends no email.
+- [ ] The professional side is a single read-only page. The real coach workspace is Step 6.
+- [ ] Nothing consumes the event outbox yet; the first consumers arrive with Step 3.
+- [ ] Organizations have tables and access rules but no screens (Step 11).
+- [ ] Consent wording (`consentV1` in `lib/strings.ts`) and the retention of audit records after account deletion need legal review before real users. Guardian consent for minors is not modelled.
+- [ ] Body measurements (weight, body fat) still cannot be entered.
 ## Step 3 — First AI workflows: Import and Adaptation
 
 Source: [workout_ai_agents_concept.md](concepts/workout_ai_agents_concept.md)
 
-- [ ] One server-side AI orchestration service with per-workflow tool permissions, not separate agents.
-- [ ] Tool gateway carrying user identity and consent scopes, logging every call.
-- [ ] Agent proposal record: changes as a diff, validation result, pending-approval state, expiry.
-- [ ] Workout Import: text first, then screenshots and PDFs; editable draft that keeps the original source and flags ambiguity instead of inventing values.
-- [ ] Workout Adaptation: equipment, time, difficulty and volume changes, with a change list and approval before saving a variant.
-- [ ] Approval UI showing the diff.
-- [ ] Evaluation set per sport: format classification, number extraction, exercise matching, prompt injection from workout text.
+- [x] One server-side entry point for all AI workflows: the `assistant` edge function (`supabase/functions/assistant`). The pipelines themselves live in `lib/ai` and are bundled into the function, so the server runs the same validator, catalog matching and change list as the app.
+- [x] Identity and logging: the function reads the athlete's data with the athlete's own token (row-level security applies), and writes one `agent_runs` row per request with every step, the model, token counts and duration. It logs sizes and codes, not the athlete's text.
+- [x] Proposal record (`agent_proposals`): the draft, the computed change list, the validator's verdict, open questions, notices, pending state and a seven-day expiry. Clients cannot create or edit one.
+- [x] Workout Import from pasted text or a photo. The original text is kept with the draft; missing values stay empty and become questions for the athlete; a draft with gaps cannot be saved.
+- [x] Workout Adaptation for equipment, time, difficulty, volume and a free note, with a change list computed in code and the model's reasons shown beside it. Approving creates a new version for that calendar entry; the old version stays in the history.
+- [x] Approval screen showing the differences. Approval is re-checked on the server (undecided, unexpired, valid, and still based on the current version) and the workout is saved through the normal validated path.
+- [x] Evaluation set (`evals/cases.ts`, `npm run eval`): 16 cases across CrossFit, strength, running, triathlon, yoga and HIIT, plus missing values, text that tries to instruct the assistant, non-workouts and medical requests. Graded by code. Last run: 16/16 cases, 82/82 checks.
 
+Safety gates: a note that describes a medical situation (surgery, a tear, chest pain and similar) is turned away before any model is called. A note that mentions soreness or pain is adapted, with a fixed notice that the result is not medical advice.
+
+Left over from Step 3:
+
+- [ ] PDF import. The server accepts PDFs; the app has no file picker for them yet.
+- [ ] The red-flag word list and the wording shown to the athlete are placeholders. They need review by a qualified clinician (Step 8).
+- [ ] The evaluation set is small (16 cases) and English only. Grow it from real imports that needed correction.
+- [ ] Photo import and the review screens are verified in a desktop browser, not on a phone.
+- [ ] Cost: about 2 to 5 cents per request on Claude Opus 5.5. The only spend control is 20 requests per athlete per hour; there is no per-account budget yet.
+- [ ] Drafts are created online only. Reviewing or approving one also needs a connection.
 ## Step 4 — Health and wearables
 
 Source: [health_wearable_integration_concept.md](concepts/health_wearable_integration_concept.md)

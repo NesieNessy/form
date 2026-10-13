@@ -3,16 +3,35 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
 import { DetailHeader } from '@/components/ui/DetailHeader';
 import { Icon } from '@/components/ui/Icon';
-import { insights } from '@/lib/mockData';
+import { SampleBadge } from '@/components/ui/SampleBadge';
+import { insights as sampleInsights } from '@/lib/mockData';
 import { strings } from '@/lib/strings';
+import type { IconKey, Insight } from '@/lib/types';
+import { useTrainingStats } from '@/lib/useTrainingStats';
+import type { ComputedInsight } from '@/lib/workout/analytics';
 import { colors, fontFamily, radius, spacing } from '@/theme/colors';
 
+const LOOK: Record<ComputedInsight['kind'], { icon: IconKey; color: string }> = {
+  week: { icon: 'flame', color: colors.orange },
+  record: { icon: 'trophy', color: colors.amber },
+  strength: { icon: 'trending-up', color: colors.purple },
+  endurance: { icon: 'medal', color: colors.teal },
+  consistency: { icon: 'check-circle', color: colors.green },
+};
+
 export default function InsightsScreen() {
+  const { hasSessions, insights: computed } = useTrainingStats();
+  const insights: Insight[] = hasSessions
+    ? computed.map((i) => ({ id: i.id, title: i.title, body: i.body, ...LOOK[i.kind] }))
+    : sampleInsights;
+
   return (
     <View style={styles.screen}>
       <DetailHeader title={strings.insightsTipsTitle} subtitle={strings.insightsTipsSubtitle} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        {hasSessions ? null : <SampleBadge explain style={{ marginBottom: spacing.md }} />}
         <Text style={styles.sectionTitle}>{strings.yourInsights}</Text>
+        {insights.length === 0 ? <Text style={styles.empty}>{strings.noInsightsYet}</Text> : null}
         <View style={{ gap: spacing.md }}>
           {insights.map((insight) => (
             <Card key={insight.id} style={styles.row}>
@@ -35,6 +54,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
   content: { paddingHorizontal: spacing.screenX, paddingBottom: spacing.xxl },
   sectionTitle: { color: colors.text, fontSize: 16, fontWeight: '700', fontFamily: fontFamily.bold, marginBottom: spacing.md },
+  empty: { color: colors.textSecondary, fontSize: 13, lineHeight: 19 },
   row: { flexDirection: 'row', gap: spacing.md, alignItems: 'flex-start' },
   iconWrap: {
     width: 38,

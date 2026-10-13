@@ -4,60 +4,81 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
 import { formatDateLabel, formatTimeLabel } from '@/lib/date';
 import { strings } from '@/lib/strings';
-import type { Exercise, WorkoutSection } from '@/lib/types';
-import { formatExerciseTarget, formatSectionHeadline } from '@/lib/workoutFormat';
-import { SECTION_META } from '@/lib/workoutSections';
+import { blockLabel, formatBlockHeadline, formatScore, formatStep } from '@/lib/workout/format';
+import type { Block, BlockResult, BlockType, Step, WorkoutContent } from '@/lib/workout/model';
 import { colors, fontFamily, radius, spacing } from '@/theme/colors';
-import { Icons } from '@/theme/icons';
+import { Icons, type LucideIcon } from '@/theme/icons';
 
 type Props = {
-  title: string;
-  dateTimeMs: number;
-  sections: WorkoutSection[];
-  notes?: string;
-  durationLabel?: string;
-  totalVolumeLabel?: string;
+  content: WorkoutContent;
+  dateTimeMs?: number;
+  /** When given, each section shows what was actually achieved next to what was prescribed. */
+  blockResults?: BlockResult[];
 };
 
-function ExerciseLine({ exercise, index }: { exercise: Exercise; index: number }) {
+const BLOCK_ICON: Record<BlockType, LucideIcon> = {
+  warmup: Icons.flame,
+  strength: Icons.dumbbell,
+  skill: Icons.target,
+  accessory: Icons.layoutGrid,
+  conditioning: Icons.star,
+  endurance: Icons.heartPulse,
+  interval: Icons.timer,
+  mobility: Icons.personStanding,
+  recovery: Icons.heart,
+  transition: Icons.arrowRight,
+  cooldown: Icons.wind,
+};
+
+function StepLine({ step, depth }: { step: Step; depth: number }) {
+  const { title, detail } = formatStep(step);
+  const isGroup = step.kind === 'group';
+  const Icon = step.kind === 'exercise' ? Icons.dumbbell : isGroup ? Icons.repeat : Icons.clock;
   return (
-    <View style={styles.exerciseRow}>
-      <View style={styles.exerciseBullet}>
-        <Icons.dumbbell size={13} color={colors.textSecondary} />
+    <>
+      <View style={[styles.stepRow, { marginLeft: depth * spacing.lg }]}>
+        <View style={styles.stepBullet}>
+          <Icon size={13} color={colors.textSecondary} />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.stepName}>{title}</Text>
+          {detail ? <Text style={styles.stepDetail}>{detail}</Text> : null}
+          {step.kind === 'exercise' && step.notes ? <Text style={styles.stepDetail}>{step.notes}</Text> : null}
+        </View>
       </View>
-      <View style={{ flex: 1 }}>
-        <Text style={styles.exerciseName}>{exercise.name || strings.exerciseNumbered(index + 1)}</Text>
-        <Text style={styles.exerciseDetail}>{formatExerciseTarget(exercise)}</Text>
-      </View>
-    </View>
+      {isGroup ? step.steps.map((child) => <StepLine key={child.id} step={child} depth={depth + 1} />) : null}
+    </>
   );
 }
 
-function SectionCard({ section }: { section: WorkoutSection }) {
-  if (section.exercises.length === 0 && !section.workoutType) return null;
-  const meta = SECTION_META[section.key];
-  const Icon = meta.icon;
-  const headline = formatSectionHeadline(section);
-  const isWod = section.key === 'wod';
+function BlockCard({ block, result }: { block: Block; result?: BlockResult }) {
+  const Icon = BLOCK_ICON[block.type] ?? Icons.dumbbell;
+  const highlight = block.type === 'conditioning';
 
   const body = (
-    <Card style={[styles.sectionCard, isWod && styles.sectionCardWod]}>
-      <View style={styles.sectionHeader}>
-        <Icon size={15} color={isWod ? colors.text : colors.textSecondary} />
-        <Text style={styles.sectionTitle}>{meta.label}</Text>
+    <Card style={[styles.blockCard, highlight && styles.blockCardHighlight]}>
+      <View style={styles.blockHeader}>
+        <Icon size={15} color={highlight ? colors.text : colors.textSecondary} />
+        <Text style={styles.blockTitle}>{blockLabel(block)}</Text>
+        {result ? (
+          <Text style={[styles.blockScore, result.status === 'skipped' && styles.blockScoreMuted]}>
+            {result.status === 'skipped' ? strings.didNotDo : formatScore(result.score)}
+          </Text>
+        ) : null}
       </View>
-      {headline ? <Text style={styles.sectionHeadline}>{headline}</Text> : null}
-      <View style={{ gap: spacing.sm, marginTop: spacing.sm }}>
-        {section.exercises.map((ex, i) => (
-          <ExerciseLine key={ex.id} exercise={ex} index={i} />
+      <Text style={styles.blockHeadline}>{formatBlockHeadline(block)}</Text>
+      {block.notes ? <Text style={styles.blockNotes}>{block.notes}</Text> : null}
+      <View style={styles.steps}>
+        {block.steps.map((step) => (
+          <StepLine key={step.id} step={step} depth={0} />
         ))}
       </View>
     </Card>
   );
 
-  if (isWod) {
+  if (highlight) {
     return (
-      <LinearGradient colors={colors.gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.wodBorder}>
+      <LinearGradient colors={colors.gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.highlightBorder}>
         {body}
       </LinearGradient>
     );
@@ -65,42 +86,27 @@ function SectionCard({ section }: { section: WorkoutSection }) {
   return body;
 }
 
-export function WorkoutSummaryView({ title, dateTimeMs, sections, notes, durationLabel, totalVolumeLabel }: Props) {
-  const date = new Date(dateTimeMs);
+export function WorkoutSummaryView({ content, dateTimeMs, blockResults }: Props) {
+  const date = dateTimeMs !== undefined ? new Date(dateTimeMs) : undefined;
   return (
     <View style={{ gap: spacing.md }}>
       <Card>
-        <Text style={styles.title}>{title || strings.untitledWorkout}</Text>
-        <Text style={styles.date}>
-          {formatDateLabel(date)} · {formatTimeLabel(date)}
-        </Text>
+        <Text style={styles.title}>{content.title || strings.untitledWorkout}</Text>
+        {date ? (
+          <Text style={styles.date}>
+            {formatDateLabel(date)} · {formatTimeLabel(date)}
+          </Text>
+        ) : null}
       </Card>
 
-      {sections.map((section) => (
-        <SectionCard key={section.key} section={section} />
+      {content.blocks.map((block) => (
+        <BlockCard key={block.id} block={block} result={blockResults?.find((r) => r.blockId === block.id)} />
       ))}
 
-      {durationLabel || totalVolumeLabel ? (
-        <Card style={styles.chipRow}>
-          {durationLabel ? (
-            <View style={styles.chip}>
-              <Text style={styles.chipLabel}>{strings.duration}</Text>
-              <Text style={styles.chipValue}>{durationLabel}</Text>
-            </View>
-          ) : null}
-          {totalVolumeLabel ? (
-            <View style={styles.chip}>
-              <Text style={styles.chipLabel}>{strings.totalVolume}</Text>
-              <Text style={styles.chipValue}>{totalVolumeLabel}</Text>
-            </View>
-          ) : null}
-        </Card>
-      ) : null}
-
-      {notes ? (
+      {content.description ? (
         <Card>
-          <Text style={styles.sectionTitle}>{strings.notes}</Text>
-          <Text style={styles.notes}>{notes}</Text>
+          <Text style={styles.blockTitle}>{strings.notes}</Text>
+          <Text style={styles.notes}>{content.description}</Text>
         </Card>
       ) : null}
     </View>
@@ -110,14 +116,18 @@ export function WorkoutSummaryView({ title, dateTimeMs, sections, notes, duratio
 const styles = StyleSheet.create({
   title: { color: colors.text, fontSize: 18, fontFamily: fontFamily.bold },
   date: { color: colors.textSecondary, fontSize: 12.5, marginTop: 2, fontFamily: fontFamily.regular },
-  wodBorder: { borderRadius: radius.card + 1.5, padding: 1.5 },
-  sectionCard: { gap: 0 },
-  sectionCardWod: { borderWidth: 0 },
-  sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  sectionTitle: { color: colors.text, fontSize: 14, fontFamily: fontFamily.bold, marginBottom: 4 },
-  sectionHeadline: { color: colors.textTertiary, fontSize: 12.5, marginTop: 4, fontFamily: fontFamily.medium },
-  exerciseRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm },
-  exerciseBullet: {
+  highlightBorder: { borderRadius: radius.card + 1.5, padding: 1.5 },
+  blockCard: { gap: 0 },
+  blockCardHighlight: { borderWidth: 0 },
+  blockHeader: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  blockTitle: { flex: 1, color: colors.text, fontSize: 14, fontFamily: fontFamily.bold },
+  blockScore: { color: colors.teal, fontSize: 13.5, fontFamily: fontFamily.bold },
+  blockScoreMuted: { color: colors.textTertiary },
+  blockHeadline: { color: colors.textTertiary, fontSize: 12.5, marginTop: 4, fontFamily: fontFamily.medium },
+  blockNotes: { color: colors.textSecondary, fontSize: 12.5, marginTop: 4, fontFamily: fontFamily.regular },
+  steps: { gap: spacing.sm, marginTop: spacing.sm },
+  stepRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm },
+  stepBullet: {
     width: 24,
     height: 24,
     borderRadius: radius.sm,
@@ -126,11 +136,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 1,
   },
-  exerciseName: { color: colors.text, fontSize: 13.5, fontFamily: fontFamily.semibold },
-  exerciseDetail: { color: colors.textTertiary, fontSize: 12, marginTop: 1, fontFamily: fontFamily.regular },
-  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.lg },
-  chip: { gap: 2 },
-  chipLabel: { color: colors.textTertiary, fontSize: 11.5, fontFamily: fontFamily.medium },
-  chipValue: { color: colors.text, fontSize: 13, fontFamily: fontFamily.semibold },
-  notes: { color: colors.textSecondary, fontSize: 13, lineHeight: 19, fontFamily: fontFamily.regular },
+  stepName: { color: colors.text, fontSize: 13.5, fontFamily: fontFamily.semibold },
+  stepDetail: { color: colors.textTertiary, fontSize: 12, marginTop: 1, fontFamily: fontFamily.regular },
+  notes: { color: colors.textSecondary, fontSize: 13, lineHeight: 19, marginTop: 4, fontFamily: fontFamily.regular },
 });

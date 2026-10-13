@@ -5,6 +5,7 @@ import { IconPillSelector } from '@/components/ui/IconPillSelector';
 import { RadioRow } from '@/components/ui/RadioRow';
 import { strings } from '@/lib/strings';
 import type { SectionWorkoutType, StructureKind, WorkoutSection } from '@/lib/types';
+import { defaultWorkoutTypeForSection } from '@/lib/workout/fromWizard';
 import { SECTION_META, defaultStructureForKind } from '@/lib/workoutSections';
 import { colors, fontFamily, spacing } from '@/theme/colors';
 import { Icons } from '@/theme/icons';
@@ -58,7 +59,7 @@ export function StepSectionType({
         <Text style={styles.sectionTitle}>{strings.workoutType}</Text>
         <IconPillSelector
           options={WORKOUT_TYPE_OPTIONS}
-          value={section.workoutType ?? 'forTime'}
+          value={section.workoutType ?? defaultWorkoutTypeForSection(section.key)}
           onChange={onWorkoutTypeChange}
         />
 

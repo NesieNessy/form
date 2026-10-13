@@ -1,37 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { GradientButton } from '@/components/ui/GradientButton';
-import { Toast } from '@/components/ui/Toast';
-import { FieldCard } from '@/components/workout/FieldCard';
 import { strings } from '@/lib/strings';
 import { colors, fontFamily, spacing } from '@/theme/colors';
 import { Icons } from '@/theme/icons';
 
 type Props = {
-  durationLabel: string;
-  onDurationChange: (v: string) => void;
-  totalVolumeLabel: string;
-  onTotalVolumeChange: (v: string) => void;
+  isTemplate: boolean;
+  onStart: () => void;
+  onLogResults: () => void;
+  onToggleTemplate: () => void;
+  onShare: () => void;
   onDone: () => void;
 };
 
-export function StepSaveContinue({
-  durationLabel,
-  onDurationChange,
-  totalVolumeLabel,
-  onTotalVolumeChange,
-  onDone,
-}: Props) {
-  const [toastVisible, setToastVisible] = useState(false);
-
-  useEffect(() => {
-    if (!toastVisible) return;
-    const t = setTimeout(() => setToastVisible(false), 1800);
-    return () => clearTimeout(t);
-  }, [toastVisible]);
-
-  const showComingSoon = () => setToastVisible(true);
-
+export function StepSaveContinue({ isTemplate, onStart, onLogResults, onToggleTemplate, onShare, onDone }: Props) {
   return (
     <View style={styles.screen}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -43,22 +26,19 @@ export function StepSaveContinue({
           <Text style={styles.subtitle}>{strings.workoutSavedSubtitle}</Text>
         </View>
 
-        <FieldCard label={strings.durationOptional} value={durationLabel} onChangeText={onDurationChange} placeholder="e.g. 28:14" />
-        <FieldCard
-          label={strings.totalVolumeOptional}
-          value={totalVolumeLabel}
-          onChangeText={onTotalVolumeChange}
-          placeholder="e.g. 3,250 kg"
+        <GradientButton label={strings.startNow} variant="secondary" onPress={onStart} style={styles.btn} />
+        <GradientButton label={strings.logResults} variant="secondary" onPress={onLogResults} style={styles.btn} />
+        <GradientButton
+          label={isTemplate ? strings.removeFromTemplates : strings.saveAsTemplate}
+          variant="secondary"
+          onPress={onToggleTemplate}
+          style={styles.btn}
         />
-
-        <GradientButton label={strings.addResults} variant="secondary" onPress={showComingSoon} style={styles.stubBtn} />
-        <GradientButton label={strings.saveAsTemplate} variant="secondary" onPress={showComingSoon} style={styles.stubBtn} />
-        <GradientButton label={strings.share} variant="secondary" onPress={showComingSoon} style={styles.stubBtn} />
+        <GradientButton label={strings.share} variant="secondary" onPress={onShare} style={styles.btn} />
       </ScrollView>
       <View style={styles.footer}>
         <GradientButton label={strings.done} onPress={onDone} />
       </View>
-      <Toast message={strings.comingSoon} visible={toastVisible} />
     </View>
   );
 }
@@ -79,6 +59,6 @@ const styles = StyleSheet.create({
   },
   title: { color: colors.text, fontSize: 22, fontFamily: fontFamily.bold },
   subtitle: { color: colors.textSecondary, fontSize: 14, marginTop: 4, fontFamily: fontFamily.regular },
-  stubBtn: { marginTop: spacing.sm },
+  btn: { marginTop: spacing.sm },
   footer: { paddingHorizontal: spacing.screenX, paddingTop: spacing.sm, paddingBottom: spacing.lg },
 });

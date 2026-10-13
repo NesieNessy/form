@@ -3,19 +3,30 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import { LineChart } from '@/components/charts/LineChart';
 import { Sparkline } from '@/components/charts/Sparkline';
 import { Card } from '@/components/ui/Card';
+import { SampleBadge } from '@/components/ui/SampleBadge';
 import { SegmentedTabs } from '@/components/ui/SegmentedTabs';
 import { TabHeader } from '@/components/ui/TabHeader';
 import {
   bodyMetricHistory,
   enduranceSessions,
-  enduranceStats,
-  strengthLifts,
+  enduranceStats as sampleEnduranceStats,
+  strengthLifts as sampleStrengthLifts,
   strengthOverallProgressPct,
   timeRanges,
   trendsOverview,
 } from '@/lib/mockData';
 import { useContentWidth } from '@/lib/useContentWidth';
 import { strings } from '@/lib/strings';
+import { useTrainingStats } from '@/lib/useTrainingStats';
+import {
+  enduranceSeries,
+  enduranceStats,
+  type DistanceBucket,
+  type EnduranceEffort,
+  type LiftSeries,
+  type RangeKey,
+} from '@/lib/workout/analytics';
+import { formatKg } from '@/lib/workout/format';
 import { colors, fontFamily, radius, spacing } from '@/theme/colors';
 import { Icons } from '@/theme/icons';
 
@@ -40,11 +51,17 @@ const DISTANCE_TABS = [
   { key: 'all', label: strings.all },
 ];
 
+const LIFT_COLORS = [colors.purple, colors.amber, colors.blue, colors.pink];
+
+type TrainingProps = { lifts: LiftSeries[]; strengthPct: number | undefined; efforts: EnduranceEffort[]; range: RangeKey; now: number };
+
 export default function TrendsScreen() {
   const [mainTab, setMainTab] = useState('overview');
-  const [range, setRange] = useState('3m');
+  const [range, setRange] = useState<RangeKey>('3m');
   const width = useContentWidth();
   const chartWidth = width - spacing.lg * 2 - spacing.lg * 2;
+  const stats = useTrainingStats(range);
+  const training: TrainingProps = { lifts: stats.lifts, strengthPct: stats.strengthPct, efforts: stats.efforts, range, now: stats.now };
 
   return (
     <View style={styles.screen}>
@@ -58,24 +75,58 @@ export default function TrendsScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <SegmentedTabs options={timeRanges.map((r) => ({ key: r.key, label: r.label }))} value={range} onChange={setRange} scrollable size="sm" />
+        <SegmentedTabs
+          options={timeRanges.map((r) => ({ key: r.key, label: r.label }))}
+          value={range}
+          onChange={(key) => setRange(key as RangeKey)}
+          scrollable
+          size="sm"
+        />
         <View style={{ height: spacing.lg }} />
 
-        {mainTab === 'overview' && <OverviewTab chartWidth={Math.min(120, chartWidth * 0.32)} />}
+        {mainTab === 'overview' && <OverviewTab chartWidth={Math.min(120, chartWidth * 0.32)} {...training} />}
         {mainTab === 'body-data' && <BodyDataTab chartWidth={chartWidth} />}
-        {mainTab === 'strength' && <StrengthTab chartWidth={chartWidth} />}
-        {mainTab === 'endurance' && <EnduranceTab chartWidth={chartWidth} />}
+        {mainTab === 'strength' && <StrengthTab chartWidth={chartWidth} {...training} />}
+        {mainTab === 'endurance' && <EnduranceTab chartWidth={chartWidth} {...training} />}
       </ScrollView>
     </View>
   );
 }
 
-function OverviewTab({ chartWidth }: { chartWidth: number }) {
+function OverviewTab({ chartWidth, lifts, strengthPct, efforts, range, now }: { chartWidth: number } & TrainingProps) {
+  const topLift = lifts[0];
+  const pace = enduranceSeries(efforts, 'all', range, now);
+
+  // Body rows are sample values until body measurements can be recorded;
+  // strength and endurance switch to the athlete's own numbers as soon as there are any.
+  const rows = trendsOverview.map((item) => {
+    if (item.key === 'strength' && topLift) {
+      return {
+        ...item,
+        value: strengthPct === undefined ? strings.notAvailable : `${strengthPct >= 0 ? '+' : ''}${strengthPct}%`,
+        delta: strengthPct === undefined ? strings.noDataYet : strings.vsStart,
+        points: topLift.points.map((p) => p.value),
+        sample: false,
+      };
+    }
+    if (item.key === 'endurance' && pace) {
+      return {
+        ...item,
+        value: pace.currentLabel,
+        delta: pace.deltaLabel ?? ' ',
+        points: pace.points.map((p) => p.value),
+        sample: false,
+      };
+    }
+    return { ...item, sample: true };
+  });
+
   return (
     <View style={{ gap: spacing.md }}>
-      {trendsOverview.map((item) => (
+      {rows.map((item) => (
         <Card key={item.key} style={styles.overviewCard}>
           <View style={styles.overviewText}>
+            {item.sample ? <SampleBadge style={{ marginBottom: 4 }} /> : null}
             <Text style={styles.overviewLabel}>{item.label}</Text>
             <Text style={styles.overviewValue}>{item.value}</Text>
             <Text style={[styles.overviewDelta, { color: item.color }]}>{item.delta}</Text>
@@ -86,7 +137,6 @@ function OverviewTab({ chartWidth }: { chartWidth: number }) {
     </View>
   );
 }
-
 function BodyDataTab({ chartWidth }: { chartWidth: number }) {
   const [metric, setMetric] = useState('weight');
 
@@ -125,6 +175,7 @@ function BodyDataTab({ chartWidth }: { chartWidth: number }) {
 
   return (
     <View>
+      <SampleBadge explain style={{ marginBottom: spacing.md }} />
       <SegmentedTabs options={BODY_METRIC_TABS} value={metric} onChange={setMetric} scrollable size="sm" />
       <View style={{ height: spacing.lg }} />
       <Card>
@@ -170,74 +221,149 @@ function BodyDataTab({ chartWidth }: { chartWidth: number }) {
   );
 }
 
-function StrengthTab({ chartWidth }: { chartWidth: number }) {
+function StrengthTab({ chartWidth, lifts, strengthPct }: { chartWidth: number } & TrainingProps) {
   const sparkWidth = (chartWidth - spacing.md) / 2 - spacing.lg;
+  const real = lifts.length > 0;
+  const cards = real
+    ? lifts.slice(0, 6).map((lift, i) => ({
+        name: lift.name,
+        current: lift.current,
+        delta: lift.deltaFromStart,
+        values: lift.points.map((p) => p.value),
+        color: LIFT_COLORS[i % LIFT_COLORS.length],
+      }))
+    : sampleStrengthLifts.map((lift) => ({
+        name: lift.exercise,
+        current: lift.current,
+        delta: lift.deltaFromStart,
+        values: lift.points.map((p) => p.value),
+        color: lift.color,
+      }));
+  const overall = real ? strengthPct : strengthOverallProgressPct;
+
   return (
     <View>
       <Text style={styles.sectionTitle}>{strings.yourStrengthProgress}</Text>
+      {real ? null : (
+        <View style={styles.sampleNote}>
+          <SampleBadge />
+          <Text style={styles.sampleHint}>{strings.logStrengthToSee}</Text>
+        </View>
+      )}
       <View style={styles.liftGrid}>
-        {strengthLifts.map((lift) => (
-          <Card key={lift.exercise} style={styles.liftCard}>
-            <Text style={styles.liftName}>{lift.exercise}</Text>
+        {cards.map((lift) => (
+          <Card key={lift.name} style={styles.liftCard}>
+            <Text style={styles.liftName}>{lift.name}</Text>
             <Text style={styles.liftValue}>
-              {lift.current} kg{' '}
-              <Text style={[styles.liftDelta, { color: lift.color }]}>+{lift.deltaFromStart} kg</Text>
+              {formatKg(lift.current)}{' '}
+              {lift.values.length >= 2 ? (
+                <Text style={[styles.liftDelta, { color: lift.color }]}>
+                  {lift.delta >= 0 ? '+' : '-'}
+                  {formatKg(Math.abs(lift.delta))}
+                </Text>
+              ) : null}
             </Text>
-            <Sparkline values={lift.points.map((p) => p.value)} color={lift.color} width={sparkWidth} height={44} />
+            <Sparkline values={lift.values} color={lift.color} width={sparkWidth} height={44} />
           </Card>
         ))}
       </View>
 
       <Card style={styles.progressCard}>
         <Text style={styles.progressLabel}>{strings.overallProgress}</Text>
-        <Text style={styles.progressValue}>+{strengthOverallProgressPct}%</Text>
-        <Text style={styles.progressSub}>(vs. start)</Text>
+        <Text style={styles.progressValue}>
+          {overall === undefined ? strings.notAvailable : `${overall >= 0 ? '+' : ''}${overall}%`}
+        </Text>
+        <Text style={styles.progressSub}>{overall === undefined ? strings.noDataYet : strings.vsStart}</Text>
       </Card>
     </View>
   );
 }
 
-function EnduranceTab({ chartWidth }: { chartWidth: number }) {
-  const [distance, setDistance] = useState('5km');
-  const session = enduranceSessions[0];
+function EnduranceTab({ chartWidth, efforts, range, now }: { chartWidth: number } & TrainingProps) {
+  const [distance, setDistance] = useState<DistanceBucket>('5km');
+  const real = efforts.length > 0;
+  const series = real ? enduranceSeries(efforts, distance, range, now) : undefined;
+  const totals = real ? enduranceStats(efforts, range, now) : undefined;
+  const sample = enduranceSessions[0];
+  const distanceLabel = DISTANCE_TABS.find((t) => t.key === distance)?.label ?? '';
 
   return (
     <View>
       <Text style={styles.sectionTitle}>{strings.endurancePerformance}</Text>
-      <SegmentedTabs options={DISTANCE_TABS} value={distance} onChange={setDistance} scrollable size="sm" />
+      {real ? null : (
+        <View style={styles.sampleNote}>
+          <SampleBadge />
+          <Text style={styles.sampleHint}>{strings.logEnduranceToSee}</Text>
+        </View>
+      )}
+      <SegmentedTabs options={DISTANCE_TABS} value={distance} onChange={(key) => setDistance(key as DistanceBucket)} scrollable size="sm" />
       <View style={{ height: spacing.lg }} />
 
-      <Card>
-        <View style={styles.chartHeaderRow}>
-          <View>
-            <Text style={styles.chartLabel}>{strings.distance5km}</Text>
-            <Text style={styles.chartValue}>{session.currentLabel}</Text>
+      {real ? (
+        <Card>
+          <View style={styles.chartHeaderRow}>
+            <View>
+              <Text style={styles.chartLabel}>{distanceLabel}</Text>
+              <Text style={styles.chartValue}>{series ? series.currentLabel : strings.notAvailable}</Text>
+            </View>
+            {series?.deltaPct !== undefined ? (
+              <View style={[styles.deltaPill, { backgroundColor: `${colors.teal}22` }]}>
+                <Text style={[styles.deltaPillText, { color: colors.teal }]}>
+                  {series.deltaPct > 0 ? '+' : ''}
+                  {series.deltaPct}%
+                </Text>
+              </View>
+            ) : null}
           </View>
-          <View style={[styles.deltaPill, { backgroundColor: `${colors.teal}22` }]}>
-            <Text style={[styles.deltaPillText, { color: colors.teal }]}>{session.deltaPct}%</Text>
+          <Text style={styles.sinceLabel}>{series ? (series.deltaLabel ?? ' ') : strings.noDataYet}</Text>
+          {series && series.points.length >= 2 ? (
+            <>
+              <View style={{ height: spacing.md }} />
+              <LineChart points={series.points} color={colors.teal} width={chartWidth} />
+            </>
+          ) : null}
+        </Card>
+      ) : (
+        <Card>
+          <View style={styles.chartHeaderRow}>
+            <View>
+              <Text style={styles.chartLabel}>{strings.distance5km}</Text>
+              <Text style={styles.chartValue}>{sample.currentLabel}</Text>
+            </View>
+            <View style={[styles.deltaPill, { backgroundColor: `${colors.teal}22` }]}>
+              <Text style={[styles.deltaPillText, { color: colors.teal }]}>{sample.deltaPct}%</Text>
+            </View>
           </View>
-        </View>
-        <Text style={styles.sinceLabel}>{session.deltaLabel}</Text>
-        <View style={{ height: spacing.md }} />
-        <LineChart points={session.points} color={colors.teal} width={chartWidth} />
-      </Card>
+          <Text style={styles.sinceLabel}>{sample.deltaLabel}</Text>
+          <View style={{ height: spacing.md }} />
+          <LineChart points={sample.points} color={colors.teal} width={chartWidth} />
+        </Card>
+      )}
 
       <View style={{ height: spacing.md }} />
       <View style={styles.boxRow}>
-        <MiniBox label={strings.avgHeartRate} value={enduranceStats.avgHeartRate.value} sub={enduranceStats.avgHeartRate.delta} />
-        <MiniBox label={strings.vo2max} value={enduranceStats.vo2max.value} sub={enduranceStats.vo2max.delta} />
+        {real ? (
+          <>
+            <MiniBox label={strings.avgHeartRate} value={strings.notAvailable} sub={strings.needsWearable} />
+            <MiniBox label={strings.vo2max} value={strings.notAvailable} sub={strings.needsWearable} />
+          </>
+        ) : (
+          <>
+            <MiniBox label={strings.avgHeartRate} value={sampleEnduranceStats.avgHeartRate.value} sub={sampleEnduranceStats.avgHeartRate.delta} />
+            <MiniBox label={strings.vo2max} value={sampleEnduranceStats.vo2max.value} sub={sampleEnduranceStats.vo2max.delta} />
+          </>
+        )}
       </View>
 
       <Card style={styles.statsListCard}>
         <Text style={styles.sectionTitle}>{strings.moreEnduranceStats}</Text>
-        <StatRow label={strings.avgPace} value={enduranceStats.avgPace} />
-        <StatRow label={strings.totalDistance} value={enduranceStats.totalDistance} />
-        <StatRow label={strings.sessions} value={String(enduranceStats.sessions)} />
+        <StatRow label={strings.avgPace} value={real ? (totals?.avgPaceLabel ?? strings.notAvailable) : sampleEnduranceStats.avgPace} />
+        <StatRow label={strings.totalDistance} value={real ? (totals?.totalDistanceLabel ?? strings.notAvailable) : sampleEnduranceStats.totalDistance} />
+        <StatRow label={strings.sessions} value={String(real ? (totals?.count ?? 0) : sampleEnduranceStats.sessions)} />
       </Card>
     </View>
   );
 }
-
 function MiniBox({ label, value, sub, highlight }: { label: string; value: string; sub?: string; highlight?: boolean }) {
   return (
     <Card style={[styles.miniBox, highlight && styles.miniBoxHighlight]}>
@@ -290,6 +416,9 @@ const styles = StyleSheet.create({
   tipCard: { marginTop: spacing.lg, backgroundColor: colors.cardAlt },
   tipTitle: { color: colors.amber, fontSize: 12.5, fontWeight: '700', fontFamily: fontFamily.bold, marginBottom: 4 },
   tipBody: { color: colors.textSecondary, fontSize: 13, lineHeight: 19 },
+
+  sampleNote: { gap: 6, marginBottom: spacing.md },
+  sampleHint: { color: colors.textTertiary, fontSize: 12.5, lineHeight: 18 },
 
   sectionTitle: { color: colors.text, fontSize: 16, fontWeight: '700', fontFamily: fontFamily.bold, marginBottom: spacing.md },
 
