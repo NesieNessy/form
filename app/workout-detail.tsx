@@ -7,6 +7,7 @@ import { GradientButton } from '@/components/ui/GradientButton';
 import { Toast } from '@/components/ui/Toast';
 import { ValidationIssues } from '@/components/workout/ValidationIssues';
 import { WorkoutSummaryView } from '@/components/workout/WorkoutSummaryView';
+import { useAuthStore } from '@/lib/auth';
 import { strings } from '@/lib/strings';
 import { useScheduleItem } from '@/lib/useWorkouts';
 import { formatClock, formatKg } from '@/lib/workout/format';
@@ -22,6 +23,7 @@ export default function WorkoutDetailScreen() {
   const startSession = useWorkoutsStore((s) => s.startSession);
   const setTemplate = useWorkoutsStore((s) => s.setTemplate);
   const removeScheduled = useWorkoutsStore((s) => s.removeScheduled);
+  const signedIn = useAuthStore((s) => s.status === 'signedIn');
 
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
@@ -92,6 +94,9 @@ export default function WorkoutDetailScreen() {
             <>
               <GradientButton label={strings.startWorkout} onPress={() => open('player')} />
               <GradientButton label={strings.logResults} variant="secondary" onPress={() => open('manual')} />
+              {signedIn ? (
+                <GradientButton label={strings.adaptWithAi} variant="secondary" onPress={() => router.push({ pathname: '/workout-adapt', params: { id: entry.id } })} />
+              ) : null}
             </>
           )
         ) : null}

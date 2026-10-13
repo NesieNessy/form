@@ -28,6 +28,7 @@ export const MIGRATIONS = [
   'migrations/0002_workout_core.sql',
   'migrations/0003_athlete_foundation.sql',
   'migrations/0004_drop_placeholder_tables.sql',
+  'migrations/0005_ai_proposals.sql',
 ];
 
 export function readMigration(relativePath: string): string {

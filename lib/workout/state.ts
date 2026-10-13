@@ -77,9 +77,9 @@ function clone<T>(value: T): T {
 export function createWorkout(
   data: WorkoutData,
   content: WorkoutContent,
-  opts: { source: WorkoutSource; scheduledAt?: number; isTemplate?: boolean; nowMs: number }
+  opts: { source: WorkoutSource; scheduledAt?: number; isTemplate?: boolean; nowMs: number; workoutId?: string }
 ): { data: WorkoutData; workoutId: string; versionId: string; scheduledId?: string } {
-  const workoutId = newUuid();
+  const workoutId = opts.workoutId ?? newUuid();
   const versionId = newUuid();
   const version: WorkoutVersion = {
     id: versionId,
@@ -155,6 +155,22 @@ export function scheduleWorkout(data: WorkoutData, workoutId: string, scheduledA
   return {
     scheduledId,
     data: { ...data, scheduled: { ...data.scheduled, [scheduledId]: entry }, dirty: mark(data.dirty, { scheduled: [scheduledId] }) },
+  };
+}
+
+/**
+ * Applies an approved adaptation to one schedule entry: the workout gets a
+ * new version and this entry is moved onto it. The version it was on stays
+ * in the history, and other entries of the same workout keep theirs.
+ */
+export function applyAdaptation(data: WorkoutData, scheduledId: string, content: WorkoutContent, nowMs: number): WorkoutData {
+  const entry = data.scheduled[scheduledId];
+  if (!entry || entry.deletedAt || entry.status !== 'planned') return data;
+  const revised = reviseWorkout(data, entry.workoutId, content, nowMs);
+  return {
+    ...revised.data,
+    scheduled: { ...revised.data.scheduled, [scheduledId]: { ...entry, versionId: revised.versionId, updatedAt: nowMs } },
+    dirty: mark(revised.data.dirty, { scheduled: [scheduledId] }),
   };
 }
 

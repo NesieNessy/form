@@ -74,14 +74,24 @@ Left over from Step 2:
 
 Source: [workout_ai_agents_concept.md](concepts/workout_ai_agents_concept.md)
 
-- [ ] One server-side AI orchestration service with per-workflow tool permissions, not separate agents.
-- [ ] Tool gateway carrying user identity and consent scopes, logging every call.
-- [ ] Agent proposal record: changes as a diff, validation result, pending-approval state, expiry.
-- [ ] Workout Import: text first, then screenshots and PDFs; editable draft that keeps the original source and flags ambiguity instead of inventing values.
-- [ ] Workout Adaptation: equipment, time, difficulty and volume changes, with a change list and approval before saving a variant.
-- [ ] Approval UI showing the diff.
-- [ ] Evaluation set per sport: format classification, number extraction, exercise matching, prompt injection from workout text.
+- [x] One server-side entry point for all AI workflows: the `assistant` edge function (`supabase/functions/assistant`). The pipelines themselves live in `lib/ai` and are bundled into the function, so the server runs the same validator, catalog matching and change list as the app.
+- [x] Identity and logging: the function reads the athlete's data with the athlete's own token (row-level security applies), and writes one `agent_runs` row per request with every step, the model, token counts and duration. It logs sizes and codes, not the athlete's text.
+- [x] Proposal record (`agent_proposals`): the draft, the computed change list, the validator's verdict, open questions, notices, pending state and a seven-day expiry. Clients cannot create or edit one.
+- [x] Workout Import from pasted text or a photo. The original text is kept with the draft; missing values stay empty and become questions for the athlete; a draft with gaps cannot be saved.
+- [x] Workout Adaptation for equipment, time, difficulty, volume and a free note, with a change list computed in code and the model's reasons shown beside it. Approving creates a new version for that calendar entry; the old version stays in the history.
+- [x] Approval screen showing the differences. Approval is re-checked on the server (undecided, unexpired, valid, and still based on the current version) and the workout is saved through the normal validated path.
+- [x] Evaluation set (`evals/cases.ts`, `npm run eval`): 16 cases across CrossFit, strength, running, triathlon, yoga and HIIT, plus missing values, text that tries to instruct the assistant, non-workouts and medical requests. Graded by code. Last run: 16/16 cases, 82/82 checks.
 
+Safety gates: a note that describes a medical situation (surgery, a tear, chest pain and similar) is turned away before any model is called. A note that mentions soreness or pain is adapted, with a fixed notice that the result is not medical advice.
+
+Left over from Step 3:
+
+- [ ] PDF import. The server accepts PDFs; the app has no file picker for them yet.
+- [ ] The red-flag word list and the wording shown to the athlete are placeholders. They need review by a qualified clinician (Step 8).
+- [ ] The evaluation set is small (16 cases) and English only. Grow it from real imports that needed correction.
+- [ ] Photo import and the review screens are verified in a desktop browser, not on a phone.
+- [ ] Cost: about 2 to 5 cents per request on Claude Opus 5.5. The only spend control is 20 requests per athlete per hour; there is no per-account budget yet.
+- [ ] Drafts are created online only. Reviewing or approving one also needs a connection.
 ## Step 4 — Health and wearables
 
 Source: [health_wearable_integration_concept.md](concepts/health_wearable_integration_concept.md)

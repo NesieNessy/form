@@ -11,7 +11,9 @@ export type Activity = {
   name: string;
   synonyms: string[];
   sports: Sport[];
+  /** Everything listed is needed, unless `equipmentAny` is set, in which case any one of them will do. */
   equipment: string[];
+  equipmentAny?: boolean;
   defaultTarget: DefaultTarget;
   /** Loaded movements are the ones whose results feed strength trends. */
   loadable: boolean;
@@ -69,7 +71,7 @@ export const ACTIVITIES: Activity[] = [
     'db hang squat clean',
     'dumbbell hang clean',
   ]),
-  a('goblet_squat', 'Goblet Squat', reps(10), ['strength', 'hiit'], ['dumbbell', 'kettlebell'], true),
+  { ...a('goblet_squat', 'Goblet Squat', reps(10), ['strength', 'hiit'], ['dumbbell', 'kettlebell'], true), equipmentAny: true },
   a('kettlebell_swing', 'Kettlebell Swing', reps(15), ['crossfit', 'hiit'], ['kettlebell'], true, ['kb swing', 'kbs']),
   a('wall_ball', 'Wall Ball', reps(15), ['crossfit'], ['medicine ball'], true, ['wall ball shot', 'wb']),
   a('walking_lunge', 'Walking Lunge', reps(20), ['crossfit', 'hiit'], [], false, ['lunge', 'walking lunges']),
@@ -78,7 +80,7 @@ export const ACTIVITIES: Activity[] = [
   a('pull_up', 'Pull Up', reps(10), ['crossfit', 'strength'], ['pull-up bar'], false, ['pullup', 'pull-up']),
   a('chest_to_bar', 'Chest-to-Bar Pull Up', reps(8), ['crossfit'], ['pull-up bar'], false, ['c2b', 'chest to bar']),
   a('ring_row', 'Ring Row', reps(10), ['crossfit'], ['rings'], false),
-  a('muscle_up', 'Muscle Up', reps(3), ['crossfit'], ['rings', 'pull-up bar'], false, ['bar muscle up', 'ring muscle up']),
+  { ...a('muscle_up', 'Muscle Up', reps(3), ['crossfit'], ['rings', 'pull-up bar'], false, ['bar muscle up', 'ring muscle up']), equipmentAny: true },
   a('toes_to_bar', 'Toes-to-Bar', reps(10), ['crossfit'], ['pull-up bar'], false, ['t2b', 'toes to bar']),
   a('push_up', 'Push Up', reps(10), ['crossfit', 'hiit', 'strength'], [], false, ['pushup', 'push-up']),
   a('handstand_push_up', 'Handstand Push Up', reps(5), ['crossfit'], [], false, ['hspu']),
@@ -156,6 +158,14 @@ for (const act of ACTIVITIES) {
 export function resolveActivity(name: string): Activity | undefined {
   const key = normalizeActivityName(name);
   return key ? BY_NAME.get(key) : undefined;
+}
+
+/** The equipment an activity still lacks, given what is available. Empty means it can be done. */
+export function missingEquipment(activity: Activity, available: string[]): string[] {
+  const have = new Set(available.map((e) => e.toLowerCase()));
+  const lacking = activity.equipment.filter((e) => !have.has(e.toLowerCase()));
+  if (activity.equipmentAny) return lacking.length < activity.equipment.length ? [] : [activity.equipment.join(' or ')];
+  return lacking;
 }
 
 export function searchActivities(query: string): Activity[] {

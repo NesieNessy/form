@@ -11,6 +11,7 @@
     "expo-font": "~57.0.3",
     "expo-haptics": "~57.0.3",
     "expo-image": "~57.0.4",
+    "expo-image-picker": "~57.0.20",
     "expo-keep-awake": "~57.0.2",
     "expo-linear-gradient": "~57.0.1",
     "expo-linking": "~57.0.9",
@@ -31,6 +32,7 @@
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.9",
     "@types/react": "~19.2.2",
+    "esbuild": "^0.28.2",
     "tsx": "^4.23.15",
     "typescript": "~6.0.3"
   },
@@ -40,8 +42,10 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit && tsc -p tsconfig.node.json",
-    "test": "tsx --test --test-concurrency=1 lib/workout/workout.test.ts supabase/tests/workout_core.test.ts supabase/tests/athlete_foundation.test.ts",
-    "gen:activity-seed": "tsx scripts/gen-activity-seed.ts"
+    "test": "tsx --test --test-concurrency=1 lib/workout/workout.test.ts lib/ai/ai.test.ts supabase/tests/workout_core.test.ts supabase/tests/athlete_foundation.test.ts supabase/tests/ai_proposals.test.ts",
+    "gen:activity-seed": "tsx scripts/gen-activity-seed.ts",
+    "build:edge-core": "tsx scripts/build-edge-core.ts",
+    "eval": "tsx scripts/run-evals.ts"
   },
   "private": true
 }

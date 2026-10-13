@@ -14,9 +14,18 @@ With no configuration the app runs in **local mode**: everything is stored on th
 ## Connect Supabase (optional)
 
 1. Create a Supabase project.
-2. In the SQL editor run `supabase/schema.sql`, then each file in `supabase/migrations/` in order (`0002_workout_core.sql`, `0003_athlete_foundation.sql`, `0004_drop_placeholder_tables.sql`).
+2. In the SQL editor run `supabase/schema.sql`, then each file in `supabase/migrations/` in order (`0002` through `0005`).
 3. Copy `.env.example` to `.env.local` (git-ignored) and fill in the project URL and publishable key. The names must start with `EXPO_PUBLIC_`.
 4. Restart with a clean bundler cache: `npx expo start --clear`.
+
+For the AI assistant (workout import and adaptation), also set an Anthropic API key as a secret and deploy the server function:
+
+```bash
+npx supabase login
+npx supabase link --project-ref <your-project-ref>
+npx supabase secrets set ANTHROPIC_API_KEY=<your-key>
+npx supabase functions deploy assistant --use-api
+```
 
 The app then requires sign-in and syncs workouts, schedule, sessions, profile and benchmarks in the background. Sharing with a coach, the access log and notifications work only when signed in.
 
@@ -31,13 +40,18 @@ npm test
 
 After changing `lib/workout/catalog.ts`, run `npm run gen:activity-seed` to regenerate the catalog rows in the migration.
 
+After changing anything the assistant uses (`lib/ai`, the validator, the catalog), run `npm run build:edge-core` and deploy the function again. A test fails if the bundle is stale.
+
+`npm run eval` runs the assistant's evaluation cases against the deployed function. It makes 16 real model calls (about 40 cents) and needs `EVAL_EMAIL` and `EVAL_PASSWORD` for a test account.
+
 ## Where things are
 
 - `docs/ROADMAP.md` — the build order and what is done.
 - `docs/DECISIONS.md` — architecture decisions taken so far and those still open.
 - `docs/concepts/` — the product and technical concept documents everything is based on.
 - `lib/workout/` — the workout model, validator, timer math, scoring and analytics (no React, fully tested).
+- `lib/ai/` — the assistant's pipelines, draft schema and change list; `evals/` holds its evaluation cases.
 - `lib/athlete/` — profile and benchmarks.
 - `lib/sharing/` — client for invitations, grants, the access log, export and notifications.
 - `lib/workoutsStore.ts`, `lib/sync/` — local-first storage and background sync.
-- `supabase/` — schema, migrations and database tests.
+- `supabase/` — schema, migrations, database tests and the `assistant` edge function.

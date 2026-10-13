@@ -4,6 +4,6 @@
     "types": ["node"],
     "noEmit": true
   },
-  "include": ["scripts/**/*.ts", "supabase/**/*.ts", "lib/**/*.test.ts"],
-  "exclude": ["node_modules"]
+  "include": ["scripts/**/*.ts", "evals/**/*.ts", "supabase/**/*.ts", "lib/**/*.test.ts"],
+  "exclude": ["node_modules", "supabase/functions"]
 }

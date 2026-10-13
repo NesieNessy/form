@@ -14,8 +14,9 @@ import { EMPTY_DATA, type BenchmarkInput, type DirtySets, type RemoteSnapshot, t
 type Actions = {
   createWorkout: (
     content: WorkoutContent,
-    opts: { source: WorkoutSource; scheduledAt?: number; isTemplate?: boolean }
+    opts: { source: WorkoutSource; scheduledAt?: number; isTemplate?: boolean; workoutId?: string }
   ) => { workoutId: string; versionId: string; scheduledId?: string };
+  applyAdaptation: (scheduledId: string, content: WorkoutContent) => void;
   scheduleWorkout: (workoutId: string, scheduledAt: number) => string;
   setTemplate: (workoutId: string, isTemplate: boolean) => void;
   removeScheduled: (scheduledId: string) => void;
@@ -59,6 +60,7 @@ export const useWorkoutsStore = create<WorkoutsState>()(
         set(data);
         return scheduledId;
       },
+      applyAdaptation: (scheduledId, content) => set(state.applyAdaptation(pickData(get()), scheduledId, content, Date.now())),
       setTemplate: (workoutId, isTemplate) => set(state.setTemplate(pickData(get()), workoutId, isTemplate, Date.now())),
       removeScheduled: (scheduledId) => set(state.removeScheduled(pickData(get()), scheduledId, Date.now())),
       startSession: (scheduledId, entryMode) => {

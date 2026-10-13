@@ -44,12 +44,34 @@ The athlete creates an invitation for an email address and passes on a ten-chara
 
 *Why:* it works without an email provider, and a leaked code alone is useless.
 
+### 7. The assistant is a pipeline with one model call, not an agent with tools
+
+Import and adaptation each make one request to the model for a structured draft (plus at most one repair request when the validator rejects it). Everything else is ordinary code: loading the workout, matching exercise names to the catalog, validation, the change list, and the equipment, time and safety checks.
+
+*Why:* both tasks are a transformation with a checkable result. Code that runs the same way every time is easier to test and to trust than a model deciding which step to take next, and it leaves a hostile workout text nothing to steer. Model-driven tool use arrives with the coaching chat (Step 9), where the next step really is open-ended.
+
+### 8. Claude Opus 5.5 through the Anthropic SDK, with server-side fallback
+
+The edge function calls `claude-opus-5-5` with structured output and medium effort. If the model's safety checks decline a request, Anthropic re-runs it on its recommended fallback model.
+
+*Cost:* roughly 2 to 5 cents per request. A cheaper model would cut that several-fold. Changing it is one constant in `supabase/functions/assistant/index.ts`; run `npm run eval` before and after.
+
+### 9. Shared code reaches the server as a generated bundle
+
+`npm run build:edge-core` bundles `lib/ai/edgeCore.ts` into `supabase/functions/_shared/core.js`, and a test fails if the committed bundle is out of date.
+
+*Why:* the validator must be identical in the app and on the server. Deno cannot import the app's TypeScript modules directly, and a second hand-written copy would drift.
+
+### 10. Medical situations are stopped by a word list, before the model
+
+*Why:* a model can be talked into things; a list cannot. The list will be wrong in both directions until a clinician has reviewed it, which is recorded as an open item.
+
 ## Still open (yours to decide)
 
-### 7. Physiotherapy scope
+### 11. Physiotherapy scope
 
 Wellness coordination only, or intended medical use? The second brings medical-device regulation. Nothing built so far depends on this; it must be settled before Step 8.
 
-### 8. Launch country, hosting region and pricing
+### 12. Launch country, hosting region and pricing
 
 These drive the GDPR design and the consent wording. They must be settled before Step 2 ships to real users, because health and consent data start being stored there.

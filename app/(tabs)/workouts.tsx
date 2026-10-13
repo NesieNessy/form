@@ -1,6 +1,6 @@
-import { router } from 'expo-router';
-import React, { useEffect, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { router, useFocusEffect } from 'expo-router';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
 import { GradientButton } from '@/components/ui/GradientButton';
 import { SegmentedTabs } from '@/components/ui/SegmentedTabs';
@@ -9,6 +9,8 @@ import { Toast } from '@/components/ui/Toast';
 import { DatePickerModal } from '@/components/workout/DatePickerModal';
 import { MonthCalendar } from '@/components/workout/MonthCalendar';
 import { WorkoutCard } from '@/components/workout/WorkoutCard';
+import { listPendingProposals, type Proposal } from '@/lib/ai/client';
+import { useAuthStore } from '@/lib/auth';
 import { combineDateAndTime, isSameDay } from '@/lib/date';
 import { strings } from '@/lib/strings';
 import { useScheduleItems, useTemplates, type TemplateItem } from '@/lib/useWorkouts';
@@ -32,6 +34,22 @@ export default function WorkoutsScreen() {
   const [selectedDay, setSelectedDay] = useState(() => new Date());
   const [schedulingTemplate, setSchedulingTemplate] = useState<TemplateItem | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const signedIn = useAuthStore((s) => s.status === 'signedIn');
+  const [drafts, setDrafts] = useState<Proposal[]>([]);
+
+  // Drafts are decided on other screens, so the list is refreshed each time this tab comes back into view.
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
+      if (!signedIn) return;
+      listPendingProposals().then((list) => {
+        if (!cancelled) setDrafts(list);
+      });
+      return () => {
+        cancelled = true;
+      };
+    }, [signedIn])
+  );
 
   useEffect(() => {
     if (!toast) return;
@@ -44,7 +62,7 @@ export default function WorkoutsScreen() {
     [items, selectedDay]
   );
 
-  if (items.length === 0 && templates.length === 0) {
+  if (items.length === 0 && templates.length === 0 && drafts.length === 0) {
     return (
       <View style={styles.screen}>
         <TabHeader />
@@ -60,6 +78,9 @@ export default function WorkoutsScreen() {
             onPress={() => router.push('/workout-new')}
             style={styles.newWorkoutButton}
           />
+          {signedIn ? (
+            <GradientButton label={strings.importWithAi} variant="secondary" onPress={() => router.push('/workout-import')} style={styles.newWorkoutButton} />
+          ) : null}
         </ScrollView>
       </View>
     );
@@ -80,6 +101,21 @@ export default function WorkoutsScreen() {
         {view === 'list' ? (
           <>
             <GradientButton label={strings.newWorkout} onPress={() => router.push('/workout-new')} />
+            {signedIn ? <GradientButton label={strings.importWithAi} variant="secondary" onPress={() => router.push('/workout-import')} /> : null}
+            {drafts.length > 0 ? <Text style={styles.draftsTitle}>{strings.draftsWaiting}</Text> : null}
+            {drafts.map((draft) => (
+              <TouchableOpacity key={draft.id} activeOpacity={0.75} onPress={() => router.push({ pathname: '/proposal', params: { id: draft.id } })}>
+                <Card style={styles.templateRow}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.templateTitle} numberOfLines={1}>
+                      {draft.content.title}
+                    </Text>
+                    <Text style={styles.pageSubtitle}>{draft.type === 'workout_adaptation' ? strings.draftAdaptation : strings.draftImport}</Text>
+                  </View>
+                  <Icons.chevronRight size={18} color={colors.textTertiary} />
+                </Card>
+              </TouchableOpacity>
+            ))}
             {items.map((item) => (
               <WorkoutCard key={item.entry.id} item={item} />
             ))}
@@ -163,6 +199,7 @@ const styles = StyleSheet.create({
   templateRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   templateTitle: { color: colors.text, fontSize: 15, fontFamily: fontFamily.bold },
   templateBtn: { paddingHorizontal: spacing.lg, paddingVertical: 10 },
+  draftsTitle: { color: colors.text, fontSize: 15, fontFamily: fontFamily.bold, marginTop: spacing.sm },
   empty: {
     flexGrow: 1,
     alignItems: 'center',
