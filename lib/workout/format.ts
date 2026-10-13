@@ -1,5 +1,5 @@
 import { strings } from '../strings';
-import type { Block, BlockConfig, BlockType, ExerciseStep, Prescription, Score, Step } from './model';
+import type { Block, BlockConfig, BlockType, Prescription, Score, Step } from './model';
 
 export function formatClock(totalSeconds: number): string {
   const s = Math.max(0, Math.round(totalSeconds));
@@ -164,23 +164,4 @@ export function formatScore(score: Score | undefined): string {
     case 'completed':
       return strings.completed;
   }
-}
-
-/** Total for the block where it is fully determined by its format; undefined means unknown, not zero. */
-export function knownBlockSeconds(config: BlockConfig): number | undefined {
-  switch (config.format) {
-    case 'amrap':
-      return config.durationSeconds;
-    case 'repeating_interval':
-      return config.intervalSeconds && config.rounds ? config.intervalSeconds * config.rounds : undefined;
-    case 'continuous':
-      return config.durationSeconds;
-    default:
-      return undefined;
-  }
-}
-
-export function formatExerciseLine(step: ExerciseStep): string {
-  const detail = formatPrescription(step.prescription);
-  return detail ? `${step.name} — ${detail}` : step.name;
 }

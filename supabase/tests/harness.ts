@@ -23,7 +23,12 @@ const SUPABASE_STUB = `
   alter default privileges in schema public grant execute on functions to anon, authenticated;
 `;
 
-export const MIGRATIONS = ['schema.sql', 'migrations/0002_workout_core.sql', 'migrations/0003_athlete_foundation.sql'];
+export const MIGRATIONS = [
+  'schema.sql',
+  'migrations/0002_workout_core.sql',
+  'migrations/0003_athlete_foundation.sql',
+  'migrations/0004_drop_placeholder_tables.sql',
+];
 
 export function readMigration(relativePath: string): string {
   return readFileSync(join(SUPABASE_DIR, relativePath), 'utf8');

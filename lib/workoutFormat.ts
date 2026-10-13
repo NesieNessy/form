@@ -64,7 +64,3 @@ export function formatSectionHeadline(section: WorkoutSection): string | undefin
   ].filter(Boolean);
   return parts.length ? parts.join(' · ') : undefined;
 }
-
-export function countWorkoutExercises(sections: WorkoutSection[]): number {
-  return sections.reduce((n, s) => n + s.exercises.length, 0);
-}

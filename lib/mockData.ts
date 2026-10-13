@@ -4,19 +4,8 @@ import type {
   EnduranceSession,
   Goal,
   Insight,
-  Point,
   StrengthLift,
 } from './types';
-
-export const weekStrip = [
-  { day: 'Mon', date: 7, done: true },
-  { day: 'Tue', date: 8, done: true },
-  { day: 'Wed', date: 9, done: true, today: true },
-  { day: 'Thu', date: 10, done: true },
-  { day: 'Fri', date: 11, done: false },
-  { day: 'Sat', date: 12, done: false },
-  { day: 'Sun', date: 13, done: false },
-];
 
 export const formScore = {
   score: 82,
@@ -31,8 +20,6 @@ export const formScore = {
 };
 
 export const homeSummary = {
-  weeklyGoal: { current: 4, target: 5 },
-  greeting: 'Good morning! \u{1F44B}',
   subGreeting: 'Consistently better. Keep it up.',
   quote: 'Discipline today.\nA stronger tomorrow.',
   stats: [
@@ -169,7 +156,6 @@ export const enduranceStats = {
   sessions: 9,
 };
 
-export const bodyComposition: Point[][] = [];
 export const bodyCompositionMonths = ['Jul', 'Aug', 'Sep', 'Oct'];
 export const bodyCompositionSeries = [
   { label: 'Fat Mass', color: colors.pink, values: [21.2, 19.8, 18.1, 16.8] },

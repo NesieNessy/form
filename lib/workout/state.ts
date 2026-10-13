@@ -1,6 +1,6 @@
 import { EMPTY_PROFILE, oneRepMaxByActivity, type Benchmark, type Profile } from '../athlete/model';
 import { newUuid } from '../id';
-import type { Workout as LegacyWorkout } from '../types';
+import type { LegacyWorkout } from '../types';
 import { wizardToContent } from './fromWizard';
 import type {
   BlockResult,

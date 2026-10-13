@@ -646,7 +646,6 @@ declare
   v_result jsonb;
   v_granted text[] := '{}';
   v_rows jsonb;
-  c text;
 begin
   if uid is null then
     raise exception 'NOT_AUTHENTICATED';

@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import { newUuid } from '../id';
 import { isWithinQuietHours } from '../sharing/quietHours';
 import { WORKOUT_PRESETS, instantiatePreset } from '../workoutPresets';
-import type { Workout as LegacyWorkout, WorkoutSection } from '../types';
+import type { LegacyWorkout, WorkoutSection } from '../types';
 import {
   buildInsights,
   enduranceEfforts,

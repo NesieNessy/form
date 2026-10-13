@@ -7,10 +7,7 @@
  * cover Supabase's HTTP layer, which needs a live project.
  */
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { before, describe, it } from 'node:test';
-import { PGlite } from '@electric-sql/pglite';
 import { newUuid } from '../../lib/id';
 import {
   rowToScheduled,
@@ -28,48 +25,27 @@ import type { Block, Step, WorkoutContent } from '../../lib/workout/model';
 import { EMPTY_DATA, completeSession, createWorkout, putBlockResult, reviseWorkout, startSession } from '../../lib/workout/state';
 import { validateWorkout } from '../../lib/workout/validate';
 import { applySeed } from '../../scripts/gen-activity-seed';
+import { openDatabase, plain, readMigration, rejects, type Harness } from './harness';
 
-const ROOT = join(__dirname, '..');
 const ALICE = '11111111-1111-4111-8111-111111111111';
 const BOB = '22222222-2222-4222-8222-222222222222';
 const NOW = Date.UTC(2026, 9, 13, 12);
 
-// What a Supabase project provides before any migration runs.
-const SUPABASE_STUB = `
-  create role anon nologin;
-  create role authenticated nologin;
-  create schema auth;
-  create table auth.users (id uuid primary key);
-  create function auth.uid() returns uuid language sql stable as
-    $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
-  grant usage on schema auth to anon, authenticated;
-  grant usage on schema public to anon, authenticated;
-  alter default privileges in schema public grant all on tables to anon, authenticated;
-  alter default privileges in schema public grant execute on functions to anon, authenticated;
+// The placeholder tables the first schema created. Installs made before they
+// were removed still have them, so the migrations are tested from that state.
+const FIRST_SCHEMA_PLACEHOLDERS = `
+  create table workouts (id uuid primary key default gen_random_uuid(), user_id uuid not null references auth.users (id) on delete cascade, scheduled_on date not null, completed boolean not null default false);
+  create table strength_lifts (id uuid primary key default gen_random_uuid(), user_id uuid not null references auth.users (id) on delete cascade, exercise text not null, weight_kg numeric not null);
+  create table endurance_sessions (id uuid primary key default gen_random_uuid(), user_id uuid not null references auth.users (id) on delete cascade, distance text not null);
+  create table insights (id uuid primary key default gen_random_uuid(), user_id uuid not null references auth.users (id) on delete cascade, title text not null);
+  alter table workouts enable row level security;
+  create policy "Users manage their own workouts" on workouts for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 `;
 
-let db: PGlite;
-
-async function as<T>(userId: string | null, fn: () => Promise<T>): Promise<T> {
-  await db.exec(`set role ${userId ? 'authenticated' : 'anon'}; select set_config('request.jwt.claim.sub', '${userId ?? ''}', false);`);
-  try {
-    return await fn();
-  } finally {
-    await db.exec(`reset role; select set_config('request.jwt.claim.sub', '', false);`);
-  }
-}
-
-/** Drops undefined-valued keys so comparisons are about stored content. */
-const plain = <T>(value: T): T => JSON.parse(JSON.stringify(value));
-
-const rpc = (name: string, payload: unknown) => db.query(`select ${name}($1::jsonb) as id`, [JSON.stringify(payload)]);
-
-async function rejects(promise: Promise<unknown>, pattern: RegExp) {
-  await assert.rejects(promise, (err: Error) => {
-    assert.match(err.message, pattern);
-    return true;
-  });
-}
+let h: Harness;
+let db: Harness['db'];
+const as = <T>(userId: string | null, fn: () => Promise<T>) => h.as(userId, fn);
+const rpc = (name: string, payload: unknown) => h.rpc(name, payload);
 
 /** Rebuilds the nested shape PostgREST returns for `*, blocks(*, steps(*))`. */
 async function fetchVersions(): Promise<VersionRow[]> {
@@ -118,15 +94,17 @@ function fullWorkout(): WorkoutContent {
 
 describe('workout core migration', () => {
   before(async () => {
-    db = new PGlite();
-    await db.exec(SUPABASE_STUB);
-    await db.exec(readFileSync(join(ROOT, 'schema.sql'), 'utf8'));
-    await db.exec(readFileSync(join(ROOT, 'migrations', '0002_workout_core.sql'), 'utf8'));
-    await db.query('insert into auth.users (id) values ($1), ($2)', [ALICE, BOB]);
+    h = await openDatabase([]);
+    db = h.db;
+    await db.exec(FIRST_SCHEMA_PLACEHOLDERS);
+    await db.exec(readMigration('schema.sql'));
+    await db.exec(readMigration('migrations/0002_workout_core.sql'));
+    await h.addUser(ALICE, 'alice@example.com');
+    await h.addUser(BOB, 'bob@example.com');
   });
 
   it('can be run a second time without error', async () => {
-    await db.exec(readFileSync(join(ROOT, 'migrations', '0002_workout_core.sql'), 'utf8'));
+    await db.exec(readMigration('migrations/0002_workout_core.sql'));
   });
 
   it('moved the placeholder workouts table aside', async () => {
@@ -139,7 +117,7 @@ describe('workout core migration', () => {
   it('seeds the same activity catalog the app ships', async () => {
     const rows = await db.query<{ id: string }>('select id from activities order by id');
     assert.deepEqual(rows.rows.map((r) => r.id), ACTIVITIES.map((a) => a.id).sort());
-    const sql = readFileSync(join(ROOT, 'migrations', '0002_workout_core.sql'), 'utf8');
+    const sql = readMigration('migrations/0002_workout_core.sql');
     assert.equal(applySeed(sql), sql, 'run `npm run gen:activity-seed` after changing lib/workout/catalog.ts');
   });
 
@@ -342,6 +320,27 @@ describe('workout core migration', () => {
       });
       const notes = (await db.query<{ notes: string }>('select notes from sessions where id = $1', [theirs])).rows[0].notes;
       assert.equal(notes, 'tough');
+    });
+  });
+
+  describe('placeholder cleanup (0004)', () => {
+    const exists = async (table: string) => (await db.query<{ t: string | null }>(`select to_regclass('public.' || $1)::text as t`, [table])).rows[0].t !== null;
+
+    it('drops the empty placeholder tables and keeps one that holds rows', async () => {
+      await db.query(`insert into strength_lifts (user_id, exercise, weight_kg) values ($1, 'Squat', 80)`, [ALICE]);
+      await db.exec(readMigration('migrations/0004_drop_placeholder_tables.sql'));
+      assert.deepEqual(
+        [await exists('workouts_legacy'), await exists('endurance_sessions'), await exists('insights'), await exists('strength_lifts')],
+        [false, false, false, true]
+      );
+      assert.equal(await exists('workouts'), true, 'the real workouts table is untouched');
+    });
+
+    it('can be run again, and finishes the job once the table is empty', async () => {
+      await db.query('delete from strength_lifts');
+      await db.exec(readMigration('migrations/0004_drop_placeholder_tables.sql'));
+      await db.exec(readMigration('migrations/0004_drop_placeholder_tables.sql'));
+      assert.equal(await exists('strength_lifts'), false);
     });
   });
 });

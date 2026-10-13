@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Card } from './Card';
 import { SampleBadge } from './SampleBadge';
-import { colors, fontFamily, iconStrokeWidth, spacing } from '@/theme/colors';
+import { colors, fontFamily, iconStrokeWidth } from '@/theme/colors';
 import { Icons } from '@/theme/icons';
 
 type Props = {

@@ -4,14 +4,9 @@ This is the build order for FORM, derived from the concept documents in [concept
 
 The order follows three rules taken from the concepts: finish a reliable workout core and the permission foundation first, build deterministic logic before any AI on top of it, and serve the individual athlete before the professional roles.
 
-## Starting point (October 2026)
+## Where the code started (October 2026)
 
-FORM is an Expo / React Native app with a Supabase client. It has a workout creation wizard, workout detail, presets, and trend, goal and insight screens.
-
-- Workouts are client-side only (`lib/workoutsStore.ts`); the `workouts` table in `supabase/schema.sql` holds only a date and a completed flag.
-- Most screens fall back to mock data (`lib/api.ts`, `lib/mockData.ts`).
-- There is no sign-in flow, although row-level security already assumes a signed-in user.
-- The workout type in `lib/types.ts` has sections and exercises, but no versions, no planned-versus-completed split, and no nesting.
+Before Step 1, FORM was an Expo / React Native app with a workout creation wizard, presets, and trend, goal and insight screens running on sample data. Workouts lived on the device only, there was no sign-in, and the workout type had no versions, no planned-versus-completed split and no nesting. Steps 1 and 2 replaced all of that; the leftover code from that stage was removed after Step 2.
 
 ## Step 0 — Decisions to make before coding
 

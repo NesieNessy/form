@@ -1,5 +1,5 @@
 import type { Exercise, ExercisePrimary } from './types';
-import { ACTIVITIES, searchActivities, type Activity, type DefaultTarget } from './workout/catalog';
+import { searchActivities, type Activity, type DefaultTarget } from './workout/catalog';
 
 /** The wizard's view of the activity catalog (lib/workout/catalog.ts). */
 export type ExerciseLibraryEntry = { activityId: string; name: string; defaultPrimary: ExercisePrimary };
@@ -24,8 +24,6 @@ const toEntry = (activity: Activity): ExerciseLibraryEntry => ({
   name: activity.name,
   defaultPrimary: toPrimary(activity.defaultTarget),
 });
-
-export const EXERCISE_LIBRARY: ExerciseLibraryEntry[] = ACTIVITIES.map(toEntry);
 
 export function searchExerciseLibrary(query: string): ExerciseLibraryEntry[] {
   return searchActivities(query).map(toEntry);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleProp, StyleSheet, Text, TextInput, TextInputProps, View, ViewStyle } from 'react-native';
+import { StyleProp, StyleSheet, Text, TextInput, TextInputProps, ViewStyle } from 'react-native';
 import { Card } from '@/components/ui/Card';
 import { colors, fontFamily, spacing } from '@/theme/colors';
 
