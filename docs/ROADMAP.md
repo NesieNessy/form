@@ -42,28 +42,39 @@ Source: [workout_data_model_concept.md](concepts/workout_data_model_concept.md),
 
 Left over from Step 1:
 
-- [ ] Run the migration and test sign-in and sync against a live Supabase project. The SQL is tested against a real Postgres engine; the HTTP layer and auth are not.
+- [x] Migration applied to the live Supabase project; sign-in and two-device sync (including deletes) verified against it.
 - [ ] Run the player on a physical iOS and Android device (screen stays awake, haptics, backgrounding). Verified so far in a desktop browser only.
 - [ ] The wizard cannot yet build nested groups or edit a saved workout; both exist in the model (`reviseWorkout`) without a screen.
 - [ ] An "approved" state between draft and published is not modelled; it arrives with AI proposals in Step 3.
-- [ ] Body weight, body fat, the FORM score, goals and the comparison screen still show sample values, labelled as such. They need body-measurement entry (Step 2 profile) and the goal model (Step 10).
+- [ ] Body weight, body fat, the FORM score, goals and the comparison screen still show sample values, labelled as such. They need body-measurement entry (not built yet) and the goal model (Step 10).
 - [ ] Sync pulls everything on each run; add incremental pull before data grows past a thousand rows per table.
 
 ## Step 2 — Athlete Intelligence Foundation
 
 Source: [03-stage-1](concepts/03-stage-1-athlete-intelligence-foundation.md), [02-multi-role-access](concepts/02-multi-role-access-and-business-model.md), [09-api-and-data-contracts](concepts/09-api-and-data-contracts.md)
 
-- [ ] Athlete profile: sports, equipment, availability, benchmarks (FTP, 1RM, threshold pace) with date and source.
-- [ ] Data categories as separate tables, not one profile blob: training, health, nutrition, rehab, video, notes.
-- [ ] Consent model: `data_share_grant` scoped by recipient, athlete, category, purpose, operation and expiry; deny by default.
-- [ ] Grants enforced in row-level security and server functions, never only in the UI.
-- [ ] Append-only audit log and a "who accessed my data" screen.
-- [ ] Event tables and outbox (`WorkoutScheduled`, `WorkoutCompleted`, `DataGrantRevoked`, …) carrying IDs only.
-- [ ] Organization, membership and professional-relationship tables as a skeleton.
-- [ ] Notifications with quiet hours and preferences.
-- [ ] Data export and deletion flows.
-- [ ] Automated negative-access tests: revoked grant, expired grant, guessed IDs, cross-tenant reads.
+- [x] Athlete profile: sports, equipment, usual training days, weekly target, and benchmarks (1RM, FTP, threshold and CSS pace, max heart rate) with date and source. A workout prescribing a percentage of 1RM suggests the load from the newest benchmark.
+- [x] Data categories: a registry of 13 categories, five of them available today (profile, benchmarks, workout plans, session results, performance summary). The rest switch on as their modules arrive.
+- [x] Consent model: one grant per recipient, athlete, category, purpose, operation and expiry; deny by default; withdrawn grants are kept as a record.
+- [x] Enforcement in the database: other people read an athlete's data only through `get_shared_context()`, never through the tables.
+- [x] Append-only audit log and a "Who accessed your data" list in the app.
+- [x] Event outbox (`WorkoutScheduled`, `WorkoutCompleted`, `DataGrantCreated`, `DataGrantRevoked`, `RelationshipEnded`, `AthleteBenchmarkUpdated`) carrying IDs only.
+- [x] Organization, membership and professional-relationship tables. Membership grants no data access.
+- [x] Notifications: in-app inbox, per-category mute and quiet-hours settings.
+- [x] Data export (one file) and account deletion (removes every row, ends every connection).
+- [x] Negative-access tests: no relationship, no grant, revoked grant, expired grant, ended relationship, guessed IDs, another professional, a studio owner, signed-out callers.
 
+Verified against the live project with temporary athlete and coach accounts, and in local mode.
+
+Left over from Step 2:
+
+- [ ] Push delivery. Notifications are in-app only; quiet hours are stored but nothing is pushed yet, so they have no effect so far.
+- [ ] Invitations are passed on as a code by the athlete. The app sends no email.
+- [ ] The professional side is a single read-only page. The real coach workspace is Step 6.
+- [ ] Nothing consumes the event outbox yet; the first consumers arrive with Step 3.
+- [ ] Organizations have tables and access rules but no screens (Step 11).
+- [ ] Consent wording (`consentV1` in `lib/strings.ts`) and the retention of audit records after account deletion need legal review before real users. Guardian consent for minors is not modelled.
+- [ ] Body measurements (weight, body fat) still cannot be entered.
 ## Step 3 — First AI workflows: Import and Adaptation
 
 Source: [workout_ai_agents_concept.md](concepts/workout_ai_agents_concept.md)

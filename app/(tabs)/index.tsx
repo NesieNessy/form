@@ -29,7 +29,7 @@ function greetingFor(hour: number): string {
 export default function HomeScreen() {
   const stats = useTrainingStats('all');
   const items = useScheduleItems();
-  const weeklyTarget = useWorkoutsStore((s) => s.settings.weeklySessionTarget);
+  const weeklyTarget = useWorkoutsStore((s) => s.profile.weeklySessionTarget);
 
   const today = new Date(stats.now);
   // Today's next thing to do: a session already under way, else the earliest one still planned.

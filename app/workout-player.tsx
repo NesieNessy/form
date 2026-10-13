@@ -1,7 +1,7 @@
 import { useKeepAwake } from 'expo-keep-awake';
 import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlockResultEditor } from '@/components/player/BlockResultEditor';
@@ -9,6 +9,7 @@ import { SessionWrapUp } from '@/components/player/SessionWrapUp';
 import { Card } from '@/components/ui/Card';
 import { GradientButton } from '@/components/ui/GradientButton';
 import { Stepper } from '@/components/ui/Stepper';
+import { oneRepMaxByActivity } from '@/lib/athlete/model';
 import { strings } from '@/lib/strings';
 import { blockLabel, formatBlockHeadline, formatClock, formatStep } from '@/lib/workout/format';
 import { exerciseSteps, type Block, type SessionProgress, type Step } from '@/lib/workout/model';
@@ -42,6 +43,8 @@ export default function WorkoutPlayerScreen() {
   const putBlockResult = useWorkoutsStore((s) => s.putBlockResult);
   const completeSession = useWorkoutsStore((s) => s.completeSession);
   const discardSession = useWorkoutsStore((s) => s.discardSession);
+  const benchmarks = useWorkoutsStore((s) => s.benchmarks);
+  const oneRepMax = useMemo(() => oneRepMaxByActivity(Object.values(benchmarks)), [benchmarks]);
 
   const [now, setNow] = useState(() => Date.now());
   const [leaving, setLeaving] = useState(false);
@@ -76,14 +79,14 @@ export default function WorkoutPlayerScreen() {
 
   // Each block gets a result row as soon as it is on screen, so sets logged mid-block survive a reload.
   useEffect(() => {
-    if (sessionId && block && !result) putBlockResult(sessionId, { ...emptyBlockResult(block), status: 'partial' });
-  }, [sessionId, block, result, putBlockResult]);
+    if (sessionId && block && !result) putBlockResult(sessionId, { ...emptyBlockResult(block, oneRepMax), status: 'partial' });
+  }, [sessionId, block, result, putBlockResult, oneRepMax]);
 
   const stopBlock = useCallback(() => {
     if (!sessionId || !block || !progress || !clock) return;
     const stoppedAt = Date.now();
     const counted = describeClock(block.config, elapsedMs(progress.timer, stoppedAt) / 1000, block.steps.length).countedSeconds;
-    const current = result ?? { ...emptyBlockResult(block), status: 'partial' as const };
+    const current = result ?? { ...emptyBlockResult(block, oneRepMax), status: 'partial' as const };
     putBlockResult(sessionId, {
       ...current,
       status: 'completed',
@@ -96,7 +99,7 @@ export default function WorkoutPlayerScreen() {
       return;
     }
     setProgress({ timer: pauseTimer(progress.timer, stoppedAt), awaitingResult: true });
-  }, [sessionId, block, progress, clock, result, putBlockResult, setProgress]);
+  }, [sessionId, block, progress, clock, result, putBlockResult, setProgress, oneRepMax]);
 
   // The format's own end (countdown at zero, last interval over, cap hit) stops the block.
   const finished = clock?.finished ?? false;

@@ -1,4 +1,4 @@
-import { exerciseSteps, type Block, type BlockResult, type Score, type Session, type StepResult } from './model';
+import { exerciseSteps, type Block, type BlockResult, type ExerciseStep, type Score, type Session, type StepResult } from './model';
 
 export type ScoreKind = Score['type'];
 
@@ -21,23 +21,37 @@ export function scoreKindFor(block: Block): ScoreKind {
 }
 
 /** One row per set for every exercise in a sets-and-reps block, pre-filled with the prescribed numbers. */
-export function initialSetResults(block: Block): StepResult[] {
+export function initialSetResults(block: Block, oneRepMaxKg: Record<string, number> = {}): StepResult[] {
   if (block.config.format !== 'sets_reps') return [];
   const sets = block.config.sets ?? 0;
   const rows: StepResult[] = [];
   for (const step of exerciseSteps(block.steps)) {
     const rx = step.prescription;
+    const loadKg = prescribedLoadKg(step, oneRepMaxKg);
     for (let setIndex = 0; setIndex < sets; setIndex++) {
       rows.push({
         stepId: step.id,
         setIndex,
         reps: typeof rx.reps === 'number' ? rx.reps : undefined,
-        loadKg: rx.load?.unit === 'kg' ? rx.load.value : undefined,
+        loadKg,
         completed: false,
       });
     }
   }
   return rows;
+}
+
+/**
+ * The load a step prescribes in kilograms. A percentage of 1RM resolves only
+ * when the athlete has a recorded one-rep max for that lift; otherwise it
+ * stays unknown rather than being estimated. Rounded to the nearest 0.5 kg.
+ */
+export function prescribedLoadKg(step: ExerciseStep, oneRepMaxKg: Record<string, number> = {}): number | undefined {
+  const load = step.prescription.load;
+  if (!load) return undefined;
+  if (load.unit === 'kg') return load.value;
+  const max = step.activityId ? oneRepMaxKg[step.activityId] : undefined;
+  return max ? Math.round(((max * load.value) / 100) * 2) / 2 : undefined;
 }
 
 export function bestLoadKg(stepResults: StepResult[]): number | undefined {
@@ -80,8 +94,8 @@ export function deriveScore(
   }
 }
 
-export function emptyBlockResult(block: Block): BlockResult {
-  return { blockId: block.id, status: 'completed', stepResults: initialSetResults(block) };
+export function emptyBlockResult(block: Block, oneRepMaxKg: Record<string, number> = {}): BlockResult {
+  return { blockId: block.id, status: 'completed', stepResults: initialSetResults(block, oneRepMaxKg) };
 }
 
 export function sessionDurationSeconds(session: Session): number | undefined {

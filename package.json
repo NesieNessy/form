@@ -40,7 +40,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit && tsc -p tsconfig.node.json",
-    "test": "tsx --test lib/workout/workout.test.ts supabase/tests/workout_core.test.ts",
+    "test": "tsx --test --test-concurrency=1 lib/workout/workout.test.ts supabase/tests/workout_core.test.ts supabase/tests/athlete_foundation.test.ts",
     "gen:activity-seed": "tsx scripts/gen-activity-seed.ts"
   },
   "private": true

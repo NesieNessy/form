@@ -1,8 +1,12 @@
 import { create } from 'zustand';
 import { isSupabaseConfigured, supabase } from '../supabase';
 import { getWorkoutData, useWorkoutsStore } from '../workoutsStore';
-import type { DirtySets, RemoteSnapshot } from '../workout/state';
+import { PROFILE_KEY, type DirtySets, type RemoteSnapshot } from '../workout/state';
 import {
+  benchmarkToRow,
+  profileToRow,
+  rowToBenchmark,
+  rowToProfile,
   rowToScheduled,
   rowToSession,
   rowToVersion,
@@ -11,6 +15,8 @@ import {
   sessionToPayload,
   versionToPayload,
   workoutFlagsToRow,
+  type BenchmarkRow,
+  type ProfileRow,
   type ScheduledRow,
   type SessionRow,
   type VersionRow,
@@ -32,12 +38,12 @@ type SyncState = {
 export const useSyncStore = create<SyncState>(() => ({ status: 'idle', lastSyncedAt: null }));
 
 export function pendingChangeCount(dirty: DirtySets): number {
-  return dirty.versions.length + dirty.workouts.length + dirty.scheduled.length + dirty.sessions.length;
+  return Object.values(dirty).reduce((n, ids) => n + ids.length, 0);
 }
 
 async function push(userId: string): Promise<boolean> {
   const data = getWorkoutData();
-  const done: DirtySets = { versions: [], workouts: [], scheduled: [], sessions: [] };
+  const done: DirtySets = { versions: [], workouts: [], scheduled: [], sessions: [], benchmarks: [], profile: [] };
   let ok = true;
 
   const failedVersions = new Set<string>();
@@ -95,24 +101,41 @@ async function push(userId: string): Promise<boolean> {
     else done.sessions.push(id);
   }
 
+  if (data.dirty.profile.length) {
+    const { error } = await supabase.from('profiles').upsert(profileToRow(data.profile, userId));
+    if (error) ok = false;
+    else done.profile.push(PROFILE_KEY);
+  }
+
+  const benchmarks = data.dirty.benchmarks.map((id) => data.benchmarks[id]).filter(Boolean);
+  if (benchmarks.length) {
+    const { error } = await supabase.from('benchmarks').upsert(benchmarks.map((b) => benchmarkToRow(b, userId)));
+    if (error) ok = false;
+    else done.benchmarks.push(...benchmarks.map((b) => b.id));
+  }
+
   useWorkoutsStore.getState().clearDirty(done);
   return ok;
 }
 
 async function pull(): Promise<boolean> {
-  const [workouts, versions, scheduled, sessions] = await Promise.all([
+  const [workouts, versions, scheduled, sessions, benchmarks, profile] = await Promise.all([
     supabase.from('workouts').select('*'),
     supabase.from('workout_versions').select('*, blocks(*, steps(*))'),
     supabase.from('scheduled_workouts').select('*'),
     supabase.from('sessions').select('*, session_results(*)'),
+    supabase.from('benchmarks').select('*'),
+    supabase.from('profiles').select('*').maybeSingle(),
   ]);
-  if (workouts.error || versions.error || scheduled.error || sessions.error) return false;
+  if (workouts.error || versions.error || scheduled.error || sessions.error || benchmarks.error || profile.error) return false;
 
   const snapshot: RemoteSnapshot = {
     versions: (versions.data as VersionRow[]).map(rowToVersion),
     workouts: (workouts.data as WorkoutRow[]).map(rowToWorkout).filter((w) => w !== undefined),
     scheduled: (scheduled.data as ScheduledRow[]).map(rowToScheduled),
     sessions: (sessions.data as SessionRow[]).map(rowToSession),
+    benchmarks: (benchmarks.data as BenchmarkRow[]).map(rowToBenchmark),
+    profile: profile.data ? rowToProfile(profile.data as ProfileRow) : undefined,
   };
   // Only keep rows whose version arrived too, so the UI never meets a dangling reference.
   const known = new Set([...snapshot.versions.map((v) => v.id), ...Object.keys(getWorkoutData().versions)]);

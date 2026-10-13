@@ -1,3 +1,4 @@
+import { EMPTY_PROFILE, oneRepMaxByActivity, type Benchmark, type Profile } from '../athlete/model';
 import { newUuid } from '../id';
 import type { Workout as LegacyWorkout } from '../types';
 import { wizardToContent } from './fromWizard';
@@ -20,7 +21,21 @@ import { validateWorkout } from './validate';
  * be tested directly.
  */
 
-export type DirtySets = { versions: string[]; workouts: string[]; scheduled: string[]; sessions: string[] };
+export type DirtySets = {
+  versions: string[];
+  workouts: string[];
+  scheduled: string[];
+  sessions: string[];
+  benchmarks: string[];
+  /** Holds PROFILE_KEY while the profile has unsent changes. */
+  profile: string[];
+};
+
+export const PROFILE_KEY = 'profile';
+
+const DIRTY_KEYS = ['versions', 'workouts', 'scheduled', 'sessions', 'benchmarks', 'profile'] as const;
+
+const NO_DIRTY: DirtySets = { versions: [], workouts: [], scheduled: [], sessions: [], benchmarks: [], profile: [] };
 
 export type WorkoutData = {
   /** The signed-in user this local data belongs to; null while it has never been attached to an account. */
@@ -29,9 +44,10 @@ export type WorkoutData = {
   versions: Record<string, WorkoutVersion>;
   scheduled: Record<string, ScheduledWorkout>;
   sessions: Record<string, Session>;
+  profile: Profile;
+  benchmarks: Record<string, Benchmark>;
   /** Ids changed locally and not yet confirmed by the server. */
   dirty: DirtySets;
-  settings: { weeklySessionTarget: number };
 };
 
 export const EMPTY_DATA: WorkoutData = {
@@ -40,18 +56,18 @@ export const EMPTY_DATA: WorkoutData = {
   versions: {},
   scheduled: {},
   sessions: {},
-  dirty: { versions: [], workouts: [], scheduled: [], sessions: [] },
-  settings: { weeklySessionTarget: 5 },
+  profile: EMPTY_PROFILE,
+  benchmarks: {},
+  dirty: NO_DIRTY,
 };
 
 function mark(dirty: DirtySets, patch: Partial<DirtySets>): DirtySets {
-  const merge = (a: string[], b: string[] | undefined) => (b && b.length ? [...new Set([...a, ...b])] : a);
-  return {
-    versions: merge(dirty.versions, patch.versions),
-    workouts: merge(dirty.workouts, patch.workouts),
-    scheduled: merge(dirty.scheduled, patch.scheduled),
-    sessions: merge(dirty.sessions, patch.sessions),
-  };
+  const next = { ...dirty };
+  for (const key of DIRTY_KEYS) {
+    const add = patch[key];
+    if (add && add.length) next[key] = [...new Set([...dirty[key], ...add])];
+  }
+  return next;
 }
 
 function clone<T>(value: T): T {
@@ -216,7 +232,7 @@ export function startSession(
     status: 'in_progress',
     entryMode,
     startedAt: entryMode === 'manual' ? entry.scheduledAt : nowMs,
-    blockResults: entryMode === 'manual' ? prescribed.blocks.map(emptyBlockResult) : [],
+    blockResults: entryMode === 'manual' ? prescribed.blocks.map((b) => emptyBlockResult(b, oneRepMaxByActivity(Object.values(data.benchmarks)))) : [],
     progress: entryMode === 'player' ? { blockIndex: 0, timer: IDLE_TIMER, roundsCompleted: 0, awaitingResult: false } : undefined,
     updatedAt: nowMs,
   };
@@ -280,15 +296,47 @@ export function discardSession(data: WorkoutData, sessionId: string): WorkoutDat
 }
 
 export function clearDirty(data: WorkoutData, done: Partial<DirtySets>): WorkoutData {
-  const drop = (a: string[], b: string[] | undefined) => (b && b.length ? a.filter((id) => !b.includes(id)) : a);
+  const dirty = { ...data.dirty };
+  for (const key of DIRTY_KEYS) {
+    const sent = done[key];
+    if (sent && sent.length) dirty[key] = data.dirty[key].filter((id) => !sent.includes(id));
+  }
+  return { ...data, dirty };
+}
+
+// ------------------------------------------------ profile and benchmarks
+
+export function updateProfile(data: WorkoutData, patch: Partial<Omit<Profile, 'updatedAt'>>, nowMs: number): WorkoutData {
   return {
     ...data,
-    dirty: {
-      versions: drop(data.dirty.versions, done.versions),
-      workouts: drop(data.dirty.workouts, done.workouts),
-      scheduled: drop(data.dirty.scheduled, done.scheduled),
-      sessions: drop(data.dirty.sessions, done.sessions),
+    profile: { ...data.profile, ...patch, updatedAt: nowMs },
+    dirty: mark(data.dirty, { profile: [PROFILE_KEY] }),
+  };
+}
+
+export type BenchmarkInput = Pick<Benchmark, 'kind' | 'activityId' | 'value' | 'unit' | 'measuredOn' | 'source' | 'notes'>;
+
+/** Adds one dated measurement. Earlier measurements stay as history. */
+export function addBenchmark(data: WorkoutData, input: BenchmarkInput, nowMs: number): { data: WorkoutData; benchmarkId: string } {
+  const benchmarkId = newUuid();
+  const benchmark: Benchmark = { ...input, id: benchmarkId, notes: input.notes?.trim() || undefined, createdAt: nowMs, updatedAt: nowMs };
+  return {
+    benchmarkId,
+    data: {
+      ...data,
+      benchmarks: { ...data.benchmarks, [benchmarkId]: benchmark },
+      dirty: mark(data.dirty, { benchmarks: [benchmarkId] }),
     },
+  };
+}
+
+export function removeBenchmark(data: WorkoutData, benchmarkId: string, nowMs: number): WorkoutData {
+  const benchmark = data.benchmarks[benchmarkId];
+  if (!benchmark) return data;
+  return {
+    ...data,
+    benchmarks: { ...data.benchmarks, [benchmarkId]: { ...benchmark, deletedAt: nowMs, updatedAt: nowMs } },
+    dirty: mark(data.dirty, { benchmarks: [benchmarkId] }),
   };
 }
 
@@ -297,6 +345,9 @@ export type RemoteSnapshot = {
   versions: WorkoutVersion[];
   scheduled: ScheduledWorkout[];
   sessions: Session[];
+  benchmarks: Benchmark[];
+  /** Absent when the account has no profile row yet. */
+  profile?: Profile;
 };
 
 /**
@@ -325,12 +376,16 @@ export function mergeRemote(data: WorkoutData, remote: RemoteSnapshot): WorkoutD
     }
   }
 
+  const takeRemoteProfile = remote.profile && data.dirty.profile.length === 0 && remote.profile.updatedAt > data.profile.updatedAt;
+
   return {
     ...data,
     versions,
     workouts: mergeByUpdatedAt(data.workouts, remote.workouts, data.dirty.workouts),
     scheduled: mergeByUpdatedAt(data.scheduled, remote.scheduled, data.dirty.scheduled),
     sessions,
+    benchmarks: mergeByUpdatedAt(data.benchmarks, remote.benchmarks, data.dirty.benchmarks),
+    profile: takeRemoteProfile && remote.profile ? remote.profile : data.profile,
   };
 }
 
@@ -341,7 +396,7 @@ export function mergeRemote(data: WorkoutData, remote: RemoteSnapshot): WorkoutD
  */
 export function attachToUser(data: WorkoutData, userId: string): WorkoutData {
   if (data.ownerUserId === userId) return data;
-  if (data.ownerUserId !== null) return { ...EMPTY_DATA, ownerUserId: userId, settings: data.settings };
+  if (data.ownerUserId !== null) return { ...EMPTY_DATA, ownerUserId: userId };
 
   return {
     ...data,
@@ -351,7 +406,34 @@ export function attachToUser(data: WorkoutData, userId: string): WorkoutData {
       workouts: Object.keys(data.workouts),
       scheduled: Object.keys(data.scheduled),
       sessions: Object.values(data.sessions).filter((s) => s.status !== 'in_progress').map((s) => s.id),
+      benchmarks: Object.keys(data.benchmarks),
+      // A profile that was never edited has nothing worth overwriting the account's copy with.
+      profile: data.profile.updatedAt > 0 ? [PROFILE_KEY] : [],
     },
+  };
+}
+
+/** Everything on the device is dropped, e.g. after the account was deleted. */
+export function wipe(): WorkoutData {
+  return EMPTY_DATA;
+}
+
+// ------------------------------------------------- store v2 -> v3
+
+type V2State = Omit<WorkoutData, 'profile' | 'benchmarks' | 'dirty'> & {
+  settings?: { weeklySessionTarget?: number };
+  dirty?: Partial<DirtySets>;
+};
+
+/** Store v2 had no profile or benchmarks, and kept the weekly target under `settings`. */
+export function upgradeV2(old: V2State): WorkoutData {
+  const { settings, ...rest } = old;
+  return {
+    ...EMPTY_DATA,
+    ...rest,
+    profile: { ...EMPTY_PROFILE, weeklySessionTarget: settings?.weeklySessionTarget ?? EMPTY_PROFILE.weeklySessionTarget },
+    benchmarks: {},
+    dirty: { ...NO_DIRTY, ...old.dirty },
   };
 }
 

@@ -1,9 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import type { Profile } from './athlete/model';
 import type { BlockResult, Session, WorkoutContent, WorkoutSource } from './workout/model';
 import * as state from './workout/state';
-import { EMPTY_DATA, type DirtySets, type RemoteSnapshot, type WorkoutData } from './workout/state';
+import { EMPTY_DATA, type BenchmarkInput, type DirtySets, type RemoteSnapshot, type WorkoutData } from './workout/state';
 
 /**
  * The device's copy of the athlete's training data. It is the source of
@@ -24,6 +25,12 @@ type Actions = {
   completeSession: (sessionId: string, extras: { rpe?: number; notes?: string }) => void;
   discardSession: (sessionId: string) => void;
 
+  updateProfile: (patch: Partial<Omit<Profile, 'updatedAt'>>) => void;
+  addBenchmark: (input: BenchmarkInput) => string;
+  removeBenchmark: (benchmarkId: string) => void;
+  /** Removes everything stored on this device. */
+  wipe: () => void;
+
   // Used by lib/sync.
   attachToUser: (userId: string) => void;
   clearDirty: (done: Partial<DirtySets>) => void;
@@ -32,61 +39,69 @@ type Actions = {
 
 export type WorkoutsState = WorkoutData & Actions;
 
+function pickData(s: WorkoutData): WorkoutData {
+  const { ownerUserId, workouts, versions, scheduled, sessions, profile, benchmarks, dirty } = s;
+  return { ownerUserId, workouts, versions, scheduled, sessions, profile, benchmarks, dirty };
+}
+
 export const useWorkoutsStore = create<WorkoutsState>()(
   persist(
     (set, get) => ({
       ...EMPTY_DATA,
 
       createWorkout: (content, opts) => {
-        const { data, ...ids } = state.createWorkout(get(), content, { ...opts, nowMs: Date.now() });
+        const { data, ...ids } = state.createWorkout(pickData(get()), content, { ...opts, nowMs: Date.now() });
         set(data);
         return ids;
       },
       scheduleWorkout: (workoutId, scheduledAt) => {
-        const { data, scheduledId } = state.scheduleWorkout(get(), workoutId, scheduledAt, Date.now());
+        const { data, scheduledId } = state.scheduleWorkout(pickData(get()), workoutId, scheduledAt, Date.now());
         set(data);
         return scheduledId;
       },
-      setTemplate: (workoutId, isTemplate) => set(state.setTemplate(get(), workoutId, isTemplate, Date.now())),
-      removeScheduled: (scheduledId) => set(state.removeScheduled(get(), scheduledId, Date.now())),
+      setTemplate: (workoutId, isTemplate) => set(state.setTemplate(pickData(get()), workoutId, isTemplate, Date.now())),
+      removeScheduled: (scheduledId) => set(state.removeScheduled(pickData(get()), scheduledId, Date.now())),
       startSession: (scheduledId, entryMode) => {
-        const res = state.startSession(get(), scheduledId, entryMode, Date.now());
+        const res = state.startSession(pickData(get()), scheduledId, entryMode, Date.now());
         if ('error' in res) return res;
         set(res.data);
         return { sessionId: res.sessionId };
       },
-      patchSession: (sessionId, patch) => set(state.patchSession(get(), sessionId, patch, Date.now())),
-      putBlockResult: (sessionId, result) => set(state.putBlockResult(get(), sessionId, result, Date.now())),
-      completeSession: (sessionId, extras) => set(state.completeSession(get(), sessionId, extras, Date.now())),
-      discardSession: (sessionId) => set(state.discardSession(get(), sessionId)),
+      patchSession: (sessionId, patch) => set(state.patchSession(pickData(get()), sessionId, patch, Date.now())),
+      putBlockResult: (sessionId, result) => set(state.putBlockResult(pickData(get()), sessionId, result, Date.now())),
+      completeSession: (sessionId, extras) => set(state.completeSession(pickData(get()), sessionId, extras, Date.now())),
+      discardSession: (sessionId) => set(state.discardSession(pickData(get()), sessionId)),
 
-      attachToUser: (userId) => set(state.attachToUser(get(), userId)),
-      clearDirty: (done) => set(state.clearDirty(get(), done)),
-      mergeRemote: (remote) => set(state.mergeRemote(get(), remote)),
+      updateProfile: (patch) => set(state.updateProfile(pickData(get()), patch, Date.now())),
+      addBenchmark: (input) => {
+        const { data, benchmarkId } = state.addBenchmark(pickData(get()), input, Date.now());
+        set(data);
+        return benchmarkId;
+      },
+      removeBenchmark: (benchmarkId) => set(state.removeBenchmark(pickData(get()), benchmarkId, Date.now())),
+      wipe: () => set(state.wipe()),
+
+      attachToUser: (userId) => set(state.attachToUser(pickData(get()), userId)),
+      clearDirty: (done) => set(state.clearDirty(pickData(get()), done)),
+      mergeRemote: (remote) => set(state.mergeRemote(pickData(get()), remote)),
     }),
     {
       name: 'form-workouts-store',
       storage: createJSONStorage(() => AsyncStorage),
-      version: 2,
+      version: 3,
       migrate: (persisted, version) => {
-        if (version < 2) return state.migrateLegacy(persisted as Parameters<typeof state.migrateLegacy>[0], Date.now());
-        return persisted as WorkoutData;
+        let data = persisted as unknown;
+        if (version < 2) data = state.migrateLegacy(data as Parameters<typeof state.migrateLegacy>[0], Date.now());
+        // migrateLegacy already produces the current shape; only a genuine v2 payload needs upgrading.
+        else if (version < 3) data = state.upgradeV2(data as Parameters<typeof state.upgradeV2>[0]);
+        return data as WorkoutData;
       },
-      partialize: ({ ownerUserId, workouts, versions, scheduled, sessions, dirty, settings }): WorkoutData => ({
-        ownerUserId,
-        workouts,
-        versions,
-        scheduled,
-        sessions,
-        dirty,
-        settings,
-      }),
+      partialize: (s): WorkoutData => pickData(s),
     }
   )
 );
 
-/** The plain data slice, for code outside React (sync, tests). */
+/** The plain data slice, for code outside React (sync, export). */
 export function getWorkoutData(): WorkoutData {
-  const { ownerUserId, workouts, versions, scheduled, sessions, dirty, settings } = useWorkoutsStore.getState();
-  return { ownerUserId, workouts, versions, scheduled, sessions, dirty, settings };
+  return pickData(useWorkoutsStore.getState());
 }

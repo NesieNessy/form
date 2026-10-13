@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { newUuid } from '../id';
+import { isWithinQuietHours } from '../sharing/quietHours';
 import { WORKOUT_PRESETS, instantiatePreset } from '../workoutPresets';
 import type { Workout as LegacyWorkout, WorkoutSection } from '../types';
 import {
@@ -13,13 +14,24 @@ import {
   strengthProgressPct,
   weekSummary,
 } from './analytics';
+import {
+  BENCHMARK_KINDS,
+  benchmarkHistory,
+  currentBenchmarks,
+  formatBenchmarkValue,
+  oneRepMaxByActivity,
+  validateBenchmark,
+  type Benchmark,
+} from '../athlete/model';
 import { ACTIVITIES, resolveActivity } from './catalog';
 import { parseEveryText, parseRepScheme, parseWorkRestText, wizardToContent } from './fromWizard';
 import { formatBlockHeadline, formatClock, formatPrescription, formatScore } from './format';
 import type { Block, Prescription, Session, Step, WorkoutContent } from './model';
-import { deriveScore, initialSetResults, volumeKg } from './scoring';
+import { deriveScore, initialSetResults, prescribedLoadKg, volumeKg } from './scoring';
 import {
   EMPTY_DATA,
+  PROFILE_KEY,
+  addBenchmark,
   attachToUser,
   clearDirty,
   completeSession,
@@ -28,9 +40,12 @@ import {
   mergeRemote,
   migrateLegacy,
   putBlockResult,
+  removeBenchmark,
   removeScheduled,
   reviseWorkout,
   startSession,
+  updateProfile,
+  upgradeV2,
 } from './state';
 import { IDLE_TIMER, describeClock, elapsedMs, pauseTimer, startTimer } from './timer';
 import { validateWorkout } from './validate';
@@ -364,7 +379,7 @@ describe('state', () => {
     const { data, workoutId, versionId, scheduledId } = createWorkout(EMPTY_DATA, strengthContent(), { source: 'manual', scheduledAt: NOW, nowMs: NOW });
     assert.equal(data.versions[versionId].status, 'published');
     assert.equal(data.scheduled[scheduledId as string].versionId, versionId);
-    assert.deepEqual(data.dirty, { versions: [versionId], workouts: [workoutId], scheduled: [scheduledId], sessions: [] });
+    assert.deepEqual(data.dirty, { versions: [versionId], workouts: [workoutId], scheduled: [scheduledId], sessions: [], benchmarks: [], profile: [] });
   });
 
   it('stores an invalid workout as a draft that cannot be started', () => {
@@ -434,7 +449,7 @@ describe('state', () => {
     const created = createWorkout(EMPTY_DATA, strengthContent(), { source: 'manual', scheduledAt: NOW, nowMs: NOW });
     const sid = created.scheduledId as string;
     const remoteEntry = { ...created.data.scheduled[sid], status: 'skipped' as const, updatedAt: NOW + 1000 };
-    const snapshot = { workouts: [], versions: [], scheduled: [remoteEntry], sessions: [] };
+    const snapshot = { workouts: [], versions: [], scheduled: [remoteEntry], sessions: [], benchmarks: [] };
 
     assert.equal(mergeRemote(created.data, snapshot).scheduled[sid].status, 'planned', 'dirty local row wins');
     const clean = clearDirty(created.data, { scheduled: [sid] });
@@ -560,5 +575,129 @@ describe('analytics', () => {
     assert.match(byId.record, /^Back Squat: 80 kg on .+, up from 70 kg\.$/);
     assert.match(byId.strength, /^Back Squat is up 20 kg across 4 sessions since /);
     assert.equal(byId.consistency, 'You completed 3 of 3 planned sessions in the last four weeks.');
+  });
+});
+
+describe('profile and benchmarks', () => {
+  const NOW = Date.UTC(2026, 9, 13, 12);
+  const squat = (value: number, measuredOn: string, extra: Partial<Benchmark> = {}): Parameters<typeof addBenchmark>[1] => ({
+    kind: 'one_rep_max',
+    activityId: 'back_squat',
+    value,
+    unit: 'kg',
+    measuredOn,
+    source: 'manual',
+    ...extra,
+  });
+
+  it('validates the value range, the lift and the date', () => {
+    const ok = { kind: 'one_rep_max' as const, activityId: 'back_squat', value: 120, unit: 'kg' as const, measuredOn: '2026-10-01' };
+    assert.deepEqual(validateBenchmark(ok, '2026-10-13'), []);
+    assert.deepEqual(validateBenchmark({ ...ok, activityId: undefined }, '2026-10-13').map((i) => i.field), ['activityId']);
+    assert.deepEqual(validateBenchmark({ ...ok, activityId: 'burpee' }, '2026-10-13').map((i) => i.field), ['activityId'], 'a one-rep max needs a loaded lift');
+    assert.deepEqual(validateBenchmark({ ...ok, value: 0 }, '2026-10-13').map((i) => i.field), ['value']);
+    assert.deepEqual(validateBenchmark({ ...ok, value: 1200 }, '2026-10-13').map((i) => i.field), ['value'], 'implausible, probably grams or pounds');
+    assert.deepEqual(validateBenchmark({ ...ok, measuredOn: '2026-10-14' }, '2026-10-13').map((i) => i.field), ['measuredOn']);
+    assert.deepEqual(validateBenchmark({ ...ok, measuredOn: '13.10.2026' }, '2026-10-13').map((i) => i.field), ['measuredOn']);
+    assert.deepEqual(validateBenchmark({ kind: 'ftp', value: 250, unit: 'kg', measuredOn: '2026-10-01' }, '2026-10-13').map((i) => i.field), ['value'], 'unit must match the kind');
+    for (const [kind, meta] of Object.entries(BENCHMARK_KINDS)) assert.ok(meta.min < meta.max, kind);
+  });
+
+  it('keeps history and treats the newest measurement by date as current', () => {
+    let data = EMPTY_DATA;
+    data = addBenchmark(data, squat(100, '2026-08-01'), NOW).data;
+    data = addBenchmark(data, squat(110, '2026-10-01'), NOW + 1).data;
+    data = addBenchmark(data, squat(105, '2026-09-01'), NOW + 2).data; // entered last, measured earlier
+    data = addBenchmark(data, { kind: 'ftp', value: 240, unit: 'w', measuredOn: '2026-09-15', source: 'test' }, NOW + 3).data;
+    const all = Object.values(data.benchmarks);
+
+    assert.deepEqual(currentBenchmarks(all).map((b) => [b.kind, b.value]), [['one_rep_max', 110], ['ftp', 240]]);
+    assert.deepEqual(benchmarkHistory(all, { kind: 'one_rep_max', activityId: 'back_squat' }).map((b) => b.value), [110, 105, 100]);
+    assert.deepEqual(oneRepMaxByActivity(all), { back_squat: 110 });
+    assert.equal(data.dirty.benchmarks.length, 4);
+
+    const newest = all.find((b) => b.value === 110) as Benchmark;
+    const after = removeBenchmark(data, newest.id, NOW + 10);
+    assert.deepEqual(oneRepMaxByActivity(Object.values(after.benchmarks)), { back_squat: 105 }, 'removing the newest falls back to the one before');
+    assert.ok(after.benchmarks[newest.id].deletedAt, 'removed measurements are tombstoned so the removal syncs');
+  });
+
+  it('formats each unit', () => {
+    assert.equal(formatBenchmarkValue({ value: 102.5, unit: 'kg' }), '102.5 kg');
+    assert.equal(formatBenchmarkValue({ value: 255, unit: 'sec_per_km' }), '4:15 /km');
+    assert.equal(formatBenchmarkValue({ value: 95, unit: 'sec_per_100m' }), '1:35 /100 m');
+    assert.equal(formatBenchmarkValue({ value: 248, unit: 'w' }), '248 W');
+  });
+
+  it('turns a percentage of 1RM into a load only when that lift has a recorded max', () => {
+    const b = block({ format: 'sets_reps', sets: 2 }, [
+      ex('Back Squat', { reps: 5, load: { value: 75, unit: 'percent_1rm' } }),
+      ex('Bench Press', { reps: 5, load: { value: 80, unit: 'percent_1rm' } }),
+    ]);
+    const [squatStep, benchStep] = b.steps;
+    assert.ok(squatStep.kind === 'exercise' && benchStep.kind === 'exercise');
+    assert.equal(prescribedLoadKg(squatStep, { back_squat: 113 }), 85, '84.75 rounds to the nearest half kilo');
+    assert.equal(prescribedLoadKg(benchStep, { back_squat: 113 }), undefined, 'no bench max recorded, so no number is made up');
+    assert.deepEqual(initialSetResults(b, { back_squat: 113 }).map((r) => r.loadKg), [85, 85, undefined, undefined]);
+  });
+
+  it('pre-fills a manually logged session from the athlete’s current max', () => {
+    let data = addBenchmark(EMPTY_DATA, squat(100, '2026-10-01'), NOW).data;
+    const content = workout(block({ format: 'sets_reps', sets: 1 }, [ex('Back Squat', { reps: 3, load: { value: 90, unit: 'percent_1rm' } })], 'strength'));
+    const created = createWorkout(data, content, { source: 'manual', scheduledAt: NOW, nowMs: NOW });
+    const started = startSession(created.data, created.scheduledId as string, 'manual', NOW);
+    assert.ok('sessionId' in started);
+    data = started.data;
+    assert.equal(data.sessions[started.sessionId].blockResults[0].stepResults[0].loadKg, 90);
+  });
+
+  it('marks profile edits for sync and merges the account copy by recency', () => {
+    const edited = updateProfile(EMPTY_DATA, { sports: ['running'], weeklySessionTarget: 3 }, NOW);
+    assert.deepEqual(edited.dirty.profile, [PROFILE_KEY]);
+    assert.deepEqual([edited.profile.sports, edited.profile.weeklySessionTarget, edited.profile.updatedAt], [['running'], 3, NOW]);
+
+    const remote = { ...edited.profile, sports: ['cycling' as const], updatedAt: NOW + 1000 };
+    const snapshot = { workouts: [], versions: [], scheduled: [], sessions: [], benchmarks: [], profile: remote };
+    assert.deepEqual(mergeRemote(edited, snapshot).profile.sports, ['running'], 'an unsent local edit is kept');
+    const clean = clearDirty(edited, { profile: [PROFILE_KEY] });
+    assert.deepEqual(mergeRemote(clean, snapshot).profile.sports, ['cycling'], 'a newer account copy wins once local is clean');
+    assert.deepEqual(mergeRemote(clean, { ...snapshot, profile: undefined }).profile.sports, ['running'], 'no account copy yet');
+  });
+
+  it('uploads an edited local profile on first sign-in but not an untouched one', () => {
+    assert.deepEqual(attachToUser(EMPTY_DATA, 'user-a').dirty.profile, []);
+    const edited = clearDirty(updateProfile(EMPTY_DATA, { sports: ['yoga'] }, NOW), { profile: [PROFILE_KEY] });
+    assert.deepEqual(attachToUser(edited, 'user-a').dirty.profile, [PROFILE_KEY]);
+    assert.deepEqual(attachToUser(attachToUser(edited, 'user-a'), 'user-b').profile.sports, [], 'another account does not inherit it');
+  });
+
+  it('upgrades a v2 store, carrying the weekly target into the profile', () => {
+    const v2 = { ...logSquat(EMPTY_DATA, NOW, 80) } as Record<string, unknown>;
+    delete v2.profile;
+    delete v2.benchmarks;
+    v2.settings = { weeklySessionTarget: 3 };
+    v2.dirty = { versions: ['a'], workouts: [], scheduled: [], sessions: [] };
+    const upgraded = upgradeV2(v2 as never);
+    assert.equal(upgraded.profile.weeklySessionTarget, 3);
+    assert.deepEqual(upgraded.benchmarks, {});
+    assert.deepEqual(upgraded.dirty, { versions: ['a'], workouts: [], scheduled: [], sessions: [], benchmarks: [], profile: [] });
+    assert.equal(Object.keys(upgraded.sessions).length, 1);
+    assert.equal('settings' in upgraded, false);
+  });
+});
+describe('quiet hours', () => {
+  it('handles a range within one day and one that crosses midnight', () => {
+    assert.equal(isWithinQuietHours('13:00', '15:00', '14:30'), true);
+    assert.equal(isWithinQuietHours('13:00', '15:00', '15:00'), false, 'the end is exclusive');
+    assert.equal(isWithinQuietHours('22:00', '07:00', '23:15'), true);
+    assert.equal(isWithinQuietHours('22:00', '07:00', '06:59'), true);
+    assert.equal(isWithinQuietHours('22:00', '07:00', '12:00'), false);
+  });
+
+  it('is off when unset or malformed', () => {
+    assert.equal(isWithinQuietHours(null, null, '23:00'), false);
+    assert.equal(isWithinQuietHours('22:00', null, '23:00'), false);
+    assert.equal(isWithinQuietHours('22:00', '22:00', '23:00'), false);
+    assert.equal(isWithinQuietHours('25:00', '07:00', '23:00'), false);
   });
 });

@@ -14,11 +14,11 @@ With no configuration the app runs in **local mode**: everything is stored on th
 ## Connect Supabase (optional)
 
 1. Create a Supabase project.
-2. In the SQL editor run `supabase/schema.sql`, then `supabase/migrations/0002_workout_core.sql`.
-3. Copy `.env.example` to `.env` and fill in the project URL and anon key.
+2. In the SQL editor run `supabase/schema.sql`, then each file in `supabase/migrations/` in order (`0002_workout_core.sql`, `0003_athlete_foundation.sql`).
+3. Copy `.env.example` to `.env.local` (git-ignored) and fill in the project URL and publishable key. The names must start with `EXPO_PUBLIC_`.
 4. Restart with a clean bundler cache: `npx expo start --clear`.
 
-The app then requires sign-in and syncs workouts, schedule and sessions in the background.
+The app then requires sign-in and syncs workouts, schedule, sessions, profile and benchmarks in the background. Sharing with a coach, the access log and notifications work only when signed in.
 
 ## Check your changes
 
@@ -37,5 +37,7 @@ After changing `lib/workout/catalog.ts`, run `npm run gen:activity-seed` to rege
 - `docs/DECISIONS.md` — architecture decisions taken so far and those still open.
 - `docs/concepts/` — the product and technical concept documents everything is based on.
 - `lib/workout/` — the workout model, validator, timer math, scoring and analytics (no React, fully tested).
+- `lib/athlete/` — profile and benchmarks.
+- `lib/sharing/` — client for invitations, grants, the access log, export and notifications.
 - `lib/workoutsStore.ts`, `lib/sync/` — local-first storage and background sync.
 - `supabase/` — schema, migrations and database tests.

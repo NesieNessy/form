@@ -16,6 +16,30 @@ type MenuItem = {
   route: string;
 };
 
+const accountItems: MenuItem[] = [
+  {
+    icon: Icons.personStanding,
+    color: colors.blue,
+    title: strings.profileTitle,
+    subtitle: strings.profileMenuSubtitle,
+    route: '/profile',
+  },
+  {
+    icon: Icons.users,
+    color: colors.teal,
+    title: strings.sharingTitle,
+    subtitle: strings.sharingMenuSubtitle,
+    route: '/sharing',
+  },
+  {
+    icon: Icons.info,
+    color: colors.amber,
+    title: strings.notificationsTitle,
+    subtitle: strings.notificationsMenuSubtitle,
+    route: '/notifications',
+  },
+];
+
 const items: MenuItem[] = [
   {
     icon: Icons.personStanding,
@@ -78,7 +102,7 @@ export default function MoreScreen() {
       </View>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <AccountCard />
-        {items.map((item) => (
+        {[...accountItems, ...items].map((item) => (
           <TouchableOpacity key={item.route} activeOpacity={0.75} onPress={() => router.push(item.route as never)}>
             <Card style={styles.row}>
               <View style={[styles.iconWrap, { backgroundColor: `${item.color}22` }]}>

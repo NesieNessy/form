@@ -69,8 +69,10 @@ export async function signUp(email: string, password: string): Promise<{ error?:
   return { needsConfirmation: !data.session };
 }
 
-export async function signOut(): Promise<void> {
+export async function signOut(opts: { skipSync?: boolean } = {}): Promise<void> {
   // Give unsent changes one chance to upload; they stay queued on the device either way.
-  await syncNow().catch(() => {});
-  await supabase.auth.signOut();
+  if (!opts.skipSync) await syncNow().catch(() => {});
+  // skipSync is the account-deleted case: there is no server session left to end, so only this device is signed out.
+  await supabase.auth.signOut(opts.skipSync ? { scope: 'local' } : undefined).catch(() => {});
+  if (useAuthStore.getState().status === 'signedIn') useAuthStore.setState({ status: 'signedOut', userId: null, email: null });
 }

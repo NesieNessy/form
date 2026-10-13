@@ -1,3 +1,4 @@
+import type { Benchmark, Profile } from '../athlete/model';
 import type {
   Block,
   BlockConfig,
@@ -354,4 +355,91 @@ export function rowToSession(row: SessionRow): Session {
     updatedAt: ms(row.updated_at),
     deletedAt: msOrUndefined(row.deleted_at),
   }) as Session;
+}
+
+// ------------------------------------------------ profile and benchmarks
+
+export type ProfileRow = {
+  user_id: string;
+  display_name: string | null;
+  sports: Profile['sports'] | null;
+  equipment: string[] | null;
+  available_days: number[] | null;
+  minutes_per_session: number | null;
+  weekly_session_target: number;
+  updated_at: string;
+};
+
+export function profileToRow(profile: Profile, userId: string): ProfileRow {
+  return {
+    user_id: userId,
+    display_name: profile.displayName?.trim() || null,
+    sports: profile.sports,
+    equipment: profile.equipment,
+    available_days: profile.availableDays,
+    minutes_per_session: profile.minutesPerSession ?? null,
+    weekly_session_target: profile.weeklySessionTarget,
+    updated_at: iso(profile.updatedAt),
+  };
+}
+
+export function rowToProfile(row: Omit<ProfileRow, 'user_id'>): Profile {
+  return prune({
+    displayName: row.display_name ?? undefined,
+    sports: row.sports ?? [],
+    equipment: row.equipment ?? [],
+    availableDays: row.available_days ?? [],
+    minutesPerSession: row.minutes_per_session ?? undefined,
+    weeklySessionTarget: row.weekly_session_target,
+    updatedAt: ms(row.updated_at),
+  }) as Profile;
+}
+
+export type BenchmarkRow = {
+  id: string;
+  user_id?: string;
+  kind: Benchmark['kind'];
+  activity_id: string | null;
+  value: number | string;
+  unit: Benchmark['unit'];
+  measured_on: string;
+  source: Benchmark['source'];
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+};
+
+export function benchmarkToRow(b: Benchmark, userId: string): BenchmarkRow {
+  return {
+    id: b.id,
+    user_id: userId,
+    kind: b.kind,
+    activity_id: b.activityId ?? null,
+    value: b.value,
+    unit: b.unit,
+    measured_on: b.measuredOn,
+    source: b.source,
+    notes: b.notes ?? null,
+    created_at: iso(b.createdAt),
+    updated_at: iso(b.updatedAt),
+    deleted_at: isoOrNull(b.deletedAt),
+  };
+}
+
+export function rowToBenchmark(row: BenchmarkRow): Benchmark {
+  return prune({
+    id: row.id,
+    kind: row.kind,
+    activityId: row.activity_id ?? undefined,
+    value: Number(row.value),
+    unit: row.unit,
+    // A date column can come back as a full timestamp; only the calendar day is meant.
+    measuredOn: String(row.measured_on).slice(0, 10),
+    source: row.source,
+    notes: row.notes ?? undefined,
+    createdAt: ms(row.created_at),
+    updatedAt: ms(row.updated_at),
+    deletedAt: msOrUndefined(row.deleted_at),
+  }) as Benchmark;
 }
