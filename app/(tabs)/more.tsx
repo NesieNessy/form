@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { AccountCard } from '@/components/account/AccountCard';
 import { Card } from '@/components/ui/Card';
 import { TabHeader } from '@/components/ui/TabHeader';
 import { strings } from '@/lib/strings';
@@ -76,6 +77,7 @@ export default function MoreScreen() {
         <Text style={styles.subtitle}>{strings.moreSubtitle}</Text>
       </View>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <AccountCard />
         {items.map((item) => (
           <TouchableOpacity key={item.route} activeOpacity={0.75} onPress={() => router.push(item.route as never)}>
             <Card style={styles.row}>

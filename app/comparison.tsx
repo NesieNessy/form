@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import { GroupedBarChart } from '@/components/charts/GroupedBarChart';
 import { Card } from '@/components/ui/Card';
 import { DetailHeader } from '@/components/ui/DetailHeader';
+import { SampleBadge } from '@/components/ui/SampleBadge';
 import { comparison } from '@/lib/mockData';
 import { strings } from '@/lib/strings';
 import { useContentWidth } from '@/lib/useContentWidth';
@@ -21,6 +22,7 @@ export default function ComparisonScreen() {
     <View style={styles.screen}>
       <DetailHeader title={strings.comparisonTitle} subtitle={strings.comparisonSubtitle} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <SampleBadge explain style={{ marginBottom: spacing.md }} />
         <View style={styles.pickerRow}>
           <TouchableOpacity style={styles.picker} activeOpacity={0.8}>
             <Text style={styles.pickerText}>{comparison.metric}</Text>

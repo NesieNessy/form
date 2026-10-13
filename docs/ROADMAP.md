@@ -15,28 +15,39 @@ FORM is an Expo / React Native app with a Supabase client. It has a workout crea
 
 ## Step 0 — Decisions to make before coding
 
-- [ ] Workout player or library only? This shapes the schema; the rest of the concepts assume athletes execute workouts in the app.
-- [ ] Backend shape: row-level security plus Edge Functions, or a separate API, for server-side authorization and validation.
-- [ ] Is offline session logging in the first release?
-- [ ] Physiotherapy scope: wellness coordination only, or intended medical use (triggers medical-device regulation).
-- [ ] Launch country, hosting region, and pricing model.
+Recorded in [DECISIONS.md](DECISIONS.md).
+
+- [x] Workout player or library only? **Player.**
+- [x] Backend shape: **row-level security plus database functions**; Edge Functions arrive with Step 3.
+- [x] Is offline session logging in the first release? **Yes, local-first with background sync.**
+- [ ] Physiotherapy scope: wellness coordination only, or intended medical use (triggers medical-device regulation). *Open; needed before Step 8.*
+- [ ] Launch country, hosting region, and pricing model. *Open; needed before Step 2 ships to real users.*
 
 ## Step 1 — Workout Core
 
 Source: [workout_data_model_concept.md](concepts/workout_data_model_concept.md), [workout_ai_agents_concept.md](concepts/workout_ai_agents_concept.md) (Phase 1)
 
-- [ ] Sign-up, sign-in and session handling with Supabase Auth.
-- [ ] Real schema: `workouts`, `workout_versions`, `blocks`, `steps`, `activities`, `scheduled_workouts`, `sessions`, `session_results`.
-- [ ] Migrate types to the four-level model (workout, block, step, prescription), with block purpose separate from block format.
-- [ ] Six core formats: `for_time`, `amrap`, `repeating_interval`, `sets_reps`, `continuous`, `sequence`, plus nested repeating groups.
-- [ ] Canonical exercise catalog table with units, equipment and sport tags.
-- [ ] Deterministic validator (schema, block logic, units, exercise references), callable from app and server.
-- [ ] Draft, approved, published lifecycle and workout versioning.
-- [ ] Planned and actual kept separate; a completed session stores a snapshot of what was prescribed.
-- [ ] Persist wizard workouts to Supabase.
-- [ ] Workout player: local timers that survive connection loss, live result entry, scoring (time, rounds plus reps, load, distance).
-- [ ] Training calendar for planned and completed sessions.
-- [ ] Replace mock data on trends, goals and insights screens with numbers computed from real sessions.
+- [x] Sign-up, sign-in and session handling with Supabase Auth. With no Supabase project configured the app runs in local mode without sign-in.
+- [x] Real schema: `workouts`, `workout_versions`, `blocks`, `steps`, `activities`, `scheduled_workouts`, `sessions`, `session_results` (`supabase/migrations/0002_workout_core.sql`).
+- [x] Four-level model (workout, block, step, prescription), with block purpose separate from block format (`lib/workout/model.ts`).
+- [x] Six core formats plus nested repeating groups, in the model, validator, database and player.
+- [x] Canonical exercise catalog, in the app and seeded into the database from the same source.
+- [x] Deterministic validator in the app (`lib/workout/validate.ts`) and a matching publish check in the database.
+- [x] Workout versioning with draft, published and archived states.
+- [x] Planned and actual kept separate; a completed session stores a snapshot of what was prescribed.
+- [x] Wizard workouts saved to the local store and synced to Supabase (`lib/sync`).
+- [x] Workout player with device-clock timers, live result entry and scoring; plus logging results after the fact.
+- [x] Training calendar for planned and completed sessions; reusable templates.
+- [x] Home, Trends (strength, endurance), Performance Overview and Insights computed from real sessions.
+
+Left over from Step 1:
+
+- [ ] Run the migration and test sign-in and sync against a live Supabase project. The SQL is tested against a real Postgres engine; the HTTP layer and auth are not.
+- [ ] Run the player on a physical iOS and Android device (screen stays awake, haptics, backgrounding). Verified so far in a desktop browser only.
+- [ ] The wizard cannot yet build nested groups or edit a saved workout; both exist in the model (`reviseWorkout`) without a screen.
+- [ ] An "approved" state between draft and published is not modelled; it arrives with AI proposals in Step 3.
+- [ ] Body weight, body fat, the FORM score, goals and the comparison screen still show sample values, labelled as such. They need body-measurement entry (Step 2 profile) and the goal model (Step 10).
+- [ ] Sync pulls everything on each run; add incremental pull before data grows past a thousand rows per table.
 
 ## Step 2 — Athlete Intelligence Foundation
 

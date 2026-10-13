@@ -1,5 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import { Share } from 'react-native';
 import { StepBasicInfo } from '@/components/workout/StepBasicInfo';
 import { StepExerciseDetail } from '@/components/workout/StepExerciseDetail';
 import { StepSaveContinue } from '@/components/workout/StepSaveContinue';
@@ -8,18 +9,13 @@ import { StepSectionStructure } from '@/components/workout/StepSectionStructure'
 import { StepSectionType } from '@/components/workout/StepSectionType';
 import { StepWorkoutPreview } from '@/components/workout/StepWorkoutPreview';
 import { StepWorkoutStructure } from '@/components/workout/StepWorkoutStructure';
-import { combineDateAndTime, formatDateLabel } from '@/lib/date';
+import { combineDateAndTime } from '@/lib/date';
 import { buildExerciseFromLibraryEntry, type ExerciseLibraryEntry } from '@/lib/exerciseLibrary';
 import { generateId } from '@/lib/id';
-import { strings } from '@/lib/strings';
-import type {
-  Exercise,
-  SectionWorkoutType,
-  Workout,
-  WorkoutCategory,
-  WorkoutSection,
-  WorkoutStructure,
-} from '@/lib/types';
+import type { Exercise, SectionWorkoutType, WorkoutCategory, WorkoutSection, WorkoutStructure } from '@/lib/types';
+import { defaultStructureForType, defaultWorkoutTypeForSection, wizardToContent } from '@/lib/workout/fromWizard';
+import { formatWorkoutShareText } from '@/lib/workout/share';
+import { validateWorkout } from '@/lib/workout/validate';
 import { useWorkoutsStore } from '@/lib/workoutsStore';
 
 type WizardStep =
@@ -33,24 +29,32 @@ type WizardStep =
   | { screen: 'saveContinue' };
 
 export default function WorkoutNewScreen() {
-  const { presetTitle, presetSections } = useLocalSearchParams<{ presetTitle?: string; presetSections?: string }>();
-  const addWorkout = useWorkoutsStore((s) => s.addWorkout);
-  const updateWorkout = useWorkoutsStore((s) => s.updateWorkout);
+  const { presetTitle, presetSections, date: dateParam } = useLocalSearchParams<{
+    presetTitle?: string;
+    presetSections?: string;
+    date?: string;
+  }>();
+  const createWorkout = useWorkoutsStore((s) => s.createWorkout);
+  const startSession = useWorkoutsStore((s) => s.startSession);
+  const setTemplate = useWorkoutsStore((s) => s.setTemplate);
 
   const [stepStack, setStepStack] = useState<WizardStep[]>([{ screen: 'basicInfo' }]);
   const step = stepStack[stepStack.length - 1];
 
   const [title, setTitle] = useState(() => presetTitle ?? '');
   const [category, setCategory] = useState<WorkoutCategory>('crossfit');
-  const [date, setDate] = useState(() => new Date());
+  const [date, setDate] = useState(() => (dateParam && Number.isFinite(Number(dateParam)) ? new Date(Number(dateParam)) : new Date()));
   const [startTime, setStartTime] = useState(() => new Date());
   const [notes, setNotes] = useState('');
   const [sections, setSections] = useState<WorkoutSection[]>(() =>
     presetSections ? (JSON.parse(presetSections) as WorkoutSection[]) : [{ key: 'wod', exercises: [] }]
   );
-  const [durationLabel, setDurationLabel] = useState('');
-  const [totalVolumeLabel, setTotalVolumeLabel] = useState('');
-  const [savedWorkoutId, setSavedWorkoutId] = useState<string | null>(null);
+  const [saved, setSaved] = useState<{ workoutId: string; scheduledId: string } | null>(null);
+  const isTemplate = useWorkoutsStore((s) => (saved ? (s.workouts[saved.workoutId]?.isTemplate ?? false) : false));
+
+  // Built once per edit, not per render: the conversion mints the ids that get stored.
+  const content = useMemo(() => wizardToContent({ title, category, notes, sections }), [title, category, notes, sections]);
+  const validation = useMemo(() => validateWorkout(content), [content]);
 
   const pushStep = (s: WizardStep) => setStepStack((prev) => [...prev, s]);
   const handleBack = () => {
@@ -66,34 +70,21 @@ export default function WorkoutNewScreen() {
   const updateSectionExercises = (index: number, exercises: Exercise[]) => updateSection(index, { exercises });
 
   const handleSaveWorkout = () => {
-    const id = generateId('workout');
-    const now = Date.now();
-    const workout: Workout = {
-      id,
-      title: title.trim() || strings.untitledWorkout,
-      category,
-      dateTimeMs: combineDateAndTime(date, startTime),
-      dateLabel: formatDateLabel(date),
-      notes: notes.trim() || undefined,
-      sections: sections.map((s) => ({
-        ...s,
-        exercises: s.exercises.filter((ex) => ex.name.trim().length > 0),
-      })),
-      createdAt: now,
-      updatedAt: now,
-    };
-    addWorkout(workout);
-    setSavedWorkoutId(id);
+    if (!validation.valid) return;
+    const ids = createWorkout(content, {
+      source: presetSections ? 'preset' : 'manual',
+      scheduledAt: combineDateAndTime(date, startTime),
+    });
+    if (!ids.scheduledId) return;
+    setSaved({ workoutId: ids.workoutId, scheduledId: ids.scheduledId });
     pushStep({ screen: 'saveContinue' });
   };
 
-  const handleDurationChange = (v: string) => {
-    setDurationLabel(v);
-    if (savedWorkoutId) updateWorkout(savedWorkoutId, { durationLabel: v || undefined });
-  };
-  const handleTotalVolumeChange = (v: string) => {
-    setTotalVolumeLabel(v);
-    if (savedWorkoutId) updateWorkout(savedWorkoutId, { totalVolumeLabel: v || undefined });
+  const openSession = (mode: 'player' | 'manual') => {
+    if (!saved) return;
+    const res = startSession(saved.scheduledId, mode);
+    if ('error' in res) return;
+    router.replace({ pathname: mode === 'player' ? '/workout-player' : '/workout-log', params: { sessionId: res.sessionId } });
   };
 
   switch (step.screen) {
@@ -135,7 +126,12 @@ export default function WorkoutNewScreen() {
           onWorkoutTypeChange={(t: SectionWorkoutType) => updateSection(idx, { workoutType: t })}
           onStructureChange={(structure: WorkoutStructure) => updateSection(idx, { structure })}
           onBack={handleBack}
-          onContinue={() => pushStep({ screen: 'sectionStructure', sectionIndex: idx })}
+          onContinue={() => {
+            // Persist the pre-selected defaults so what was on screen is what gets saved.
+            const workoutType = sections[idx].workoutType ?? defaultWorkoutTypeForSection(sections[idx].key);
+            updateSection(idx, { workoutType, structure: sections[idx].structure ?? defaultStructureForType(workoutType) });
+            pushStep({ screen: 'sectionStructure', sectionIndex: idx });
+          }}
         />
       );
     }
@@ -202,10 +198,9 @@ export default function WorkoutNewScreen() {
     case 'preview':
       return (
         <StepWorkoutPreview
-          title={title}
+          content={content}
+          validation={validation}
           dateTimeMs={combineDateAndTime(date, startTime)}
-          sections={sections}
-          notes={notes}
           onBack={handleBack}
           onSave={handleSaveWorkout}
         />
@@ -214,10 +209,13 @@ export default function WorkoutNewScreen() {
     case 'saveContinue':
       return (
         <StepSaveContinue
-          durationLabel={durationLabel}
-          onDurationChange={handleDurationChange}
-          totalVolumeLabel={totalVolumeLabel}
-          onTotalVolumeChange={handleTotalVolumeChange}
+          isTemplate={isTemplate}
+          onStart={() => openSession('player')}
+          onLogResults={() => openSession('manual')}
+          onToggleTemplate={() => saved && setTemplate(saved.workoutId, !isTemplate)}
+          onShare={() => {
+            Share.share({ message: formatWorkoutShareText(content) }).catch(() => {});
+          }}
           onDone={() => router.back()}
         />
       );

@@ -12,6 +12,8 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useEffect } from 'react';
 import { Platform, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SignInScreen } from '@/components/auth/SignInScreen';
+import { initAuth, useAuthStore } from '@/lib/auth';
 import { colors, fontFamily, layout } from '@/theme/colors';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -34,26 +36,39 @@ export default function RootLayout() {
   const { width } = useWindowDimensions();
   const isDesktopWeb = Platform.OS === 'web' && width >= layout.desktopBreakpoint;
 
-  useEffect(() => {
-    if (fontsLoaded) SplashScreen.hideAsync().catch(() => {});
-  }, [fontsLoaded]);
+  const authStatus = useAuthStore((s) => s.status);
+  const ready = fontsLoaded && authStatus !== 'loading';
 
-  if (!fontsLoaded) return null;
+  useEffect(() => {
+    initAuth();
+  }, []);
+
+  useEffect(() => {
+    if (ready) SplashScreen.hideAsync().catch(() => {});
+  }, [ready]);
+
+  if (!ready) return null;
 
   return (
     <SafeAreaProvider>
       <StatusBar style="light" />
       <View style={[styles.backdrop, isDesktopWeb && styles.desktopBackdrop]}>
         <View style={[styles.appContainer, isDesktopWeb && styles.desktopContainer]}>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: colors.bg },
-              animation: 'slide_from_right',
-            }}
-          >
-            <Stack.Screen name="(tabs)" />
-          </Stack>
+          {/* Signed out, no route is mounted at all, so no screen can show the previous account's data. */}
+          {authStatus === 'signedOut' ? (
+            <SignInScreen />
+          ) : (
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: { backgroundColor: colors.bg },
+                animation: 'slide_from_right',
+              }}
+            >
+              <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="workout-player" options={{ gestureEnabled: false }} />
+            </Stack>
+          )}
         </View>
       </View>
     </SafeAreaProvider>

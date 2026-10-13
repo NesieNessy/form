@@ -6,7 +6,6 @@ import {
   goals as mockGoals,
   insights as mockInsights,
   strengthLifts as mockStrengthLifts,
-  weekStrip as mockWeekStrip,
 } from './mockData';
 import type { BodyMetricPoint, EnduranceSession, Goal, Insight, StrengthLift } from './types';
 
@@ -146,20 +145,5 @@ export async function getInsights(): Promise<Insight[]> {
     }));
   } catch {
     return mockInsights;
-  }
-}
-
-export async function getWeekStrip() {
-  if (!isSupabaseConfigured) return mockWeekStrip;
-  try {
-    const { data, error } = await supabase
-      .from('workouts')
-      .select('scheduled_on, completed')
-      .order('scheduled_on', { ascending: true })
-      .limit(7);
-    if (error || !data || data.length === 0) return mockWeekStrip;
-    return mockWeekStrip;
-  } catch {
-    return mockWeekStrip;
   }
 }

@@ -1,30 +1,36 @@
 import React from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { GradientButton } from '@/components/ui/GradientButton';
 import { strings } from '@/lib/strings';
-import type { WorkoutSection } from '@/lib/types';
-import { colors, spacing } from '@/theme/colors';
+import type { WorkoutContent } from '@/lib/workout/model';
+import type { ValidationResult } from '@/lib/workout/validate';
+import { colors, fontFamily, spacing } from '@/theme/colors';
+import { ValidationIssues } from './ValidationIssues';
 import { WizardHeader } from './WizardHeader';
 import { WorkoutSummaryView } from './WorkoutSummaryView';
 
 type Props = {
-  title: string;
+  content: WorkoutContent;
+  validation: ValidationResult;
   dateTimeMs: number;
-  sections: WorkoutSection[];
-  notes: string;
   onBack: () => void;
   onSave: () => void;
 };
 
-export function StepWorkoutPreview({ title, dateTimeMs, sections, notes, onBack, onSave }: Props) {
+export function StepWorkoutPreview({ content, validation, dateTimeMs, onBack, onSave }: Props) {
   return (
     <View style={styles.screen}>
       <WizardHeader title={strings.workoutPreviewTitle} subtitle={strings.workoutPreviewSubtitle} onBack={onBack} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <WorkoutSummaryView title={title} dateTimeMs={dateTimeMs} sections={sections} notes={notes || undefined} />
+        <ValidationIssues result={validation} />
+        <WorkoutSummaryView content={content} dateTimeMs={dateTimeMs} />
       </ScrollView>
       <View style={styles.footer}>
-        <GradientButton label={strings.saveWorkout} onPress={onSave} />
+        {validation.valid ? (
+          <GradientButton label={strings.saveWorkout} onPress={onSave} />
+        ) : (
+          <Text style={styles.blocked}>{strings.cannotSaveYet}</Text>
+        )}
       </View>
     </View>
   );
@@ -32,6 +38,7 @@ export function StepWorkoutPreview({ title, dateTimeMs, sections, notes, onBack,
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
-  content: { paddingHorizontal: spacing.screenX, paddingTop: spacing.lg, paddingBottom: spacing.xxl },
+  content: { paddingHorizontal: spacing.screenX, paddingTop: spacing.lg, paddingBottom: spacing.xxl, gap: spacing.md },
   footer: { paddingHorizontal: spacing.screenX, paddingTop: spacing.sm, paddingBottom: spacing.lg },
+  blocked: { color: colors.textSecondary, fontSize: 13, textAlign: 'center', lineHeight: 19, fontFamily: fontFamily.regular },
 });

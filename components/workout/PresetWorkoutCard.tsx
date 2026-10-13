@@ -36,10 +36,11 @@ type Props = {
   onPrevious: () => void;
   onShare: () => void;
   onEdit: () => void;
+  onStart: () => void;
   onStub: (message: string) => void;
 };
 
-export function PresetWorkoutCard({ preset, favorited, onToggleFavorite, onPrevious, onShare, onEdit, onStub }: Props) {
+export function PresetWorkoutCard({ preset, favorited, onToggleFavorite, onPrevious, onShare, onEdit, onStart, onStub }: Props) {
   const workoutType = preset.section.workoutType ?? 'forTime';
   const accent = TYPE_ACCENT[workoutType];
   const headline = formatSectionHeadline(preset.section);
@@ -77,7 +78,7 @@ export function PresetWorkoutCard({ preset, favorited, onToggleFavorite, onPrevi
       <GradientButton
         label={strings.startWorkout}
         colorsOverride={[accent, accent]}
-        onPress={() => onStub(strings.comingSoon)}
+        onPress={onStart}
       />
 
       <View style={styles.actionRow}>

@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { StackedBarChart } from '@/components/charts/StackedBarChart';
 import { Card } from '@/components/ui/Card';
 import { DetailHeader } from '@/components/ui/DetailHeader';
+import { SampleBadge } from '@/components/ui/SampleBadge';
 import { GradientButton } from '@/components/ui/GradientButton';
 import { SegmentedTabs } from '@/components/ui/SegmentedTabs';
 import { bodyCompositionMonths, bodyCompositionSeries, bodyDevelopment, timeRanges } from '@/lib/mockData';
@@ -21,6 +22,7 @@ export default function BodyDevelopmentScreen() {
     <View style={styles.screen}>
       <DetailHeader title={strings.bodyDevelopmentTitle} subtitle={strings.bodyDevelopmentSubtitle} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <SampleBadge explain style={{ marginBottom: spacing.md }} />
         <SegmentedTabs options={timeRanges} value={range} onChange={setRange} scrollable size="sm" />
         <View style={{ height: spacing.lg }} />
 

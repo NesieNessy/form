@@ -2,6 +2,7 @@ import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
 import { DetailHeader } from '@/components/ui/DetailHeader';
+import { SampleBadge } from '@/components/ui/SampleBadge';
 import { ProgressGoalBar } from '@/components/ui/ProgressGoalBar';
 import { goals, prognosis } from '@/lib/mockData';
 import { strings } from '@/lib/strings';
@@ -13,6 +14,7 @@ export default function GoalsForecastScreen() {
     <View style={styles.screen}>
       <DetailHeader title={strings.goalsForecastsTitle} subtitle={strings.goalsForecastsSubtitle} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <SampleBadge explain style={{ marginBottom: spacing.md }} />
         <Card>
           <Text style={styles.cardTitle}>{strings.yourGoals}</Text>
           {goals.map((g) => (

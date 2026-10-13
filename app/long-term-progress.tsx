@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { MultiLineChart } from '@/components/charts/MultiLineChart';
 import { Card } from '@/components/ui/Card';
 import { DetailHeader } from '@/components/ui/DetailHeader';
+import { SampleBadge } from '@/components/ui/SampleBadge';
 import { SegmentedTabs } from '@/components/ui/SegmentedTabs';
 import { longTerm, timeRanges } from '@/lib/mockData';
 import { strings } from '@/lib/strings';
@@ -26,6 +27,7 @@ export default function LongTermProgressScreen() {
     <View style={styles.screen}>
       <DetailHeader title={strings.longTermProgressTitle} subtitle={strings.longTermProgressSubtitle} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <SampleBadge explain style={{ marginBottom: spacing.md }} />
         <SegmentedTabs options={RANGE_OPTIONS} value={range} onChange={setRange} scrollable size="sm" />
         <View style={{ height: spacing.lg }} />
 

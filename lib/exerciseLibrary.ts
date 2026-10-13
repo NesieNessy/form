@@ -1,30 +1,34 @@
 import type { Exercise, ExercisePrimary } from './types';
+import { ACTIVITIES, searchActivities, type Activity, type DefaultTarget } from './workout/catalog';
 
-export type ExerciseLibraryEntry = { name: string; defaultPrimary: ExercisePrimary };
+/** The wizard's view of the activity catalog (lib/workout/catalog.ts). */
+export type ExerciseLibraryEntry = { activityId: string; name: string; defaultPrimary: ExercisePrimary };
 
-export const EXERCISE_LIBRARY: ExerciseLibraryEntry[] = [
-  { name: 'Thruster', defaultPrimary: { target: 'reps', reps: 10 } },
-  { name: 'Pull Up', defaultPrimary: { target: 'reps', reps: 10 } },
-  { name: 'Push Up', defaultPrimary: { target: 'reps', reps: 10 } },
-  { name: 'Air Squat', defaultPrimary: { target: 'reps', reps: 15 } },
-  { name: 'Box Jump', defaultPrimary: { target: 'reps', reps: 10 } },
-  { name: 'Wall Ball', defaultPrimary: { target: 'reps', reps: 15 } },
-  { name: 'Kettlebell Swing', defaultPrimary: { target: 'reps', reps: 15 } },
-  { name: 'Burpee', defaultPrimary: { target: 'reps', reps: 10 } },
-  { name: 'Double Under', defaultPrimary: { target: 'reps', reps: 50 } },
-  { name: 'Sit Up', defaultPrimary: { target: 'reps', reps: 15 } },
-  { name: 'Handstand Push Up', defaultPrimary: { target: 'reps', reps: 5 } },
-  { name: 'Deadlift', defaultPrimary: { target: 'reps', reps: 5 } },
-  { name: 'Back Squat', defaultPrimary: { target: 'reps', reps: 5 } },
-  { name: 'Row', defaultPrimary: { target: 'distance', value: 500, unit: 'm' } },
-  { name: 'Run', defaultPrimary: { target: 'distance', value: 400, unit: 'm' } },
-  { name: 'Ski Erg', defaultPrimary: { target: 'distance', value: 400, unit: 'm' } },
-  { name: 'Bike', defaultPrimary: { target: 'calories', calories: 20 } },
-];
+function toPrimary(target: DefaultTarget): ExercisePrimary {
+  switch (target.kind) {
+    case 'reps':
+      return { target: 'reps', reps: target.reps };
+    case 'calories':
+      return { target: 'calories', calories: target.calories };
+    case 'distance':
+      return target.meters >= 1000 && target.meters % 1000 === 0
+        ? { target: 'distance', value: target.meters / 1000, unit: 'km' }
+        : { target: 'distance', value: target.meters, unit: 'm' };
+    case 'duration':
+      return { target: 'time', minutes: Math.floor(target.seconds / 60), seconds: target.seconds % 60 };
+  }
+}
+
+const toEntry = (activity: Activity): ExerciseLibraryEntry => ({
+  activityId: activity.id,
+  name: activity.name,
+  defaultPrimary: toPrimary(activity.defaultTarget),
+});
+
+export const EXERCISE_LIBRARY: ExerciseLibraryEntry[] = ACTIVITIES.map(toEntry);
 
 export function searchExerciseLibrary(query: string): ExerciseLibraryEntry[] {
-  const q = query.trim().toLowerCase();
-  return q ? EXERCISE_LIBRARY.filter((e) => e.name.toLowerCase().includes(q)) : EXERCISE_LIBRARY;
+  return searchActivities(query).map(toEntry);
 }
 
 export function buildExerciseFromLibraryEntry(entry: ExerciseLibraryEntry, id: string): Exercise {

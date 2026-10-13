@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Card } from './Card';
+import { SampleBadge } from './SampleBadge';
 import { colors, fontFamily, iconStrokeWidth, spacing } from '@/theme/colors';
 import { Icons } from '@/theme/icons';
 
@@ -11,11 +12,14 @@ type Props = {
   positive?: boolean;
   direction?: 'up' | 'down';
   style?: object;
+  /** True when the figure is a bundled demo value, not the athlete's own data. */
+  sample?: boolean;
 };
 
-export function StatCard({ label, value, delta, positive = true, direction = 'down', style }: Props) {
+export function StatCard({ label, value, delta, positive = true, direction = 'down', style, sample }: Props) {
   return (
     <Card style={[styles.card, style]}>
+      {sample ? <SampleBadge /> : null}
       <Text style={styles.label}>{label}</Text>
       <Text style={styles.value}>{value}</Text>
       {delta ? (

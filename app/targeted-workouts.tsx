@@ -7,12 +7,16 @@ import { Toast } from '@/components/ui/Toast';
 import { PresetWorkoutCard } from '@/components/workout/PresetWorkoutCard';
 import { strings } from '@/lib/strings';
 import { formatPresetShareText, instantiatePreset, WORKOUT_PRESETS } from '@/lib/workoutPresets';
+import { wizardToContent } from '@/lib/workout/fromWizard';
+import { useWorkoutsStore } from '@/lib/workoutsStore';
 import { colors, fontFamily, spacing } from '@/theme/colors';
 
 export default function TargetedWorkoutsScreen() {
   const [presetIndex, setPresetIndex] = useState(0);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const createWorkout = useWorkoutsStore((s) => s.createWorkout);
+  const startSession = useWorkoutsStore((s) => s.startSession);
 
   useEffect(() => {
     if (!toastMessage) return;
@@ -38,6 +42,18 @@ export default function TargetedWorkoutsScreen() {
     Share.share({ message: formatPresetShareText(preset) }).catch(() => {});
   };
 
+  const handleStart = () => {
+    const { title, sections } = instantiatePreset(preset);
+    const content = wizardToContent({ title, category: 'crossfit', sections });
+    const { scheduledId } = createWorkout(content, { source: 'preset', scheduledAt: Date.now() });
+    const res = scheduledId ? startSession(scheduledId, 'player') : { error: 'not_found' as const };
+    if ('error' in res) {
+      setToastMessage(strings.draftCannotStart);
+      return;
+    }
+    router.push({ pathname: '/workout-player', params: { sessionId: res.sessionId } });
+  };
+
   const handleEdit = () => {
     const { title, sections } = instantiatePreset(preset);
     router.push({
@@ -57,6 +73,7 @@ export default function TargetedWorkoutsScreen() {
           onPrevious={goPrevious}
           onShare={handleShare}
           onEdit={handleEdit}
+          onStart={handleStart}
           onStub={setToastMessage}
         />
 
