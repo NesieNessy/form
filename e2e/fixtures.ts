@@ -107,4 +107,29 @@ const { recovery: _r, ...v5 } = nights;
 const { recovery: _dr, ...dirty5 } = v5.dirty;
 writeFileSync(join(OUT, 'store-v5.json'), JSON.stringify({ state: { ...v5, dirty: dirty5 }, version: 5 }));
 
+// Store v6 (before rehab) with a mixed workout planned this evening.
+const mixed = createWorkout(
+  EMPTY_DATA,
+  {
+    title: 'Run and Jump',
+    sport: 'crossfit',
+    blocks: [
+      {
+        id: newUuid(),
+        type: 'conditioning',
+        config: { format: 'amrap', durationSeconds: 900 },
+        steps: [
+          { kind: 'exercise', id: newUuid(), name: 'Run', activityId: 'run', prescription: { distanceMeters: 400 } },
+          { kind: 'exercise', id: newUuid(), name: 'Box Jump', activityId: 'box_jump', prescription: { reps: 10 } },
+          { kind: 'exercise', id: newUuid(), name: 'Air Squat', activityId: 'air_squat', prescription: { reps: 15 } },
+        ],
+      },
+    ],
+  },
+  { source: 'manual', scheduledAt: at(23, 0), nowMs: Date.now() }
+);
+const { episodes: _e, symptomLogs: _s, clinical: _c, ...v6 } = mixed.data;
+const { episodes: _de, symptomLogs: _ds, ...dirty6 } = v6.dirty;
+writeFileSync(join(OUT, 'store-v6.json'), JSON.stringify({ state: { ...v6, dirty: dirty6 }, version: 6 }));
+
 console.log(`e2e fixtures written to ${OUT}`);

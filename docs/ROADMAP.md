@@ -180,12 +180,19 @@ Left over from Step 7:
 
 Source: [injury_rehabilitation_return_to_training_concept_en.md](concepts/injury_rehabilitation_return_to_training_concept_en.md)
 
-- [ ] Injury episodes, symptom logs and authored, time-bound restrictions.
-- [ ] Deterministic restriction engine and workout conflict detection; the safety and escalation service is rules, not a language model.
-- [ ] Rehab plans reusing the workout model, with `null` dosage where the clinician has not specified it.
-- [ ] Physio workspace: case-scoped access, plan approval, review notes, return-to-sport decisions recorded by a verified clinician.
-- [ ] Narrow "functional restriction" view an athlete can share with a coach, without diagnosis.
-- [ ] AI assistants in order: intake documentation, training modification drafts, progress summaries, return-to-training coordination. None may diagnose, clear, or lift a restriction.
+- [x] Injury episodes in the athlete's own words (body region, side, onset, what makes it worse; no diagnosis asked for) and symptom logs (0–10 intensity, optional function score, context, red flags), local-first and synced. Clinician restrictions are authored, scoped to movement kinds, dated and time-bound (migration `0011_rehab.sql`).
+- [x] Deterministic restriction engine (`lib/rehab/conflicts.ts`): every catalog exercise has movement tags (a test keeps them complete); a planned workout is checked against the restrictions in force on its date and the athlete's own notes, with exercises outside the catalog listed as unchecked. It warns and can draft the workout without the clashing exercises; nothing changes unless the athlete chooses. Escalation is a rule: any red flag shows "get this checked promptly" and hides exercise suggestions (wording is a placeholder for clinician review).
+- [x] Rehab plans on the Workout Core: the physio enters exercises with optional sets, reps and holds; an empty dose stays absent and the athlete is told to ask rather than guess. Versions are kept; the athlete adds sessions to their calendar as their own copies.
+- [x] Physio workspace (More → Physio Cases): only cases the athlete shared, one by one (`share_case`), each opening logged. Restrictions, lifting them, plans, review notes; return-to-sport decisions (participation, sport, performance) only by a clinician verified in `professional_verifications`, which only the operator can write, and only with written criteria. The athlete can read all of it and change none of it; ending the relationship closes the cases.
+- [x] Coach view "Training limits" (`functional_restriction` category): movement kinds, rule, dates and who set it; never the injury, body part or notes.
+
+Left over from Step 8:
+
+- [ ] AI assistants (intake documentation, restriction-aware modification drafts, progress summaries, return-to-training coordination). Not built, to keep the safety foundation deterministic first. Meanwhile the existing "Adapt This Workout" assistant does not know about restrictions; it should either receive them or be hidden for restricted workouts.
+- [ ] Clinician verification has no screen: the operator inserts the row by hand. A real process (registration check per country) is needed before launch.
+- [ ] Red-flag list, escalation wording, tag mapping and every rehab text need review by qualified clinicians; regulatory assessment (EU MDR) before any clinical claim.
+- [ ] No attachments, functional assessments, phases with milestones, or symptom trend charts yet.
+- [ ] Verified in a desktop browser with live accounts; not tried on a phone.
 
 ## Step 9 — AI coaching chat
 

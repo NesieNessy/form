@@ -46,6 +46,13 @@ const accountItems: MenuItem[] = [
     route: '/recovery',
   },
   {
+    icon: Icons.personStanding,
+    color: colors.red,
+    title: strings.rehabTitle,
+    subtitle: strings.rehabMenuSubtitle,
+    route: '/rehab',
+  },
+  {
     icon: Icons.flame,
     color: colors.orange,
     title: strings.nutritionTitle,
@@ -65,6 +72,13 @@ const accountItems: MenuItem[] = [
     title: strings.coachingTitle,
     subtitle: strings.coachingMenuSubtitle,
     route: '/coach',
+  },
+  {
+    icon: Icons.heartPulse,
+    color: colors.teal,
+    title: strings.physioTitle,
+    subtitle: strings.physioMenuSubtitle,
+    route: '/physio',
   },
   {
     icon: Icons.info,

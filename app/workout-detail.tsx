@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, Share, StyleSheet, Text, View } from 'react-native';
+import { ConflictBanner } from '@/components/rehab/ConflictBanner';
 import { Card } from '@/components/ui/Card';
 import { DetailHeader } from '@/components/ui/DetailHeader';
 import { GradientButton } from '@/components/ui/GradientButton';
@@ -83,6 +84,8 @@ export default function WorkoutDetailScreen() {
         )}
 
         <WorkoutSummaryView content={content} dateTimeMs={entry.scheduledAt} blockResults={session?.blockResults} />
+
+        {!session && entry.status === 'planned' ? <ConflictBanner entry={entry} content={content} /> : null}
 
         {session ? (
           <Card style={styles.resultsCard}>

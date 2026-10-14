@@ -262,7 +262,7 @@ describe('activities in the store', () => {
 
     const clean = clearDirty(adopted, { activities: [imported.activityId] });
     const remote = { ...clean.activities[imported.activityId], status: 'ignored' as const, updatedAt: NOW + 10 };
-    const merged = mergeRemote(clean, { workouts: [], versions: [], scheduled: [], sessions: [], benchmarks: [], activities: [remote], observations: [], foods: [], foodLog: [], savedMeals: [], recovery: [] });
+    const merged = mergeRemote(clean, { workouts: [], versions: [], scheduled: [], sessions: [], benchmarks: [], activities: [remote], observations: [], foods: [], foodLog: [], savedMeals: [], recovery: [], episodes: [], symptomLogs: [] });
     assert.equal(merged.activities[imported.activityId].status, 'ignored');
 
     const v3 = { ...EMPTY_DATA } as Partial<WorkoutData>;

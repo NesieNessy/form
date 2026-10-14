@@ -2,6 +2,7 @@ import type { Benchmark, Profile } from '../athlete/model';
 import type { ExternalActivity, HealthObservation } from '../health/model';
 import type { Food, FoodLogEntry, NutritionTargets, SavedMeal } from '../nutrition/model';
 import type { RecoveryDay } from '../recovery/model';
+import type { ActivityTag, CaseNote, ClinicalRecords, InjuryEpisode, Issuer, RehabPlan, Restriction, RtsDecision, SymptomLog } from '../rehab/model';
 import type {
   Block,
   BlockConfig,
@@ -783,4 +784,152 @@ export function rowToRecovery(row: RecoveryRow): RecoveryDay {
     updatedAt: ms(row.updated_at),
     deletedAt: msOrUndefined(row.deleted_at),
   }) as RecoveryDay;
+}
+
+// ------------------------------------------------------------------ rehab
+
+export type EpisodeRow = {
+  id: string;
+  user_id?: string;
+  body_region: InjuryEpisode['bodyRegion'];
+  laterality: InjuryEpisode['laterality'];
+  onset_date: string | null;
+  onset_type: InjuryEpisode['onsetType'];
+  reported_problem: string;
+  affected_activities: ActivityTag[] | null;
+  status: InjuryEpisode['status'];
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+};
+
+export function episodeToRow(e: InjuryEpisode, userId: string): EpisodeRow {
+  return {
+    id: e.id,
+    user_id: userId,
+    body_region: e.bodyRegion,
+    laterality: e.laterality,
+    onset_date: e.onsetDate ?? null,
+    onset_type: e.onsetType,
+    reported_problem: e.reportedProblem,
+    affected_activities: e.affectedActivities,
+    status: e.status,
+    created_at: iso(e.createdAt),
+    updated_at: iso(e.updatedAt),
+    deleted_at: isoOrNull(e.deletedAt),
+  };
+}
+
+export function rowToEpisode(row: EpisodeRow): InjuryEpisode {
+  return prune({
+    id: row.id,
+    bodyRegion: row.body_region,
+    laterality: row.laterality,
+    onsetDate: row.onset_date ? String(row.onset_date).slice(0, 10) : undefined,
+    onsetType: row.onset_type,
+    reportedProblem: row.reported_problem,
+    affectedActivities: row.affected_activities ?? [],
+    status: row.status,
+    createdAt: ms(row.created_at),
+    updatedAt: ms(row.updated_at),
+    deletedAt: msOrUndefined(row.deleted_at),
+  }) as InjuryEpisode;
+}
+
+export type SymptomRow = {
+  id: string;
+  user_id?: string;
+  episode_id: string;
+  logged_at: string;
+  local_date: string;
+  intensity: number;
+  function_score: number | null;
+  context: string | null;
+  red_flags: SymptomLog['redFlags'] | null;
+  note: string | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+};
+
+export function symptomToRow(s: SymptomLog, userId: string): SymptomRow {
+  return {
+    id: s.id,
+    user_id: userId,
+    episode_id: s.episodeId,
+    logged_at: iso(s.loggedAt),
+    local_date: s.localDate,
+    intensity: s.intensity,
+    function_score: s.function ?? null,
+    context: s.context ?? null,
+    red_flags: s.redFlags,
+    note: s.note ?? null,
+    created_at: iso(s.createdAt),
+    updated_at: iso(s.updatedAt),
+    deleted_at: isoOrNull(s.deletedAt),
+  };
+}
+
+export function rowToSymptom(row: SymptomRow): SymptomLog {
+  return prune({
+    id: row.id,
+    episodeId: row.episode_id,
+    loggedAt: ms(row.logged_at),
+    localDate: String(row.local_date).slice(0, 10),
+    intensity: row.intensity,
+    function: row.function_score ?? undefined,
+    context: row.context ?? undefined,
+    redFlags: row.red_flags ?? [],
+    note: row.note ?? undefined,
+    createdAt: ms(row.created_at),
+    updatedAt: ms(row.updated_at),
+    deletedAt: msOrUndefined(row.deleted_at),
+  }) as SymptomLog;
+}
+
+type IssuerRow = { id: string; name: string | null; role: string; verified: boolean };
+const issuer = (i: IssuerRow): Issuer => ({ id: i.id, name: i.name, role: i.role, verified: !!i.verified });
+
+export type ClinicalJson = {
+  restrictions: { id: string; episode_id: string; tags: ActivityTag[]; rule: Restriction['rule']; note: string | null; issuer: IssuerRow; effective_from: string; expires_on: string | null; status: Restriction['status']; lifted_at: string | null; created_at: string }[];
+  plans: { id: string; episode_id: string; version: number; status: RehabPlan['status']; content: RehabPlan['content']; sessions_per_week: number | null; notes: string | null; author: IssuerRow; created_at: string }[];
+  decisions: { id: string; episode_id: string; stage: RtsDecision['stage']; criteria: string; clinician: IssuerRow; decided_at: string }[];
+  notes: { id: string; episode_id: string; body: string; author: IssuerRow; created_at: string }[];
+};
+
+/** The clinician records a case returns, in the app's shape. */
+export function parseClinical(json: ClinicalJson, fetchedAt: number): ClinicalRecords {
+  return {
+    restrictions: (json.restrictions ?? []).map((r) =>
+      prune({
+        id: r.id,
+        episodeId: r.episode_id,
+        tags: r.tags ?? [],
+        rule: r.rule,
+        note: r.note ?? undefined,
+        issuer: issuer(r.issuer),
+        effectiveFrom: String(r.effective_from).slice(0, 10),
+        expiresOn: r.expires_on ? String(r.expires_on).slice(0, 10) : undefined,
+        status: r.status,
+        liftedAt: msOrUndefined(r.lifted_at),
+        createdAt: ms(r.created_at),
+      }) as Restriction
+    ),
+    plans: (json.plans ?? []).map((p) =>
+      prune({
+        id: p.id,
+        episodeId: p.episode_id,
+        version: p.version,
+        status: p.status,
+        content: p.content,
+        sessionsPerWeek: p.sessions_per_week ?? undefined,
+        notes: p.notes ?? undefined,
+        author: issuer(p.author),
+        createdAt: ms(p.created_at),
+      }) as RehabPlan
+    ),
+    decisions: (json.decisions ?? []).map((d) => ({ id: d.id, episodeId: d.episode_id, stage: d.stage, criteria: d.criteria, clinician: issuer(d.clinician), decidedAt: ms(d.decided_at) })),
+    notes: (json.notes ?? []).map((n): CaseNote => ({ id: n.id, episodeId: n.episode_id, body: n.body, author: issuer(n.author), createdAt: ms(n.created_at) })),
+    fetchedAt,
+  };
 }

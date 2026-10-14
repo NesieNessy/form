@@ -156,8 +156,8 @@ export type WorkoutVersion = {
   createdAt: number;
 };
 
-/** coach: added from an assignment a coach sent. */
-export type WorkoutSource = 'manual' | 'preset' | 'import' | 'coach';
+/** coach: added from an assignment a coach sent. rehab: a session from a physio's rehab plan. */
+export type WorkoutSource = 'manual' | 'preset' | 'import' | 'coach' | 'rehab';
 
 export type Workout = {
   id: string;

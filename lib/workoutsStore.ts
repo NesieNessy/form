@@ -8,6 +8,7 @@ import type { Food, FoodSnapshot, Nutrients, Quantity } from './nutrition/model'
 import * as nutrition from './nutrition/state';
 import type { CheckIn, Insight, OptionKind } from './recovery/model';
 import * as recovery from './recovery/state';
+import * as rehab from './rehab/state';
 import { newUuid } from './id';
 import { withFreshIds, type BlockResult, type Session, type WorkoutContent, type WorkoutSource } from './workout/model';
 import * as state from './workout/state';
@@ -26,6 +27,8 @@ type Actions = {
   applyAdaptation: (scheduledId: string, content: WorkoutContent) => void;
   /** Adds a workout a coach sent to the athlete's own calendar, as their own copy. */
   addFromCoach: (content: WorkoutContent, scheduledAt: number) => string;
+  /** Adds one session of a physio's rehab plan to the calendar, as the athlete's own copy. */
+  addFromRehabPlan: (content: WorkoutContent, scheduledAt: number) => string;
   scheduleWorkout: (workoutId: string, scheduledAt: number) => string;
   setTemplate: (workoutId: string, isTemplate: boolean) => void;
   removeScheduled: (scheduledId: string) => void;
@@ -64,6 +67,12 @@ type Actions = {
   /** Records today's summary when it is viewed, so a shared coach summary is current. */
   recordRecoveryDay: (insight: Insight) => void;
   chooseRecoveryOption: (insight: Insight, option: OptionKind) => void;
+
+  addEpisode: (input: rehab.EpisodeInput) => { ok: true; episodeId: string } | { ok: false; error: string };
+  updateEpisode: (episodeId: string, patch: Parameters<typeof rehab.updateEpisode>[2]) => { ok: true } | { ok: false; error: string };
+  removeEpisode: (episodeId: string) => void;
+  addSymptomLog: (episodeId: string, input: rehab.SymptomInput) => { ok: true; logId: string } | { ok: false; error: string };
+  removeSymptomLog: (logId: string) => void;
   /** Removes everything stored on this device. */
   wipe: () => void;
 
@@ -86,8 +95,8 @@ function applying<T extends object>(set: (data: WorkoutData) => void, res: ({ ok
 }
 
 function pickData(s: WorkoutData): WorkoutData {
-  const { ownerUserId, workouts, versions, scheduled, sessions, profile, benchmarks, activities, observations, foods, foodLog, savedMeals, recovery, dirty } = s;
-  return { ownerUserId, workouts, versions, scheduled, sessions, profile, benchmarks, activities, observations, foods, foodLog, savedMeals, recovery, dirty };
+  const { ownerUserId, workouts, versions, scheduled, sessions, profile, benchmarks, activities, observations, foods, foodLog, savedMeals, recovery, episodes, symptomLogs, clinical, dirty } = s;
+  return { ownerUserId, workouts, versions, scheduled, sessions, profile, benchmarks, activities, observations, foods, foodLog, savedMeals, recovery, episodes, symptomLogs, clinical, dirty };
 }
 
 export const useWorkoutsStore = create<WorkoutsState>()(
@@ -107,6 +116,11 @@ export const useWorkoutsStore = create<WorkoutsState>()(
       },
       addFromCoach: (content, scheduledAt) => {
         const res = state.createWorkout(pickData(get()), withFreshIds(content, newUuid), { source: 'coach', scheduledAt, nowMs: Date.now() });
+        set(res.data);
+        return res.scheduledId as string;
+      },
+      addFromRehabPlan: (content, scheduledAt) => {
+        const res = state.createWorkout(pickData(get()), withFreshIds(content, newUuid), { source: 'rehab', scheduledAt, nowMs: Date.now() });
         set(res.data);
         return res.scheduledId as string;
       },
@@ -159,6 +173,26 @@ export const useWorkoutsStore = create<WorkoutsState>()(
       saveCheckIn: (checkIn) => set(recovery.saveCheckIn(pickData(get()), checkIn, Date.now())),
       recordRecoveryDay: (insight) => set(recovery.recordDay(pickData(get()), insight, Date.now())),
       chooseRecoveryOption: (insight, option) => set(recovery.chooseOption(pickData(get()), insight, option, Date.now())),
+      addEpisode: (input) => {
+        const res = rehab.addEpisode(pickData(get()), input, Date.now());
+        if (!res.ok) return res;
+        set(res.data);
+        return { ok: true, episodeId: res.episodeId };
+      },
+      updateEpisode: (episodeId, patch) => {
+        const res = rehab.updateEpisode(pickData(get()), episodeId, patch, Date.now());
+        if (!res.ok) return res;
+        set(res.data);
+        return { ok: true };
+      },
+      removeEpisode: (episodeId) => set(rehab.removeEpisode(pickData(get()), episodeId, Date.now())),
+      addSymptomLog: (episodeId, input) => {
+        const res = rehab.addSymptomLog(pickData(get()), episodeId, input, Date.now());
+        if (!res.ok) return res;
+        set(res.data);
+        return { ok: true, logId: res.logId };
+      },
+      removeSymptomLog: (logId) => set(rehab.removeSymptomLog(pickData(get()), logId, Date.now())),
       wipe: () => set(state.wipe()),
 
       attachToUser: (userId) => set(state.attachToUser(pickData(get()), userId)),
