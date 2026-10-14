@@ -1,4 +1,4 @@
-import { useKeepAwake } from 'expo-keep-awake';
+import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -34,8 +34,17 @@ function countsRounds(block: Block): boolean {
   return c.format === 'amrap' || ((c.format === 'for_time' || c.format === 'sequence') && (c.rounds ?? 1) > 1);
 }
 
+const KEEP_AWAKE_TAG = 'workout-player';
+
 export default function WorkoutPlayerScreen() {
-  useKeepAwake();
+  // Keep the screen on during a workout. A browser may refuse or delay the wake lock;
+  // that only means the screen can dim, so neither step may throw.
+  useEffect(() => {
+    activateKeepAwakeAsync(KEEP_AWAKE_TAG).catch(() => {});
+    return () => {
+      deactivateKeepAwake(KEEP_AWAKE_TAG).catch(() => {});
+    };
+  }, []);
   const insets = useSafeAreaInsets();
   const { sessionId, from } = useLocalSearchParams<{ sessionId: string; from?: string }>();
   const session = useWorkoutsStore((s) => (sessionId ? s.sessions[sessionId] : undefined));

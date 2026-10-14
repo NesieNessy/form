@@ -6,5 +6,5 @@
       "@/*": ["./*"]
     }
   },
-  "exclude": ["node_modules", "scripts", "evals", "supabase", "e2e", "playwright.config.ts", "**/*.test.ts"]
+  "exclude": ["node_modules", "dist", "dist-e2e", "playwright-report", "test-results", "scripts", "evals", "supabase", "e2e", "playwright.config.ts", "**/*.test.ts"]
 }
