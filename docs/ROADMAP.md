@@ -233,9 +233,24 @@ Left over from Step 10:
 
 Source: [02-multi-role-access](concepts/02-multi-role-access-and-business-model.md)
 
-- [ ] Facilities, class timetables, bookings, attendance, staff scheduling.
-- [ ] Memberships, billing and seat entitlements, which never substitute for consent.
-- [ ] Aggregated reporting with minimum group sizes; no member health data by default.
+- [x] Studios (More → Studios, migration `0014_studio.sql`) build on the `organizations` skeleton from Step 2. They have locations, invitations by code to the invited address only, and roles (owner, manager, coach, physiotherapist, instructor, member).
+- [x] Class timetable with weekly series of up to 26 weeks, an optional class workout (a snapshot of a published workout), and cancellation that returns credits and notifies everyone booked.
+- [x] Bookings with capacity and a waitlist; a freed place goes to the first person on the waitlist who can still book. Booking needs an active membership for that date that is not overdue and, for a class pack, has classes left. Booked members can add the class workout to their own plan as their own copy.
+- [x] Attendance: the class's instructor and the studio's managers see a roster (names and attendance only) and check people in from 30 minutes before the class.
+- [x] Staff scheduling: managers plan shifts for staff, with overlaps refused. Staff see the shift list.
+- [x] Membership plans (monthly, class pack, drop-in) and memberships. Billing status (paid, due, overdue, free) and paid-until are recorded by hand. Staff seats are counted, open staff invitations included, and members take no seats.
+- [x] Membership never substitutes for consent: joining creates no data grant, staff cannot read any member's sessions, health, recovery, nutrition, rehab or goals, and instructors do not see billing. Tests check this, along with isolation between studios.
+- [x] Report for owners and managers (`studio_report`), built only from classes, bookings and memberships. Weekly counts, occupancy and attendance per class, and active members per plan. Any figure about fewer than 5 people is hidden.
+- [x] Leaving a studio, or being removed, cancels future bookings and ends the membership. The person's own records stay theirs, and their studio records are in their export.
+
+Left over from Step 11:
+
+- [ ] A payment provider (subscriptions, invoices, refunds). Billing is recorded by hand today.
+- [ ] Rooms and equipment as bookable resources, and class-type templates.
+- [ ] Studio coaches seeing class results that members choose to share, through the existing per-person grants.
+- [ ] Times are shown in the device's time zone, and notifications state UTC. A studio time zone setting is still needed.
+- [ ] The studio screens are tested against the database functions and in local mode only. A live browser check needs migration `0014` applied.
+- [ ] Deleting the owner's account deletes the studio. Ownership transfer is still needed.
 
 ## Step 12 — Movement analysis
 

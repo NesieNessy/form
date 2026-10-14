@@ -81,6 +81,13 @@ const accountItems: MenuItem[] = [
     route: '/coach',
   },
   {
+    icon: Icons.layoutGrid,
+    color: colors.teal,
+    title: strings.studioTitle,
+    subtitle: strings.studioMenuSubtitle,
+    route: '/studio',
+  },
+  {
     icon: Icons.heartPulse,
     color: colors.teal,
     title: strings.physioTitle,

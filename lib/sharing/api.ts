@@ -128,7 +128,31 @@ const MESSAGES: Record<string, string> = {
   ASSIGNMENT_ALREADY_DECIDED: 'This workout has already been accepted, declined or withdrawn.',
   SCHEDULE_REQUIRED: 'Something went wrong adding it to your calendar. Try again.',
   INVALID_COMMENT: 'Write a comment of up to 2000 characters.',
-};
+  INVALID_NAME: 'Enter a name of up to 80 characters.',
+  INVALID_ROLE: 'Choose a role.',
+  NO_STAFF_SEATS: 'All staff seats are in use. Add seats or remove someone first.',
+  SEATS_IN_USE: 'More staff seats are in use than that.',
+  INVALID_SEATS: 'Choose between 1 and 500 seats.',
+  CANNOT_REMOVE_OWNER: 'The owner cannot be removed, and only the owner can remove a manager.',
+  OWNER_CANNOT_LEAVE: 'The owner cannot leave their own studio.',
+  NOT_A_MEMBER: 'That person is not in this studio.',
+  INVALID_PLAN: 'Check the plan: a class pack needs a number of classes, other plans do not.',
+  INVALID_PRICE: 'Enter a price of zero or more.',
+  MEMBERSHIP_ENDED: 'This membership has ended.',
+  INVALID_STATUS: 'Choose a valid status.',
+  ONLY_OWN_CLASSES: 'Instructors schedule their own classes; managers can schedule for others.',
+  INSTRUCTOR_NOT_STAFF: 'The instructor must be on the studio staff.',
+  INVALID_CLASS: 'Check the class: 10 to 480 minutes, 1 to 500 places, 1 to 26 weeks.',
+  CLASS_CANCELLED: 'This class was cancelled.',
+  CLASS_STARTED: 'This class has already started.',
+  ALREADY_BOOKED: 'You are already booked or on the waitlist.',
+  NO_ACTIVE_MEMBERSHIP: 'You need an active membership for this date with classes left. Ask the studio.',
+  NOT_BOOKED: 'Only booked places can be checked in.',
+  TOO_EARLY: 'Attendance can be recorded from 30 minutes before the class.',
+  NOT_STAFF: 'Shifts are for staff only.',
+  INVALID_SHIFT: 'A shift ends after it starts and lasts at most 16 hours.',
+  SHIFT_OVERLAPS: 'That overlaps another shift for this person.',
+  RANGE_TOO_LONG: 'Choose a shorter period.',};
 
 function friendly(message: string | undefined): string {
   if (!message) return 'Something went wrong. Try again.';
@@ -138,7 +162,8 @@ function friendly(message: string | undefined): string {
   return 'Something went wrong. Try again.';
 }
 
-async function call<T>(fn: string, args?: Record<string, unknown>): Promise<Result<T>> {
+/** Calls a database function and turns its error codes into messages for people. */
+export async function call<T>(fn: string, args?: Record<string, unknown>): Promise<Result<T>> {
   try {
     const { data, error } = await supabase.rpc(fn, args);
     if (error) return { ok: false, error: friendly(error.message) };
