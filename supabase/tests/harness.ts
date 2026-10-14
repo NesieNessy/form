@@ -32,6 +32,7 @@ export const MIGRATIONS = [
   'migrations/0006_health_data.sql',
   'migrations/0007_nutrition.sql',
   'migrations/0008_meal_parsing.sql',
+  'migrations/0009_coach_beta.sql',
 ];
 
 export function readMigration(relativePath: string): string {

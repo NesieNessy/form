@@ -142,11 +142,21 @@ Left over from Step 5:
 
 Source: [02-multi-role-access](concepts/02-multi-role-access-and-business-model.md), [08-backlog](concepts/08-additional-agent-and-module-backlog.md)
 
-- [ ] Invite and accept flow with a data-sharing checklist.
-- [ ] Coach workspace: roster, program library, assignment with version pinning, comments.
-- [ ] Shared-outcome review limited to granted categories.
-- [ ] Relationship termination that removes future access and records an audit event.
-- [ ] Read-only AI roster summaries; assignments still need approval.
+- [x] Invite and accept flow with a data-sharing checklist. Either side can now invite (`invite_athlete`, migration `0009_coach_beta.sql`); the invitee accepts with the code and an account under the invited email. An athlete who accepts a professional's invitation lands on a checklist where every category starts off and sensitive ones are marked.
+- [x] Coach workspace (More → Coaching): roster sorted so athletes who need a look come first, invitations, and per athlete: send a workout, see what happened to it, comment. The coach's own workouts and templates are the program library.
+- [x] Assignment with version pinning: `workout_assignments` stores the exact version as sent; later edits by the coach do not change it. The athlete accepts it into their own calendar as their own copy (with fresh block and step ids, which the server requires) or declines; nothing is added without accepting (More → From Your Coach). Comments per assignment for both sides.
+- [x] Shared-outcome review limited to granted categories: `get_assignment_outcomes` returns the calendar status only with `workout_plan`, the result only with `workout_session`, and logs each read.
+- [x] Relationship termination: `end_relationship` now also cancels pending assignments; the coach loses the assignments, comments and outcomes at once, the athlete keeps everything (also in the export).
+- [x] Roster summaries are rule-based (`lib/coaching/roster.ts`): sessions in the last 7 days, gaps of a week or more, share of planned workouts done, unanswered and declined assignments, all from what the athlete shares. Reading the summary is logged.
+
+Left over from Step 6:
+
+- [ ] AI-written roster summaries. The rule-based notes cover the facts; a model-written narrative was left out to keep AI spend for a deliberate decision.
+- [ ] Program library beyond the coach's own workouts: no shared programs, multi-week plans or bulk assignment to several athletes.
+- [ ] Comments on sessions the athlete logged without an assignment, and messaging outside assignments.
+- [ ] Notifications are in-app only (no push or email), and invite codes are passed on by hand.
+- [ ] Credential checks for professionals, organizations/teams and coach-to-coach collaboration (Step 11).
+- [ ] Verified in a desktop browser with two live accounts; not tried on a phone.
 
 ## Step 7 — Recovery and readiness
 

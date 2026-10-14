@@ -52,8 +52,11 @@ export type Relationship = {
   role: 'athlete' | 'professional';
   relationship_type: RelationshipType;
   status: 'invited' | 'active' | 'ended';
+  /** Who sent the invitation. */
+  invited_by: 'athlete' | 'professional';
   counterpart_name: string | null;
-  athlete_id: string;
+  /** Empty while a professional's invitation to an athlete is open. */
+  athlete_id: string | null;
   invitee_email: string | null;
   invite_code: string | null;
   invite_expires_at: string | null;
@@ -115,6 +118,13 @@ const MESSAGES: Record<string, string> = {
   RELATIONSHIP_ENDED: 'This connection has ended.',
   CATEGORY_NOT_AVAILABLE: 'That kind of data cannot be shared yet.',
   EXPIRY_IN_PAST: 'The end date must be in the future.',
+  ONLY_COACHES_ASSIGN: 'Only a coach can send workouts.',
+  VERSION_NOT_FOUND: 'That workout is not on the server yet. Wait for it to sync and try again.',
+  VERSION_NOT_PUBLISHED: 'Finish the workout before sending it; drafts cannot be assigned.',
+  DATE_IN_PAST: 'Choose a date that is not in the past.',
+  ASSIGNMENT_ALREADY_DECIDED: 'This workout has already been accepted, declined or withdrawn.',
+  SCHEDULE_REQUIRED: 'Something went wrong adding it to your calendar. Try again.',
+  INVALID_COMMENT: 'Write a comment of up to 2000 characters.',
 };
 
 function friendly(message: string | undefined): string {
@@ -144,6 +154,10 @@ export const inviteProfessional = (email: string, type: RelationshipType) =>
   });
 
 export const acceptInvite = (code: string) => call<string>('accept_relationship_invite', { p_code: code });
+
+/** A professional invites an athlete; the athlete accepts with the code and then chooses what to share. */
+export const inviteAthlete = (email: string, type: RelationshipType) =>
+  call<{ relationship_id: string; invite_code: string; expires_at: string }>('invite_athlete', { p_email: email, p_relationship_type: type });
 
 export const createGrant = (relationshipId: string, category: string, expiresAt: Date | null) =>
   call<string>('create_grant', {
@@ -207,6 +221,75 @@ export async function getSharedContext(athleteId: string): Promise<Result<Shared
   const res = await call<SharedContextRow>('get_shared_context', { p_athlete: athleteId });
   return res.ok ? { ok: true, data: parseSharedContext(res.data) } : res;
 }
+
+// ------------------------------------------------------------- coaching
+
+export type AssignmentComment = { id: string; by_me: boolean; author_name: string | null; body: string; created_at: string };
+
+export type Assignment = {
+  id: string;
+  /** The caller's side. */
+  role: 'coach' | 'athlete';
+  relationship_id: string;
+  athlete_id: string;
+  coach_name: string | null;
+  athlete_name: string | null;
+  title: string;
+  /** The exact version sent, as it was when sent. */
+  version: WorkoutVersion;
+  scheduled_for: string;
+  message: string | null;
+  status: 'pending' | 'accepted' | 'declined' | 'cancelled';
+  athlete_scheduled_id: string | null;
+  created_at: string;
+  decided_at: string | null;
+  comments: AssignmentComment[];
+};
+
+type AssignmentRow = Omit<Assignment, 'version'> & { version: VersionRow };
+
+export async function listAssignments(): Promise<Result<Assignment[]>> {
+  const res = await call<AssignmentRow[]>('list_assignments');
+  return res.ok ? { ok: true, data: res.data.map((a) => ({ ...a, version: rowToVersion(a.version) })) } : res;
+}
+
+export const assignWorkout = (relationshipId: string, versionId: string, scheduledFor: Date, message: string) =>
+  call<string>('assign_workout', { p_relationship: relationshipId, p_version: versionId, p_scheduled_for: scheduledFor.toISOString(), p_message: message.trim() || null });
+
+export const decideAssignment = (assignmentId: string, decision: 'accepted' | 'declined', scheduledId?: string) =>
+  call<null>('decide_assignment', { p_assignment: assignmentId, p_decision: decision, p_scheduled: scheduledId ?? null });
+
+export const cancelAssignment = (assignmentId: string) => call<null>('cancel_assignment', { p_assignment: assignmentId });
+
+export const addAssignmentComment = (assignmentId: string, body: string) => call<string>('add_assignment_comment', { p_assignment: assignmentId, p_body: body });
+
+export type AssignmentOutcome = { assignment_id: string; status: string; scheduled_status: ScheduleStatus | null; session: Session | null };
+
+export async function getAssignmentOutcomes(athleteId: string): Promise<Result<{ planShared: boolean; sessionsShared: boolean; outcomes: AssignmentOutcome[] }>> {
+  const res = await call<{ plan_shared: boolean; sessions_shared: boolean; outcomes: (Omit<AssignmentOutcome, 'session'> & { session: SessionRow | null })[] }>('get_assignment_outcomes', { p_athlete: athleteId });
+  if (!res.ok) return res;
+  return {
+    ok: true,
+    data: {
+      planShared: res.data.plan_shared,
+      sessionsShared: res.data.sessions_shared,
+      outcomes: res.data.outcomes.map((o) => ({ ...o, session: o.session ? rowToSession(o.session) : null })),
+    },
+  };
+}
+
+export type RosterRow = {
+  relationship_id: string;
+  athlete_id: string;
+  athlete_name: string | null;
+  relationship_type: RelationshipType;
+  granted: string[];
+  pending_assignments: number;
+  declined_assignments_28d: number;
+  summary: { sessions_7d: number; sessions_28d: number; planned_28d: number; planned_done_28d: number; last_session_at: string | null } | null;
+};
+
+export const coachRoster = () => call<RosterRow[]>('coach_roster');
 
 // ------------------------------------------------------- notifications
 

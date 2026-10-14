@@ -6,7 +6,8 @@ import type { ParsedActivity, Provider } from './health/model';
 import * as health from './health/state';
 import type { Food, FoodSnapshot, Nutrients, Quantity } from './nutrition/model';
 import * as nutrition from './nutrition/state';
-import type { BlockResult, Session, WorkoutContent, WorkoutSource } from './workout/model';
+import { newUuid } from './id';
+import { withFreshIds, type BlockResult, type Session, type WorkoutContent, type WorkoutSource } from './workout/model';
 import * as state from './workout/state';
 import { EMPTY_DATA, type BenchmarkInput, type DirtySets, type RemoteSnapshot, type WorkoutData } from './workout/state';
 
@@ -21,6 +22,8 @@ type Actions = {
     opts: { source: WorkoutSource; scheduledAt?: number; isTemplate?: boolean; workoutId?: string }
   ) => { workoutId: string; versionId: string; scheduledId?: string };
   applyAdaptation: (scheduledId: string, content: WorkoutContent) => void;
+  /** Adds a workout a coach sent to the athlete's own calendar, as their own copy. */
+  addFromCoach: (content: WorkoutContent, scheduledAt: number) => string;
   scheduleWorkout: (workoutId: string, scheduledAt: number) => string;
   setTemplate: (workoutId: string, isTemplate: boolean) => void;
   removeScheduled: (scheduledId: string) => void;
@@ -94,6 +97,11 @@ export const useWorkoutsStore = create<WorkoutsState>()(
         const { data, scheduledId } = state.scheduleWorkout(pickData(get()), workoutId, scheduledAt, Date.now());
         set(data);
         return scheduledId;
+      },
+      addFromCoach: (content, scheduledAt) => {
+        const res = state.createWorkout(pickData(get()), withFreshIds(content, newUuid), { source: 'coach', scheduledAt, nowMs: Date.now() });
+        set(res.data);
+        return res.scheduledId as string;
       },
       applyAdaptation: (scheduledId, content) => set(state.applyAdaptation(pickData(get()), scheduledId, content, Date.now())),
       setTemplate: (workoutId, isTemplate) => set(state.setTemplate(pickData(get()), workoutId, isTemplate, Date.now())),

@@ -99,6 +99,18 @@ test('the export downloads what is on the device', async () => {
   await see('Your export is ready.');
 });
 
+test('coaching screens explain they need an account', async () => {
+  const { see, click, back } = app;
+  await back();
+  await click('Coaching');
+  await see('Coaching needs an account');
+  await back();
+  await click('From Your Coach');
+  await see('Workouts from a coach need an account');
+  await back();
+  await click('Sharing & Privacy');
+});
+
 test('deleting device data needs the typed word, then wipes everything', async () => {
   const { page, see, click } = app;
   await click('Delete Data on This Device');

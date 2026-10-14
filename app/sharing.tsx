@@ -117,10 +117,17 @@ export default function SharingScreen() {
     if (busy) return;
     setBusy(true);
     const res = await acceptInvite(code);
-    if (res.ok) {
-      setCode('');
-      setToast(strings.invitationAccepted);
-    } else setToast(res.error);
+    if (!res.ok) {
+      setToast(res.error);
+      setBusy(false);
+      return;
+    }
+    setCode('');
+    // A professional invited this athlete: they choose what to share, starting from nothing.
+    const rel = await listRelationships();
+    const mineNow = rel.ok ? rel.data.find((r) => r.id === res.data && r.role === 'athlete') : undefined;
+    if (mineNow) router.push({ pathname: '/sharing-checklist', params: { relationshipId: mineNow.id, name: mineNow.counterpart_name ?? '' } });
+    else setToast(strings.invitationAccepted);
     await load();
     setBusy(false);
   };

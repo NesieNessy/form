@@ -46,6 +46,20 @@ const accountItems: MenuItem[] = [
     route: '/nutrition',
   },
   {
+    icon: Icons.dumbbell,
+    color: colors.purple,
+    title: strings.fromCoachTitle,
+    subtitle: strings.fromCoachMenuSubtitle,
+    route: '/assignments',
+  },
+  {
+    icon: Icons.users,
+    color: colors.blue,
+    title: strings.coachingTitle,
+    subtitle: strings.coachingMenuSubtitle,
+    route: '/coach',
+  },
+  {
     icon: Icons.info,
     color: colors.amber,
     title: strings.notificationsTitle,

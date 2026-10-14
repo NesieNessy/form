@@ -156,7 +156,8 @@ export type WorkoutVersion = {
   createdAt: number;
 };
 
-export type WorkoutSource = 'manual' | 'preset' | 'import';
+/** coach: added from an assignment a coach sent. */
+export type WorkoutSource = 'manual' | 'preset' | 'import' | 'coach';
 
 export type Workout = {
   id: string;
@@ -263,6 +264,16 @@ export function exerciseSteps(steps: Step[]): ExerciseStep[] {
     if (s.kind === 'exercise') out.push(s);
   });
   return out;
+}
+
+/**
+ * A copy of a workout with new block and step ids. Ids are unique across all
+ * users on the server, so content copied from someone else's version (a
+ * coach's assignment) must be re-identified before it is saved as one's own.
+ */
+export function withFreshIds(content: WorkoutContent, newId: () => string): WorkoutContent {
+  const step = (s: Step): Step => (s.kind === 'group' ? { ...s, id: newId(), steps: s.steps.map(step) } : { ...s, id: newId() });
+  return { ...JSON.parse(JSON.stringify(content)), blocks: content.blocks.map((b) => ({ ...JSON.parse(JSON.stringify(b)), id: newId(), steps: b.steps.map(step) })) };
 }
 
 export function countExercises(content: WorkoutContent): number {
