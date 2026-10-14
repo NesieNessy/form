@@ -24,6 +24,7 @@ export default function WorkoutDetailScreen() {
   const setTemplate = useWorkoutsStore((s) => s.setTemplate);
   const removeScheduled = useWorkoutsStore((s) => s.removeScheduled);
   const signedIn = useAuthStore((s) => s.status === 'signedIn');
+  const activities = useWorkoutsStore((s) => s.activities);
 
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
@@ -57,6 +58,8 @@ export default function WorkoutDetailScreen() {
     router.push({ pathname: resumedMode === 'player' ? '/workout-player' : '/workout-log', params: { sessionId: res.sessionId, from: 'detail' } });
   };
 
+  const recording =
+    session?.entryMode === 'import' ? Object.values(activities).find((a) => a.sessionId === session.id && !a.deletedAt) : undefined;
   const duration = session ? sessionDurationSeconds(session) : undefined;
   const volume = session ? sessionVolumeKg(session) : 0;
 
@@ -84,12 +87,15 @@ export default function WorkoutDetailScreen() {
               {session.rpe !== undefined ? <Chip label={strings.effortRpe} value={String(session.rpe)} /> : null}
             </View>
             {session.notes ? <Text style={styles.resultNotes}>{session.notes}</Text> : null}
+            {recording ? (
+              <GradientButton label={strings.viewRecording} variant="tertiary" onPress={() => router.push({ pathname: '/activity', params: { id: recording.id } })} />
+            ) : null}
           </Card>
         ) : null}
 
         {published && !session ? (
           openSession ? (
-            <GradientButton label={strings.resumeWorkout} onPress={() => open(openSession.entryMode)} />
+            <GradientButton label={strings.resumeWorkout} onPress={() => open(openSession.entryMode === 'player' ? 'player' : 'manual')} />
           ) : (
             <>
               <GradientButton label={strings.startWorkout} onPress={() => open('player')} />

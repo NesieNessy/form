@@ -101,6 +101,6 @@ export function emptyBlockResult(block: Block, oneRepMaxKg: Record<string, numbe
 export function sessionDurationSeconds(session: Session): number | undefined {
   const fromBlocks = session.blockResults.reduce((sum, br) => sum + (br.elapsedSeconds ?? 0), 0);
   if (fromBlocks > 0) return fromBlocks;
-  if (session.entryMode === 'player' && session.endedAt) return Math.round((session.endedAt - session.startedAt) / 1000);
+  if (session.entryMode !== 'manual' && session.endedAt) return Math.round((session.endedAt - session.startedAt) / 1000);
   return undefined;
 }

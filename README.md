@@ -14,7 +14,7 @@ With no configuration the app runs in **local mode**: everything is stored on th
 ## Connect Supabase (optional)
 
 1. Create a Supabase project.
-2. In the SQL editor run `supabase/schema.sql`, then each file in `supabase/migrations/` in order (`0002` through `0005`).
+2. In the SQL editor run `supabase/schema.sql`, then each file in `supabase/migrations/` in order (`0002` through `0006`).
 3. Copy `.env.example` to `.env.local` (git-ignored) and fill in the project URL and publishable key. The names must start with `EXPO_PUBLIC_`.
 4. Restart with a clean bundler cache: `npx expo start --clear`.
 
@@ -40,7 +40,7 @@ npm test
 
 After changing `lib/workout/catalog.ts`, run `npm run gen:activity-seed` to regenerate the catalog rows in the migration.
 
-After changing anything the assistant uses (`lib/ai`, the validator, the catalog), run `npm run build:edge-core` and deploy the function again. A test fails if the bundle is stale.
+After changing anything the assistant uses (`lib/ai`, the validator, the catalog, `lib/strings.ts`), run `npm run build:edge-core` and deploy the function again. A test fails if the bundle is stale.
 
 `npm run eval` runs the assistant's evaluation cases against the deployed function. It makes 16 real model calls (about 40 cents) and needs `EVAL_EMAIL` and `EVAL_PASSWORD` for a test account.
 
@@ -52,6 +52,7 @@ After changing anything the assistant uses (`lib/ai`, the validator, the catalog
 - `lib/workout/` — the workout model, validator, timer math, scoring and analytics (no React, fully tested).
 - `lib/ai/` — the assistant's pipelines, draft schema and change list; `evals/` holds its evaluation cases.
 - `lib/athlete/` — profile and benchmarks.
+- `lib/health/` — activity file parsing (GPX, TCX, FIT), duplicate detection, matching to planned workouts, measurements and personal baselines.
 - `lib/sharing/` — client for invitations, grants, the access log, export and notifications.
 - `lib/workoutsStore.ts`, `lib/sync/` — local-first storage and background sync.
 - `supabase/` — schema, migrations, database tests and the `assistant` edge function.

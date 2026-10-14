@@ -2,6 +2,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import type { Profile } from './athlete/model';
+import type { ParsedActivity, Provider } from './health/model';
+import * as health from './health/state';
 import type { BlockResult, Session, WorkoutContent, WorkoutSource } from './workout/model';
 import * as state from './workout/state';
 import { EMPTY_DATA, type BenchmarkInput, type DirtySets, type RemoteSnapshot, type WorkoutData } from './workout/state';
@@ -29,6 +31,16 @@ type Actions = {
   updateProfile: (patch: Partial<Omit<Profile, 'updatedAt'>>) => void;
   addBenchmark: (input: BenchmarkInput) => string;
   removeBenchmark: (benchmarkId: string) => void;
+
+  importActivity: (parsed: ParsedActivity) => { activityId: string; alreadyImported: boolean };
+  setActivityStatus: (activityId: string, status: 'new' | 'duplicate' | 'ignored', duplicateOfId?: string) => void;
+  linkActivity: (activityId: string, scheduledId: string) => void;
+  logActivityAsWorkout: (activityId: string) => void;
+  removeActivity: (activityId: string) => void;
+  addObservation: (input: health.ObservationInput) => string;
+  removeObservation: (observationId: string) => void;
+  /** Deletes all data from one source; recorded workout results stay. */
+  removeSource: (provider: Provider) => void;
   /** Removes everything stored on this device. */
   wipe: () => void;
 
@@ -41,8 +53,8 @@ type Actions = {
 export type WorkoutsState = WorkoutData & Actions;
 
 function pickData(s: WorkoutData): WorkoutData {
-  const { ownerUserId, workouts, versions, scheduled, sessions, profile, benchmarks, dirty } = s;
-  return { ownerUserId, workouts, versions, scheduled, sessions, profile, benchmarks, dirty };
+  const { ownerUserId, workouts, versions, scheduled, sessions, profile, benchmarks, activities, observations, dirty } = s;
+  return { ownerUserId, workouts, versions, scheduled, sessions, profile, benchmarks, activities, observations, dirty };
 }
 
 export const useWorkoutsStore = create<WorkoutsState>()(
@@ -81,6 +93,22 @@ export const useWorkoutsStore = create<WorkoutsState>()(
         return benchmarkId;
       },
       removeBenchmark: (benchmarkId) => set(state.removeBenchmark(pickData(get()), benchmarkId, Date.now())),
+      importActivity: (parsed) => {
+        const { data, ...res } = health.importActivity(pickData(get()), parsed, Date.now());
+        set(data);
+        return res;
+      },
+      setActivityStatus: (activityId, status, duplicateOfId) => set(health.setActivityStatus(pickData(get()), activityId, status, Date.now(), duplicateOfId)),
+      linkActivity: (activityId, scheduledId) => set(health.linkActivity(pickData(get()), activityId, scheduledId, Date.now())),
+      logActivityAsWorkout: (activityId) => set(health.logActivityAsWorkout(pickData(get()), activityId, Date.now())),
+      removeActivity: (activityId) => set(health.removeActivity(pickData(get()), activityId, Date.now())),
+      addObservation: (input) => {
+        const { data, observationId } = health.addObservation(pickData(get()), input, Date.now());
+        set(data);
+        return observationId;
+      },
+      removeObservation: (observationId) => set(health.removeObservation(pickData(get()), observationId, Date.now())),
+      removeSource: (provider) => set(health.removeSource(pickData(get()), provider, Date.now())),
       wipe: () => set(state.wipe()),
 
       attachToUser: (userId) => set(state.attachToUser(pickData(get()), userId)),
@@ -90,13 +118,14 @@ export const useWorkoutsStore = create<WorkoutsState>()(
     {
       name: 'form-workouts-store',
       storage: createJSONStorage(() => AsyncStorage),
-      version: 3,
+      version: 4,
       migrate: (persisted, version) => {
         let data = persisted as unknown;
         if (version < 2) data = state.migrateLegacy(data as Parameters<typeof state.migrateLegacy>[0], Date.now());
         // migrateLegacy already produces the current shape; only a genuine v2 payload needs upgrading.
         else if (version < 3) data = state.upgradeV2(data as Parameters<typeof state.upgradeV2>[0]);
-        return data as WorkoutData;
+        // v4 added activities and measurements; every older payload gets the missing collections.
+        return state.withCurrentShape(data as Partial<WorkoutData>);
       },
       partialize: (s): WorkoutData => pickData(s),
     }

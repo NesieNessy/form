@@ -238,7 +238,8 @@ export type Session = {
   /** Snapshot of what was prescribed, so later edits never rewrite history. */
   prescribed: WorkoutContent;
   status: SessionStatus;
-  entryMode: 'player' | 'manual';
+  /** import: recorded from an activity file or a connected device. */
+  entryMode: 'player' | 'manual' | 'import';
   startedAt: number;
   endedAt?: number;
   blockResults: BlockResult[];

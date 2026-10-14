@@ -6,6 +6,7 @@
  * imported under different names in different files.
  */
 import {
+  Activity,
   ArrowDown,
   ArrowRight,
   ArrowUp,
@@ -48,6 +49,7 @@ import {
   TrendingUp,
   Trophy,
   Type,
+  Upload,
   Users,
   Video,
   Wind,
@@ -58,6 +60,7 @@ import {
 } from 'lucide-react-native';
 
 export const Icons = {
+  activity: Activity,
   arrowDown: ArrowDown,
   arrowRight: ArrowRight,
   arrowUp: ArrowUp,
@@ -102,6 +105,7 @@ export const Icons = {
   trendingUp: TrendingUp,
   trophy: Trophy,
   type: Type,
+  upload: Upload,
   users: Users,
   video: Video,
   wind: Wind,

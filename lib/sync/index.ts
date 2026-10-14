@@ -3,7 +3,11 @@ import { isSupabaseConfigured, supabase } from '../supabase';
 import { getWorkoutData, useWorkoutsStore } from '../workoutsStore';
 import { PROFILE_KEY, type DirtySets, type RemoteSnapshot } from '../workout/state';
 import {
+  activityToRow,
   benchmarkToRow,
+  observationToRow,
+  rowToActivity,
+  rowToObservation,
   profileToRow,
   rowToBenchmark,
   rowToProfile,
@@ -15,7 +19,9 @@ import {
   sessionToPayload,
   versionToPayload,
   workoutFlagsToRow,
+  type ActivityRow,
   type BenchmarkRow,
+  type ObservationRow,
   type ProfileRow,
   type ScheduledRow,
   type SessionRow,
@@ -43,7 +49,7 @@ export function pendingChangeCount(dirty: DirtySets): number {
 
 async function push(userId: string): Promise<boolean> {
   const data = getWorkoutData();
-  const done: DirtySets = { versions: [], workouts: [], scheduled: [], sessions: [], benchmarks: [], profile: [] };
+  const done: DirtySets = { versions: [], workouts: [], scheduled: [], sessions: [], benchmarks: [], activities: [], observations: [], profile: [] };
   let ok = true;
 
   const failedVersions = new Set<string>();
@@ -114,20 +120,36 @@ async function push(userId: string): Promise<boolean> {
     else done.benchmarks.push(...benchmarks.map((b) => b.id));
   }
 
+  const activities = data.dirty.activities.map((id) => data.activities[id]).filter(Boolean);
+  if (activities.length) {
+    const { error } = await supabase.from('external_activities').upsert(activities.map((a) => activityToRow(a, userId)));
+    if (error) ok = false;
+    else done.activities.push(...activities.map((a) => a.id));
+  }
+
+  const observations = data.dirty.observations.map((id) => data.observations[id]).filter(Boolean);
+  if (observations.length) {
+    const { error } = await supabase.from('health_observations').upsert(observations.map((o) => observationToRow(o, userId)));
+    if (error) ok = false;
+    else done.observations.push(...observations.map((o) => o.id));
+  }
+
   useWorkoutsStore.getState().clearDirty(done);
   return ok;
 }
 
 async function pull(): Promise<boolean> {
-  const [workouts, versions, scheduled, sessions, benchmarks, profile] = await Promise.all([
+  const [workouts, versions, scheduled, sessions, benchmarks, profile, activities, observations] = await Promise.all([
     supabase.from('workouts').select('*'),
     supabase.from('workout_versions').select('*, blocks(*, steps(*))'),
     supabase.from('scheduled_workouts').select('*'),
     supabase.from('sessions').select('*, session_results(*)'),
     supabase.from('benchmarks').select('*'),
     supabase.from('profiles').select('*').maybeSingle(),
+    supabase.from('external_activities').select('*'),
+    supabase.from('health_observations').select('*'),
   ]);
-  if (workouts.error || versions.error || scheduled.error || sessions.error || benchmarks.error || profile.error) return false;
+  if (workouts.error || versions.error || scheduled.error || sessions.error || benchmarks.error || profile.error || activities.error || observations.error) return false;
 
   const snapshot: RemoteSnapshot = {
     versions: (versions.data as VersionRow[]).map(rowToVersion),
@@ -135,6 +157,8 @@ async function pull(): Promise<boolean> {
     scheduled: (scheduled.data as ScheduledRow[]).map(rowToScheduled),
     sessions: (sessions.data as SessionRow[]).map(rowToSession),
     benchmarks: (benchmarks.data as BenchmarkRow[]).map(rowToBenchmark),
+    activities: (activities.data as ActivityRow[]).map(rowToActivity),
+    observations: (observations.data as ObservationRow[]).map(rowToObservation),
     profile: profile.data ? rowToProfile(profile.data as ProfileRow) : undefined,
   };
   // Only keep rows whose version arrived too, so the UI never meets a dangling reference.

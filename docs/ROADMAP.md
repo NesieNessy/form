@@ -69,7 +69,7 @@ Left over from Step 2:
 - [ ] Nothing consumes the event outbox yet; the first consumers arrive with Step 3.
 - [ ] Organizations have tables and access rules but no screens (Step 11).
 - [ ] Consent wording (`consentV1` in `lib/strings.ts`) and the retention of audit records after account deletion need legal review before real users. Guardian consent for minors is not modelled.
-- [ ] Body measurements (weight, body fat) still cannot be entered.
+- [x] Body measurements (weight, body fat) can be entered since Step 4.
 ## Step 3 — First AI workflows: Import and Adaptation
 
 Source: [workout_ai_agents_concept.md](concepts/workout_ai_agents_concept.md)
@@ -96,15 +96,23 @@ Left over from Step 3:
 
 Source: [health_wearable_integration_concept.md](concepts/health_wearable_integration_concept.md)
 
-- [ ] Tables: `wearable_connection`, `device`, `health_observation`, `health_series`, `external_activity`, `session_match`, `daily_health_summary`, `athlete_baseline`.
-- [ ] Every observation stores unit, observed time, ingested time, source, quality flag and measurement method.
-- [ ] Apple Health connector in the iOS app with per-category permission reasons (needs a development build, not Expo Go).
-- [ ] File import (FIT, TCX, GPX) and manual entry as fallback.
-- [ ] Idempotent ingestion and de-duplication, with user confirmation for ambiguous matches.
-- [ ] Matching imported activities to planned sessions.
-- [ ] Apply to the Garmin developer program early; build the connector once access is granted.
-- [ ] Baseline engine with minimum-sample rules and versioned calculations.
-- [ ] Disconnect flow that stops syncing and runs the retention/deletion path.
+- [x] Tables (migration `0006_health_data.sql`): `external_activities` (one recorded activity, its summary, quality flags and a downsampled heart-rate series) and `health_observations` (single measurements). Row-level security as for workouts; both are in the data export. Sessions gained the entry mode `import`.
+- [x] Every observation stores unit, observed time, the athlete's local day, ingested time, provider, origin (entered, measured, estimated), device and measurement method. HRV without its method (RMSSD or SDNN) is refused, by the app and by the database.
+- [x] File import (FIT, TCX, GPX) and manual entry. Parsing runs on the device (`lib/health/parse.ts`; FIT through Garmin's official SDK), files up to 25 MB. Gaps, missing heart rate, implausible GPS jumps and short recordings are flagged and shown, never filled in.
+- [x] Idempotent ingestion: an activity's id comes from its content, so the same file twice is one record (and the database enforces it per athlete and provider). Possible duplicates from a second device are pointed out; only the athlete decides, and the decision can be undone.
+- [x] Matching imported activities to planned workouts: same sport family within the day, "likely" within an hour. Recording an activity as the result completes the planned workout with the real duration and, for a single continuous block, the distance. A structured workout is marked done without inventing per-block scores. An unplanned activity can be logged as its own workout with no made-up targets.
+- [x] Baseline engine (`lib/health/logic.ts`, `baseline_v1`): median and median absolute deviation of one value per day over 28 days, needing 7 days; the day being judged is excluded and HRV methods are never mixed. Without a baseline the app says how many days are missing instead of comparing. Body Development shows real weight and body-fat trends when there are measurements.
+- [x] Source deletion: everything from one source can be deleted. The workout results already recorded stay; on the server a deleted row keeps only a tombstone for other devices, its values, series and file details are erased.
+- [x] Sharing: the `wearable_raw` category is now available ("Health measurements"). A professional with that grant sees 90 days of measurements and activity summaries, never the raw series or file details, and every read is logged.
+
+Left over from Step 4:
+
+- [ ] Apple Health connector: needs an iOS development build (not Expo Go) and per-category permission texts. The data model already has the provider and origin for it.
+- [ ] Garmin connector: apply to the Garmin developer program; build it once access is granted.
+- [ ] No `wearable_connection` or `device` tables yet: they only matter with a live connector. Daily summaries and baselines are computed on the device, not stored (`daily_health_summary`, `athlete_baseline`), so the `wearable_summary` sharing category stays unavailable.
+- [ ] Imported activities are summaries plus one heart-rate series. Laps, GPS tracks and power curves are not kept.
+- [ ] Time zones: an activity's day comes from the device's current time zone, so a run recorded while travelling can land on a different day than the athlete expects.
+- [ ] Verified in a desktop browser; file picking on a phone has not been tried.
 
 ## Step 5 — Nutrition
 

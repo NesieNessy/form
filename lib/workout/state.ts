@@ -1,4 +1,5 @@
 import { EMPTY_PROFILE, oneRepMaxByActivity, type Benchmark, type Profile } from '../athlete/model';
+import type { ExternalActivity, HealthObservation } from '../health/model';
 import { newUuid } from '../id';
 import type { LegacyWorkout } from '../types';
 import { wizardToContent } from './fromWizard';
@@ -27,15 +28,17 @@ export type DirtySets = {
   scheduled: string[];
   sessions: string[];
   benchmarks: string[];
+  activities: string[];
+  observations: string[];
   /** Holds PROFILE_KEY while the profile has unsent changes. */
   profile: string[];
 };
 
 export const PROFILE_KEY = 'profile';
 
-const DIRTY_KEYS = ['versions', 'workouts', 'scheduled', 'sessions', 'benchmarks', 'profile'] as const;
+const DIRTY_KEYS = ['versions', 'workouts', 'scheduled', 'sessions', 'benchmarks', 'activities', 'observations', 'profile'] as const;
 
-const NO_DIRTY: DirtySets = { versions: [], workouts: [], scheduled: [], sessions: [], benchmarks: [], profile: [] };
+const NO_DIRTY: DirtySets = { versions: [], workouts: [], scheduled: [], sessions: [], benchmarks: [], activities: [], observations: [], profile: [] };
 
 export type WorkoutData = {
   /** The signed-in user this local data belongs to; null while it has never been attached to an account. */
@@ -46,6 +49,8 @@ export type WorkoutData = {
   sessions: Record<string, Session>;
   profile: Profile;
   benchmarks: Record<string, Benchmark>;
+  activities: Record<string, ExternalActivity>;
+  observations: Record<string, HealthObservation>;
   /** Ids changed locally and not yet confirmed by the server. */
   dirty: DirtySets;
 };
@@ -58,10 +63,12 @@ export const EMPTY_DATA: WorkoutData = {
   sessions: {},
   profile: EMPTY_PROFILE,
   benchmarks: {},
+  activities: {},
+  observations: {},
   dirty: NO_DIRTY,
 };
 
-function mark(dirty: DirtySets, patch: Partial<DirtySets>): DirtySets {
+export function mark(dirty: DirtySets, patch: Partial<DirtySets>): DirtySets {
   const next = { ...dirty };
   for (const key of DIRTY_KEYS) {
     const add = patch[key];
@@ -362,6 +369,8 @@ export type RemoteSnapshot = {
   scheduled: ScheduledWorkout[];
   sessions: Session[];
   benchmarks: Benchmark[];
+  activities: ExternalActivity[];
+  observations: HealthObservation[];
   /** Absent when the account has no profile row yet. */
   profile?: Profile;
 };
@@ -401,6 +410,8 @@ export function mergeRemote(data: WorkoutData, remote: RemoteSnapshot): WorkoutD
     scheduled: mergeByUpdatedAt(data.scheduled, remote.scheduled, data.dirty.scheduled),
     sessions,
     benchmarks: mergeByUpdatedAt(data.benchmarks, remote.benchmarks, data.dirty.benchmarks),
+    activities: mergeByUpdatedAt(data.activities, remote.activities, data.dirty.activities),
+    observations: mergeByUpdatedAt(data.observations, remote.observations, data.dirty.observations),
     profile: takeRemoteProfile && remote.profile ? remote.profile : data.profile,
   };
 }
@@ -423,10 +434,17 @@ export function attachToUser(data: WorkoutData, userId: string): WorkoutData {
       scheduled: Object.keys(data.scheduled),
       sessions: Object.values(data.sessions).filter((s) => s.status !== 'in_progress').map((s) => s.id),
       benchmarks: Object.keys(data.benchmarks),
+      activities: Object.keys(data.activities),
+      observations: Object.keys(data.observations),
       // A profile that was never edited has nothing worth overwriting the account's copy with.
       profile: data.profile.updatedAt > 0 ? [PROFILE_KEY] : [],
     },
   };
+}
+
+/** Fills in collections and sync keys added after the stored copy was written (store v3 had no health data). */
+export function withCurrentShape(old: Partial<WorkoutData>): WorkoutData {
+  return { ...EMPTY_DATA, ...old, dirty: { ...NO_DIRTY, ...old.dirty } } as WorkoutData;
 }
 
 /** Everything on the device is dropped, e.g. after the account was deleted. */
@@ -436,7 +454,7 @@ export function wipe(): WorkoutData {
 
 // ------------------------------------------------- store v2 -> v3
 
-type V2State = Omit<WorkoutData, 'profile' | 'benchmarks' | 'dirty'> & {
+type V2State = Omit<WorkoutData, 'profile' | 'benchmarks' | 'activities' | 'observations' | 'dirty'> & {
   settings?: { weeklySessionTarget?: number };
   dirty?: Partial<DirtySets>;
 };
