@@ -15,7 +15,8 @@ export default defineConfig({
   fullyParallel: false,
   workers: process.env.CI ? 2 : 1,
   retries: process.env.CI ? 1 : 0,
-  reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
+  // In CI the github reporter turns each failure into an annotation on the run.
+  reporter: process.env.CI ? [['list'], ['github'], ['html', { open: 'never' }]] : 'list',
   use: {
     baseURL: `http://localhost:${PORT}`,
     channel: process.env.E2E_BROWSER_CHANNEL || undefined,
