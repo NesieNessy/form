@@ -1,4 +1,4 @@
-// FORM assistant — AI workout import and adaptation (roadmap Step 3).
+// FORM assistant — AI workout import and adaptation (roadmap Step 3) and meal parsing (Step 5).
 //
 // One server-side entry point for every AI workflow. The model only ever
 // produces a draft; the pipelines in ../_shared/core.js (bundled from the
@@ -16,7 +16,7 @@
 
 import Anthropic from 'npm:@anthropic-ai/sdk@0.133.0';
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { diffWorkouts, LIMITS, rowToVersion, runAdaptation, runImport } from '../_shared/core.js';
+import { diffWorkouts, LIMITS, MEAL_LIMITS, rowToVersion, runAdaptation, runImport, runMealParse } from '../_shared/core.js';
 
 const MODEL = 'claude-opus-5-5';
 const RUNS_PER_HOUR = 20;
@@ -124,6 +124,29 @@ Deno.serve(async (req) => {
   if ((count ?? 0) >= RUNS_PER_HOUR) return failure('RATE_LIMITED', 'You have used the assistant a lot in the last hour. Try again a little later.');
 
   const started = Date.now();
+
+  // A meal draft goes straight back to the app for the athlete to check; it is never stored as a proposal.
+  if (body?.action === 'parse_meal') {
+    const text = typeof body.text === 'string' ? body.text : '';
+    // deno-lint-ignore no-explicit-any
+    const foods = Array.isArray(body.foods) ? body.foods.filter((f: any) => typeof f?.id === 'string' && typeof f?.name === 'string').slice(0, MEAL_LIMITS.ownFoods) : [];
+    const meal = await runMealParse(text, foods, callModel);
+    await asService.from('agent_runs').insert({
+      user_id: user.id,
+      workflow: 'meal_parse',
+      status: meal.ok ? 'succeeded' : 'failed',
+      failure_code: meal.ok ? null : meal.code,
+      model: meal.usage.model,
+      input_tokens: meal.usage.inputTokens,
+      output_tokens: meal.usage.outputTokens,
+      model_calls: meal.usage.modelCalls,
+      steps: meal.steps,
+      input_meta: { text_chars: text.length, own_foods: foods.length },
+      duration_ms: Date.now() - started,
+    });
+    return meal.ok ? json({ ok: true, draft: meal.draft }) : failure(meal.code, meal.message);
+  }
+
   let workflow: 'workout_import' | 'workout_adaptation' | 'proposal_revision';
   let proposalType: 'workout_import' | 'workout_adaptation';
   // deno-lint-ignore no-explicit-any

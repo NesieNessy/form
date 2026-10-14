@@ -2,6 +2,7 @@ import { supabase } from '../supabase';
 import type { WorkoutContent } from '../workout/model';
 import type { ValidationResult } from '../workout/validate';
 import type { Change } from './diff';
+import type { MealDraft } from './meal';
 import type { AdaptConstraints, Notice } from './pipeline';
 
 /**
@@ -59,6 +60,19 @@ export const requestAdaptation = (scheduledId: string, constraints: AdaptConstra
   invoke({ action: 'adapt_workout', scheduled_id: scheduledId, constraints });
 
 export const reviseProposal = (proposalId: string, note: string) => invoke({ action: 'revise_proposal', proposal_id: proposalId, note });
+
+export type MealParseResult = { ok: true; draft: MealDraft } | { ok: false; code: string; message: string };
+
+/** Turns a meal description into draft items. Nothing is logged until the athlete confirms them. */
+export async function requestMealParse(text: string, ownFoods: { id: string; name: string }[]): Promise<MealParseResult> {
+  try {
+    const { data, error } = await supabase.functions.invoke('assistant', { body: { action: 'parse_meal', text, foods: ownFoods } });
+    if (error || !data) return { ok: false, code: 'UNREACHABLE', message: OFFLINE };
+    return data as MealParseResult;
+  } catch {
+    return { ok: false, code: 'UNREACHABLE', message: OFFLINE };
+  }
+}
 
 export async function getProposal(id: string): Promise<Proposal | null> {
   const { data } = await supabase.from('agent_proposals').select('*').eq('id', id).maybeSingle();

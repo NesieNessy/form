@@ -152,6 +152,13 @@ describe('nutrition migration', () => {
     assert.equal(await h.count('food_log_entries', 'deleted_at is null'), 2);
   });
 
+  it('logs meal parsing runs like other assistant runs (migration 0008)', async () => {
+    await h.db.exec(readMigration('migrations/0008_meal_parsing.sql'));
+    await h.db.query(`insert into agent_runs (user_id, workflow, status) values ($1, 'meal_parse', 'succeeded')`, [ATHLETE]);
+    await rejects(h.db.query(`insert into agent_runs (user_id, workflow, status) values ($1, 'diet_plan', 'succeeded')`, [ATHLETE]), /check constraint/);
+    await h.as(ATHLETE, async () => assert.equal(await h.count('agent_runs', `workflow = 'meal_parse'`), 1));
+  });
+
   it('includes nutrition in the export, without deleted entries', async () => {
     const exported = await h.as(ATHLETE, () => h.call<{ nutrition: { foods: unknown[]; log: { meal_type: string }[]; saved_meals: unknown[] } }>('export_my_data'));
     assert.deepEqual(

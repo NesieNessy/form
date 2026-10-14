@@ -9,10 +9,13 @@ import { NumberField } from '@/components/ui/NumberField';
 import { SegmentedTabs } from '@/components/ui/SegmentedTabs';
 import { FieldCard } from '@/components/workout/FieldCard';
 import { TimePickerModal } from '@/components/workout/TimePickerModal';
+import { requestMealParse } from '@/lib/ai/client';
+import { useAuthStore } from '@/lib/auth';
 import { formatTimeLabel } from '@/lib/date';
 import { localDateOf } from '@/lib/health/model';
 import { searchFoods } from '@/lib/nutrition/catalog';
 import { nutrientsFor, unitsFor, validateQuantity } from '@/lib/nutrition/engine';
+import { resolveDraftItem, type ReviewItem } from '@/lib/nutrition/draft';
 import { quantityText } from '@/lib/nutrition/format';
 import { MEAL_TYPES, NUTRIENTS, formatNutrient, type Food, type FoodSnapshot, type MealType, type NutrientKey, type Nutrients, type Quantity, type QuantityUnit } from '@/lib/nutrition/model';
 import type { LogContext } from '@/lib/nutrition/state';
@@ -21,7 +24,7 @@ import { useWorkoutsStore } from '@/lib/workoutsStore';
 import { colors, fontFamily, iconStrokeWidth, radius, spacing } from '@/theme/colors';
 import { Icons } from '@/theme/icons';
 
-type Tab = 'search' | 'quick' | 'saved' | 'new';
+type Tab = 'describe' | 'search' | 'quick' | 'saved' | 'new';
 const PREVIEW: NutrientKey[] = ['energy_kcal', 'protein_g', 'carbohydrate_g', 'fat_g'];
 
 function defaultMeal(ms: number, sessionId?: string): MealType {
@@ -62,6 +65,7 @@ export default function NutritionAddScreen() {
 // ------------------------------------------------------------------- add
 
 function AddEntry({ date, mealType, sessionId }: { date?: string; mealType?: MealType; sessionId?: string }) {
+  const signedIn = useAuthStore((s) => s.status === 'signedIn');
   const [tab, setTab] = useState<Tab>('search');
   const [query, setQuery] = useState('');
   const [picked, setPicked] = useState<Food | FoodSnapshot | null>(null);
@@ -87,6 +91,7 @@ function AddEntry({ date, mealType, sessionId }: { date?: string; mealType?: Mea
     <>
       <SegmentedTabs
         options={[
+          ...(signedIn ? [{ key: 'describe', label: strings.tabDescribe }] : []),
           { key: 'search', label: strings.tabSearch },
           { key: 'quick', label: strings.tabQuickAdd },
           { key: 'saved', label: strings.tabSaved },
@@ -100,6 +105,8 @@ function AddEntry({ date, mealType, sessionId }: { date?: string; mealType?: Mea
         scrollable
         size="sm"
       />
+
+      {tab === 'describe' ? <DescribeTab ctx={ctx} setCtx={setCtx} /> : null}
 
       {tab === 'search' ? (
         <>
@@ -371,6 +378,146 @@ function Errors({ errors }: { errors: string[] }) {
   );
 }
 
+// ---------------------------------------------------------------- describe
+
+type DraftRow = ReviewItem & { key: number; include: boolean; unit: QuantityUnit; servingLabel?: string; value?: number; choosing: boolean };
+
+function rowFrom(item: ReviewItem, key: number): DraftRow {
+  const unit = item.quantity?.unit ?? (item.food ? (unitsFor(item.food)[0] ?? 'serving') : 'g');
+  return { ...item, key, include: true, unit, servingLabel: item.quantity?.servingLabel ?? item.food?.servings[0]?.label, value: item.quantity?.value, choosing: false };
+}
+
+const rowQuantity = (r: DraftRow): Quantity | undefined =>
+  r.value !== undefined ? { value: r.value, unit: r.unit, ...(r.unit === 'serving' ? { servingLabel: r.servingLabel } : {}) } : undefined;
+
+/** A meal described in words: the assistant drafts the items, the athlete checks each one, FORM computes the nutrients. */
+function DescribeTab({ ctx, setCtx }: { ctx: LogContext; setCtx: (c: LogContext) => void }) {
+  const foods = useWorkoutsStore((s) => s.foods);
+  const logFood = useWorkoutsStore((s) => s.logFood);
+  const [text, setText] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [rows, setRows] = useState<DraftRow[] | null>(null);
+  const [questions, setQuestions] = useState<string[]>([]);
+  const [errors, setErrors] = useState<string[]>([]);
+  const own = Object.values(foods).filter((f) => !f.deletedAt);
+  const update = (key: number, patch: Partial<DraftRow>) => setRows((cur) => cur?.map((r) => (r.key === key ? { ...r, ...patch } : r)) ?? null);
+
+  const read = async () => {
+    setBusy(true);
+    setErrors([]);
+    const res = await requestMealParse(text, own.map((f) => ({ id: f.id, name: f.name })));
+    setBusy(false);
+    if (!res.ok) return setErrors([res.message]);
+    setRows(res.draft.items.map((item, i) => rowFrom(resolveDraftItem(item, own), i)));
+    setQuestions(res.draft.openQuestions);
+  };
+
+  const logAll = () => {
+    const included = (rows ?? []).filter((r) => r.include);
+    if (!included.length) return setErrors([strings.draftNothingIncluded]);
+    if (included.some((r) => !r.food || !rowQuantity(r) || validateQuantity(r.food, rowQuantity(r) as Quantity).length)) return setErrors([strings.draftIncomplete]);
+    for (const r of included) {
+      const res = logFood(r.food as Food, rowQuantity(r) as Quantity, { ...ctx, entryMethod: 'ai_draft', estimated: r.estimated || ctx.estimated });
+      if (!res.ok) return setErrors(res.issues.map((i) => i.message));
+    }
+    router.back();
+  };
+
+  if (!rows) {
+    return (
+      <>
+        <Card style={styles.card}>
+          <Text style={styles.label}>{strings.describeLabel}</Text>
+          <TextInput
+            value={text}
+            onChangeText={setText}
+            placeholder={strings.describePlaceholder}
+            placeholderTextColor={colors.textTertiary}
+            style={[styles.search, styles.multiline]}
+            multiline
+            maxLength={1000}
+            accessibilityLabel={strings.describeLabel}
+          />
+          <Text style={styles.hint}>{strings.describeHint}</Text>
+        </Card>
+        <Errors errors={errors} />
+        <GradientButton label={busy ? strings.reading : strings.makeDraft} onPress={busy || !text.trim() ? undefined : read} />
+      </>
+    );
+  }
+
+  const included = rows.filter((r) => r.include).length;
+  return (
+    <>
+      <Text style={styles.sectionTitle}>{strings.draftItemsTitle}</Text>
+      <Text style={styles.hint}>{strings.describeHint}</Text>
+      {questions.map((q) => (
+        <Text key={q} style={styles.question}>{q}</Text>
+      ))}
+      {rows.map((r) => (
+        <Card key={r.key} style={[styles.card, !r.include && styles.excluded]}>
+          <View style={styles.itemHead}>
+            <TouchableOpacity style={styles.toggle} onPress={() => update(r.key, { include: !r.include })} accessibilityRole="checkbox" accessibilityState={{ checked: r.include }} accessibilityLabel={`${strings.include}: ${r.name}`}>
+              <View style={[styles.box, r.include && styles.boxOn]} />
+            </TouchableOpacity>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.foodName}>{r.food?.name ?? r.name}</Text>
+              <Text style={styles.meta}>{[r.food && r.food.name !== r.name ? `“${r.name}”` : undefined, r.estimated ? 'estimate' : undefined].filter(Boolean).join(' · ')}</Text>
+            </View>
+            {r.include ? (
+              <TouchableOpacity onPress={() => update(r.key, { choosing: !r.choosing })} hitSlop={8}>
+                <Text style={styles.link}>{r.food ? strings.changeFood : strings.chooseFood}</Text>
+              </TouchableOpacity>
+            ) : null}
+          </View>
+          {r.include && r.choosing ? (
+            <FoodChooser
+              initial={r.name}
+              onPick={(food) => {
+                const q = rowFrom({ name: r.name, food, estimated: r.estimated }, r.key);
+                update(r.key, { ...q, include: true, choosing: false });
+              }}
+            />
+          ) : null}
+          {r.include && !r.choosing && !r.food ? <Text style={styles.warn}>{strings.notMatched}</Text> : null}
+          {r.include && !r.choosing && r.food ? (
+            <>
+              <AmountFields
+                food={r.food}
+                unit={r.unit}
+                setUnit={(unit) => update(r.key, { unit })}
+                servingLabel={r.servingLabel}
+                setServingLabel={(servingLabel) => update(r.key, { servingLabel })}
+                value={r.value}
+                setValue={(value) => update(r.key, { value })}
+              />
+              {r.value === undefined ? <Text style={styles.warn}>{strings.needsAmount}</Text> : <Preview food={r.food} quantity={rowQuantity(r)} />}
+            </>
+          ) : null}
+        </Card>
+      ))}
+      <ContextFields ctx={ctx} setCtx={setCtx} />
+      <Errors errors={errors} />
+      <GradientButton label={strings.logItems(included)} onPress={logAll} />
+    </>
+  );
+}
+
+function FoodChooser({ initial, onPick }: { initial: string; onPick: (food: Food) => void }) {
+  const foods = useWorkoutsStore((s) => s.foods);
+  const [query, setQuery] = useState(initial.split(/\s+/)[0] ?? '');
+  const results = searchFoods(query, Object.values(foods), 6);
+  return (
+    <View style={{ gap: spacing.xs }}>
+      <TextInput value={query} onChangeText={setQuery} placeholder={strings.searchFoodsPlaceholder} placeholderTextColor={colors.textTertiary} style={styles.search} accessibilityLabel={strings.chooseFood} />
+      {results.map((f) => (
+        <TouchableOpacity key={f.id} onPress={() => onPick(f)} style={styles.choice}>
+          <Text style={styles.foodName}>{f.name}</Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+}
 // ------------------------------------------------------------------ edit
 
 function EditEntry({ entryId }: { entryId: string }) {
@@ -483,4 +630,12 @@ const styles = StyleSheet.create({
   boxOn: { backgroundColor: colors.teal, borderColor: colors.teal },
   toggleText: { color: colors.text, fontSize: 14, fontFamily: fontFamily.regular },
   error: { color: colors.red, fontSize: 13, lineHeight: 18, fontFamily: fontFamily.regular },
+  warn: { color: colors.amber, fontSize: 13, lineHeight: 18, fontFamily: fontFamily.regular },
+  multiline: { minHeight: 90, textAlignVertical: 'top' },
+  sectionTitle: { color: colors.text, fontSize: 16, fontFamily: fontFamily.bold },
+  question: { color: colors.amber, fontSize: 13.5, lineHeight: 19, fontFamily: fontFamily.medium },
+  excluded: { opacity: 0.5 },
+  itemHead: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  link: { color: colors.teal, fontSize: 13, fontFamily: fontFamily.semibold },
+  choice: { paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: colors.border },
 });

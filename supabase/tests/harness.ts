@@ -31,6 +31,7 @@ export const MIGRATIONS = [
   'migrations/0005_ai_proposals.sql',
   'migrations/0006_health_data.sql',
   'migrations/0007_nutrition.sql',
+  'migrations/0008_meal_parsing.sql',
 ];
 
 export function readMigration(relativePath: string): string {

@@ -5,14 +5,15 @@
  *   EVAL_EMAIL=... EVAL_PASSWORD=... npm run eval
  *   npm run eval -- crossfit-fran adapt-20-minutes     (only these cases)
  *
- * Every case is a real model call and costs money; the full set is 16 calls.
+ * Every case is a real model call and costs money; the full set is 20 calls.
+ *   npm run eval -- meals      (only the meal-parsing cases)
  * Use a dedicated test account: the run creates one workout and several
  * proposals in it. The function allows 20 requests per account per hour.
  */
 import { createClient } from '@supabase/supabase-js';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { ADAPT_CASES, IMPORT_CASES, type Check, type Outcome } from '../evals/cases';
+import { ADAPT_CASES, IMPORT_CASES, MEAL_CASES, type Check, type MealOutcome, type Outcome } from '../evals/cases';
 import { newUuid } from '../lib/id';
 import { scheduledToRow, versionToPayload } from '../lib/sync/mappers';
 import type { WorkoutContent } from '../lib/workout/model';
@@ -66,7 +67,8 @@ async function main() {
     return data as Outcome;
   };
 
-  const cases = [...IMPORT_CASES, ...ADAPT_CASES].filter((c) => only.length === 0 || only.includes(c.id));
+  const all = [...IMPORT_CASES, ...ADAPT_CASES, ...MEAL_CASES];
+  const cases = all.filter((c) => only.length === 0 || only.includes(c.id) || (only.includes('meals') && c.kind === 'meal'));
   let scheduledId: string | undefined;
   if (cases.some((c) => c.kind === 'adapt')) {
     const now = Date.now();
@@ -83,6 +85,19 @@ async function main() {
   let totalChecks = 0;
   for (const c of cases) {
     const started = Date.now();
+    if (c.kind === 'meal') {
+      const { data, error } = await supabase.functions.invoke('assistant', { body: { action: 'parse_meal', text: c.text, foods: [] } });
+      const meal: MealOutcome = error ? { ok: false, code: 'HTTP_ERROR', message: error.message } : (data as MealOutcome);
+      const mealChecks = c.grade(meal);
+      const missed = mealChecks.filter(([, pass]) => !pass);
+      totalChecks += mealChecks.length;
+      passedChecks += mealChecks.length - missed.length;
+      if (missed.length === 0) passedCases += 1;
+      console.log(`${missed.length === 0 ? 'PASS' : 'FAIL'}  ${c.id.padEnd(26)} ${String(mealChecks.length - missed.length).padStart(2)}/${mealChecks.length}  ${((Date.now() - started) / 1000).toFixed(1)}s  [${c.sport}] guards against ${c.guards}`);
+      for (const [name] of missed) console.log(`        x ${name}`);
+      if (missed.length) console.log(`        outcome: ${JSON.stringify(meal).slice(0, 400)}`);
+      continue;
+    }
     const outcome = await call(c.kind === 'import' ? { action: 'import_workout', text: c.text } : { action: 'adapt_workout', scheduled_id: scheduledId, constraints: c.constraints });
     const checks: Check[] = c.grade(outcome);
     const failed = checks.filter(([, pass]) => !pass);

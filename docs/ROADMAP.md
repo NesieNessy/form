@@ -129,7 +129,9 @@ Source: [nutrition_training_tracking_concept_en.md](concepts/nutrition_training_
 
 Left over from Step 5:
 
-- [ ] AI meal parsing ("oats 80 g with yogurt") into drafts, then barcode scan and photo estimates. Not started, to keep AI spend for a deliberate decision; the store already accepts `entryMethod: 'ai_draft'` entries through the same validation.
+- [x] AI meal parsing (`lib/ai/meal.ts`, action `parse_meal`): a sentence becomes draft items. The model only names foods, picks a match from the list it is given (catalog and the athlete's own foods; any other id is dropped), and copies written amounts, marking vague portions as estimates. It never states nutrients; the engine computes them after the athlete has checked every item ("Describe" tab, signed in only). Drafts are not stored; each run is logged (migration `0008_meal_parsing.sql`). Text suggesting disordered eating gets a pointer to support and never reaches the model. Five eval cases (`npm run eval -- meals`): 5/5, 17/17 checks on 2026-10-14.
+- [ ] Barcode scan and photo estimates (need a product database and a native build).
+- [ ] The support word list and its message are placeholders pending review by a registered dietitian.
 - [ ] The starter catalog values are approximate and not verified entry by entry. Check them against USDA FoodData Central or switch to a licensed database before real users rely on them. Regional products and barcodes need such a database too.
 - [ ] Recipes (ingredients, yield, portions) and planned fueling for long sessions (plan vs. actual) are not built.
 - [ ] The day type comes from planned workouts only; a workout whose blocks state no length uses the usual session length from the profile.

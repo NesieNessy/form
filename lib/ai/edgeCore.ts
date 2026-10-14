@@ -7,4 +7,5 @@
 export { rowToVersion } from '../sync/mappers';
 export { diffWorkouts } from './diff';
 export { LIMITS, runAdaptation, runImport } from './pipeline';
+export { MEAL_LIMITS, runMealParse } from './meal';
 export type { AdaptConstraints, CallModel, ModelMessage, ModelRequest, ModelResult, PipelineResult } from './pipeline';
