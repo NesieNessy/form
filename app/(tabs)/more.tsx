@@ -18,6 +18,13 @@ type MenuItem = {
 
 const accountItems: MenuItem[] = [
   {
+    icon: Icons.sparkles,
+    color: colors.purple,
+    title: strings.chatTitle,
+    subtitle: strings.chatMenuSubtitle,
+    route: '/chat',
+  },
+  {
     icon: Icons.personStanding,
     color: colors.blue,
     title: strings.profileTitle,

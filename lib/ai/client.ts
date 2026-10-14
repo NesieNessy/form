@@ -3,6 +3,8 @@ import type { WorkoutContent } from '../workout/model';
 import type { ValidationResult } from '../workout/validate';
 import type { Change } from './diff';
 import type { MealDraft } from './meal';
+import { checkMemory, type ChatReply } from './chat';
+import { localToday } from './chatActions';
 import type { AdaptConstraints, Notice } from './pipeline';
 
 /**
@@ -72,6 +74,59 @@ export async function requestMealParse(text: string, ownFoods: { id: string; nam
   } catch {
     return { ok: false, code: 'UNREACHABLE', message: OFFLINE };
   }
+}
+
+// ------------------------------------------------------------------ chat
+
+export type ChatReplyPayload = ChatReply;
+export type ChatResponse = { ok: true; conversation_id: string | null; reply: ChatReply } | { ok: false; code: string; message: string };
+
+export async function sendChat(message: string, conversationId: string | null): Promise<ChatResponse> {
+  try {
+    const { data, error } = await supabase.functions.invoke('assistant', { body: { action: 'chat', message, conversation_id: conversationId, today: localToday(), utc_offset_minutes: -new Date().getTimezoneOffset() } });
+    if (error || !data) return { ok: false, code: 'UNREACHABLE', message: OFFLINE };
+    return data as ChatResponse;
+  } catch {
+    return { ok: false, code: 'UNREACHABLE', message: OFFLINE };
+  }
+}
+
+export type ChatMessageRow = { id: string; role: 'user' | 'assistant'; content: string; payload: Partial<ChatReply>; created_at: string };
+export type Conversation = { id: string; title: string; updated_at: string };
+
+export async function listConversations(): Promise<Conversation[]> {
+  const { data } = await supabase.from('chat_conversations').select('id, title, updated_at').order('updated_at', { ascending: false }).limit(30);
+  return (data as Conversation[] | null) ?? [];
+}
+
+export async function getMessages(conversationId: string): Promise<ChatMessageRow[]> {
+  const { data } = await supabase.from('chat_messages').select('id, role, content, payload, created_at').eq('conversation_id', conversationId).order('created_at');
+  return (data as ChatMessageRow[] | null) ?? [];
+}
+
+export async function deleteConversation(conversationId: string): Promise<boolean> {
+  const { error } = await supabase.from('chat_conversations').delete().eq('id', conversationId);
+  return !error;
+}
+
+export type Memory = { id: string; text: string; created_at: string };
+
+export async function listMemories(): Promise<Memory[]> {
+  const { data } = await supabase.from('coach_memories').select('id, text, created_at').order('created_at');
+  return (data as Memory[] | null) ?? [];
+}
+
+/** Keeps a preference the athlete confirmed. The same health check as the assistant's applies. */
+export async function addMemory(userId: string, text: string): Promise<{ ok: true } | { ok: false; message: string }> {
+  const problem = checkMemory(text);
+  if (problem) return { ok: false, message: problem };
+  const { error } = await supabase.from('coach_memories').insert({ user_id: userId, text: text.trim() });
+  return error ? { ok: false, message: OFFLINE } : { ok: true };
+}
+
+export async function deleteMemory(id: string): Promise<boolean> {
+  const { error } = await supabase.from('coach_memories').delete().eq('id', id);
+  return !error;
 }
 
 export async function getProposal(id: string): Promise<Proposal | null> {

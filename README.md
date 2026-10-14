@@ -14,7 +14,7 @@ With no configuration the app runs in **local mode**: everything is stored on th
 ## Connect Supabase (optional)
 
 1. Create a Supabase project.
-2. In the SQL editor run `supabase/schema.sql`, then each file in `supabase/migrations/` in order (`0002` through `0011`).
+2. In the SQL editor run `supabase/schema.sql`, then each file in `supabase/migrations/` in order (`0002` through `0012`).
 3. Copy `.env.example` to `.env.local` (git-ignored) and fill in the project URL and publishable key. The names must start with `EXPO_PUBLIC_`.
 4. Restart with a clean bundler cache: `npx expo start --clear`.
 
@@ -53,7 +53,7 @@ Locally, set `E2E_BROWSER_CHANNEL=msedge` to use the installed Edge, or run `npx
 
 GitHub Actions (`.github/workflows/ci.yml`) runs the typecheck, `npm test`, the web build and the end-to-end tests on every push and pull request. It uses no secrets and makes no AI calls.
 
-`npm run eval` runs the assistant's evaluation cases against the deployed function. It makes 20 real model calls (about 45 cents) and needs `EVAL_EMAIL` and `EVAL_PASSWORD` for a test account. `npm run eval -- meals` runs only the meal-parsing cases (four paid calls).
+`npm run eval` runs the assistant's evaluation cases against the deployed function. It makes 24 paid assistant requests (about 90 cents) and needs `EVAL_EMAIL` and `EVAL_PASSWORD` for a test account. `npm run eval -- meals` runs only the meal-parsing cases (four paid calls), `npm run eval -- chats` only the chat cases (four paid turns). Use a fresh test account for the chat cases: they add workouts to it.
 
 ## Where things are
 
@@ -61,7 +61,7 @@ GitHub Actions (`.github/workflows/ci.yml`) runs the typecheck, `npm test`, the 
 - `docs/DECISIONS.md` — architecture decisions taken so far and those still open.
 - `docs/concepts/` — the product and technical concept documents everything is based on.
 - `lib/workout/` — the workout model, validator, timer math, scoring and analytics (no React, fully tested).
-- `lib/ai/` — the assistant's pipelines, draft schema and change list; `evals/` holds its evaluation cases.
+- `lib/ai/` — the assistant's pipelines (import, adaptation, meal parsing, chat), draft schema and change list; `evals/` holds its evaluation cases.
 - `lib/athlete/` — profile and benchmarks.
 - `lib/nutrition/` — food catalog, portion and nutrient engine, food log, saved meals and training-aware targets.
 - `lib/health/` — activity file parsing (GPX, TCX, FIT), duplicate detection, matching to planned workouts, measurements and personal baselines.

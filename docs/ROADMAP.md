@@ -198,12 +198,21 @@ Left over from Step 8:
 
 Source: [05-stage-3](concepts/05-stage-3-ai-coaching.md)
 
-- [ ] Conversational endpoint routing intents to the existing tools.
-- [ ] Workout Generation and Training Planning behind the same draft, validation and approval pipeline.
-- [ ] Response contract with citations, proposals, warnings and an approval flag.
-- [ ] Confirmation with a visible diff for any calendar or plan write.
-- [ ] Memory policy: explicit preferences only, separate from health records, deletable.
-- [ ] Evaluations for grounding, permission bypass, cross-tenant leakage and unsafe rehab advice.
+- [x] Conversational endpoint (`chat` action of the `assistant` function, More → Ask FORM): a code-controlled tool loop (`lib/ai/chat.ts`, at most six model calls). The tools read only the athlete's own records, through their own token so row-level security applies, and return minimal fields: recent sessions, schedule, one workout, recovery summaries, training limits, nutrition days. There is no open-ended data tool. Dates and times go to the model in the athlete's local time.
+- [x] Workout generation and changes go through the existing pipelines: `draft_workout` uses the validated import pipeline and `draft_adaptation` the adaptation pipeline (with the athlete's training limits added), both ending on the existing approval screen. A generated draft that touches a limit carries a warning.
+- [x] Response contract `{ intent, answer, citations, proposals, warnings, requires_approval }`; the model must answer through a `respond` tool. Citations are kept only if a tool returned that record in the same turn; the rest are dropped and logged.
+- [x] Confirmation with a visible change: a suggested move shows the old and new time and is applied on the device only when the athlete taps "Move It"; drafts open the approval screen with the change list.
+- [x] Memory: only preferences the athlete confirms ("Remember this?"), stored apart from health records (`coach_memories`, migration `0012_coach_chat.sql`), never health information (refused by the assistant and the app), listed and deletable. Conversations are stored for context, deletable, and in the export.
+- [x] Medical, red-flag and "can I train through this" questions are answered by a rule, without a model, with a pointer to a doctor or physiotherapist.
+- [x] Evaluations (`npm run eval -- chats`): grounding, someone else's data, an instruction planted in a workout title, a reschedule proposal, and the injury boundary. 5/5 cases, 17/17 checks on 2026-10-14.
+
+Left over from Step 9:
+
+- [ ] Roles other than the athlete: coach and physio chats over shared data, and studio use.
+- [ ] Nutrition actions in the chat (logging a meal, fuel suggestions); it can only read nutrition today.
+- [ ] Cost: a chat turn uses roughly 8,000 to 10,000 input tokens on Claude Opus 5.5. There is no per-account budget beyond 20 requests an hour; prompt caching and a smaller model for simple questions are worth trying.
+- [ ] No streaming: the answer appears when complete (about 5 to 15 seconds).
+- [ ] The evaluation set is small and English only.
 
 ## Step 10 — Goals and progress
 
@@ -233,6 +242,18 @@ Source: [07-stage-5](concepts/07-stage-5-movement-analysis.md)
 - [ ] Bounded observation vocabulary with timestamps; no diagnosis or injury prediction.
 - [ ] Coach and physio review with attributed annotations.
 - [ ] Retention expiry and deletion that propagates to derived data.
+
+## Step 13 — A polished frontend for the athlete
+
+Requested on 2026-10-14. Each step so far added screens that work and are tested, but the app has grown screen by screen; this step makes it one coherent, pleasant product.
+
+- [ ] Navigation: the More list has grown long (health, nutrition, recovery, rehab, coaching, chat). Group features into a clear home and tab structure, with today's essentials (planned workout, recovery, check-in, fuel) on the home screen.
+- [ ] Replace the remaining sample-data screens (Trends, Insights, Comparison, Goals & Forecasts, Long-Term Progress) with real data or remove them.
+- [ ] A shared design system: consistent cards, headers, empty states, loading and error states, form controls (one checkbox, one 0–10 scale, one date/time field), spacing and typography.
+- [ ] Onboarding: first-run flow (sports, equipment, goals, optional account), and explanations of consent and AI where they first appear.
+- [ ] Phone-first polish: test on iOS and Android devices (so far only a desktop browser), safe areas, keyboard handling, haptics, dark/light, large text.
+- [ ] Accessibility pass: screen-reader labels and order, contrast, touch targets, reduced motion.
+- [ ] Visual regression screenshots in the end-to-end suite so later changes cannot quietly break layouts.
 
 ## Alongside every step
 

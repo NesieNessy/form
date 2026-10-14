@@ -32,6 +32,8 @@ type Actions = {
   scheduleWorkout: (workoutId: string, scheduledAt: number) => string;
   setTemplate: (workoutId: string, isTemplate: boolean) => void;
   removeScheduled: (scheduledId: string) => void;
+  /** Moves a planned workout; used when the athlete approves a suggested move. */
+  moveScheduled: (scheduledId: string, scheduledAt: number) => void;
   startSession: (scheduledId: string, entryMode: 'player' | 'manual') => { sessionId: string } | { error: 'not_found' | 'not_published' };
   patchSession: (sessionId: string, patch: Partial<Session>) => void;
   putBlockResult: (sessionId: string, result: BlockResult) => void;
@@ -127,6 +129,7 @@ export const useWorkoutsStore = create<WorkoutsState>()(
       applyAdaptation: (scheduledId, content) => set(state.applyAdaptation(pickData(get()), scheduledId, content, Date.now())),
       setTemplate: (workoutId, isTemplate) => set(state.setTemplate(pickData(get()), workoutId, isTemplate, Date.now())),
       removeScheduled: (scheduledId) => set(state.removeScheduled(pickData(get()), scheduledId, Date.now())),
+      moveScheduled: (scheduledId, scheduledAt) => set(state.moveScheduled(pickData(get()), scheduledId, scheduledAt, Date.now())),
       startSession: (scheduledId, entryMode) => {
         const res = state.startSession(pickData(get()), scheduledId, entryMode, Date.now());
         if ('error' in res) return res;

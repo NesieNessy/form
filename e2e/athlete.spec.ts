@@ -108,6 +108,9 @@ test('coaching screens explain they need an account', async () => {
   await click('From Your Coach');
   await see('Workouts from a coach need an account');
   await back();
+  await click('Ask FORM');
+  await see('The assistant needs an account');
+  await back();
   await click('Sharing & Privacy');
 });
 
