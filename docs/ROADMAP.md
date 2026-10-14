@@ -118,14 +118,23 @@ Left over from Step 4:
 
 Source: [nutrition_training_tracking_concept_en.md](concepts/nutrition_training_tracking_concept_en.md)
 
-- [ ] Food catalog with nutrients, serving definitions and source; unknown stays `null`, never zero.
-- [ ] Food, fluid and recipe logging: search, manual entry, quick-add, saved meals.
-- [ ] Deterministic totals engine with a logging-coverage indicator.
-- [ ] Daily dashboard with a calorie-free view option.
-- [ ] Fuel events linked to workout sessions.
-- [ ] AI: natural-language meal parsing into drafts, barcode scan, later photo estimates.
-- [ ] Training-aware targets (as ranges), fueling plans and weekly plan drafts, all requiring approval.
-- [ ] Safety rules for extreme restriction requests and medical contexts.
+- [x] Food catalog with nutrients, serving definitions and source; unknown stays `null`, never zero. A starter list of 48 generic foods ships with the app (`lib/nutrition/catalog.ts`), and athletes add their own from a label (per 100 g, per 100 ml or per serving; energy in kcal or kJ). A test checks every catalog food's energy against its macros.
+- [x] Food and fluid logging: search, quick-add (only what is known), saved meals, corrections with a revision count. Each entry keeps a snapshot of the food, so editing a food never rewrites history. Migration `0007_nutrition.sql` adds `foods`, `food_log_entries` and `saved_meals` with row-level security; deleting an entry erases its content on the server.
+- [x] Deterministic engine (`lib/nutrition/engine.ts`): portion conversion (grams, millilitres via density, servings), totals that say "at least" when an entry lacks a nutrient, a count of estimated entries, and a 7-day view that averages only the days that were logged.
+- [x] Daily view with a calorie-free option ("Hide energy"), stored in the profile so it applies on every device.
+- [x] Fuel linked to workout sessions: "Log Fuel" on a workout's results.
+- [x] Training-aware targets as ranges (`lib/nutrition/targets.ts`, `targets_v1`): protein 1.2–2.0 g/kg and carbohydrate by the day's planned training (3–5, 5–7, 6–10, 8–12 g/kg) from the ACSM/AND/DC 2016 position statement, scaled to a weight from the last 60 days. No energy target is suggested. Nothing applies until the athlete approves it; manual targets are possible too.
+- [x] Safety: a very low energy target is called out with a pointer to a doctor or registered dietitian (not refused); suggestions carry their source and a not-medical-advice notice.
+- [x] Sharing: `nutrition_log` (90 days, without notes) and `nutrition_target` are available with their own consent; the profile category no longer carries nutrition settings. Both are in the export.
+
+Left over from Step 5:
+
+- [ ] AI meal parsing ("oats 80 g with yogurt") into drafts, then barcode scan and photo estimates. Not started, to keep AI spend for a deliberate decision; the store already accepts `entryMethod: 'ai_draft'` entries through the same validation.
+- [ ] The starter catalog values are approximate and not verified entry by entry. Check them against USDA FoodData Central or switch to a licensed database before real users rely on them. Regional products and barcodes need such a database too.
+- [ ] Recipes (ingredients, yield, portions) and planned fueling for long sessions (plan vs. actual) are not built.
+- [ ] The day type comes from planned workouts only; a workout whose blocks state no length uses the usual session length from the profile.
+- [ ] Target rules and wording need review by a registered dietitian before real users. Minors, pregnancy and clinical conditions are not modelled; the notice only points elsewhere.
+- [ ] Verified in a desktop browser; not tried on a phone.
 
 ## Step 6 — Coach beta
 

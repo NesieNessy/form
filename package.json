@@ -47,7 +47,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit && tsc -p tsconfig.node.json",
-    "test": "tsx --test --test-concurrency=1 lib/workout/workout.test.ts lib/ai/ai.test.ts lib/health/health.test.ts supabase/tests/workout_core.test.ts supabase/tests/athlete_foundation.test.ts supabase/tests/ai_proposals.test.ts supabase/tests/health_data.test.ts",
+    "test": "tsx --test --test-concurrency=1 lib/workout/workout.test.ts lib/ai/ai.test.ts lib/health/health.test.ts lib/nutrition/nutrition.test.ts supabase/tests/workout_core.test.ts supabase/tests/athlete_foundation.test.ts supabase/tests/ai_proposals.test.ts supabase/tests/health_data.test.ts supabase/tests/nutrition.test.ts",
     "gen:activity-seed": "tsx scripts/gen-activity-seed.ts",
     "build:edge-core": "tsx scripts/build-edge-core.ts",
     "eval": "tsx scripts/run-evals.ts",

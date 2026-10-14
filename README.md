@@ -14,7 +14,7 @@ With no configuration the app runs in **local mode**: everything is stored on th
 ## Connect Supabase (optional)
 
 1. Create a Supabase project.
-2. In the SQL editor run `supabase/schema.sql`, then each file in `supabase/migrations/` in order (`0002` through `0006`).
+2. In the SQL editor run `supabase/schema.sql`, then each file in `supabase/migrations/` in order (`0002` through `0007`).
 3. Copy `.env.example` to `.env.local` (git-ignored) and fill in the project URL and publishable key. The names must start with `EXPO_PUBLIC_`.
 4. Restart with a clean bundler cache: `npx expo start --clear`.
 
@@ -63,6 +63,7 @@ GitHub Actions (`.github/workflows/ci.yml`) runs the typecheck, `npm test`, the 
 - `lib/workout/` — the workout model, validator, timer math, scoring and analytics (no React, fully tested).
 - `lib/ai/` — the assistant's pipelines, draft schema and change list; `evals/` holds its evaluation cases.
 - `lib/athlete/` — profile and benchmarks.
+- `lib/nutrition/` — food catalog, portion and nutrient engine, food log, saved meals and training-aware targets.
 - `lib/health/` — activity file parsing (GPX, TCX, FIT), duplicate detection, matching to planned workouts, measurements and personal baselines.
 - `lib/sharing/` — client for invitations, grants, the access log, export and notifications.
 - `lib/workoutsStore.ts`, `lib/sync/` — local-first storage and background sync.

@@ -7,7 +7,8 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { Encoder, Profile } from '@garmin/fitsdk';
 import { newUuid } from '../lib/id';
-import { EMPTY_DATA, createWorkout } from '../lib/workout/state';
+import { addObservation } from '../lib/health/state';
+import { EMPTY_DATA, completeSession, createWorkout, startSession } from '../lib/workout/state';
 
 const OUT = join(__dirname, '.fixtures');
 mkdirSync(OUT, { recursive: true });
@@ -64,5 +65,23 @@ const created = createWorkout(
 const { activities: _a, observations: _o, ...v3 } = created.data;
 const { activities: _da, observations: _do, ...dirty } = v3.dirty;
 writeFileSync(join(OUT, 'store-v3.json'), JSON.stringify({ state: { ...v3, dirty }, version: 3 }));
+
+// Store v4 (before nutrition) with a ride done this morning, a weight from last week, and no food log.
+const ride = createWorkout(
+  EMPTY_DATA,
+  {
+    title: 'Long Ride',
+    sport: 'cycling',
+    blocks: [{ id: newUuid(), type: 'endurance', config: { format: 'continuous', durationSeconds: 7200 }, steps: [{ kind: 'exercise', id: newUuid(), name: 'Ride', activityId: 'bike', prescription: {} }] }],
+  },
+  { source: 'manual', scheduledAt: at(6), nowMs: Date.now() }
+);
+const started = startSession(ride.data, ride.scheduledId as string, 'manual', at(6));
+if ('error' in started) throw new Error(started.error);
+const done = completeSession(started.data, started.sessionId, { rpe: 6 }, at(8));
+const weighed = addObservation(done, { metric: 'weight_kg', value: 70, unit: 'kg', observedAt: Date.now() - 7 * 86_400_000 }, Date.now()).data;
+const { foods: _f, foodLog: _l, savedMeals: _m, ...v4 } = weighed;
+const { foods: _df, foodLog: _dl, savedMeals: _dm, ...dirty4 } = v4.dirty;
+writeFileSync(join(OUT, 'store-v4.json'), JSON.stringify({ state: { ...v4, dirty: dirty4 }, version: 4 }));
 
 console.log(`e2e fixtures written to ${OUT}`);

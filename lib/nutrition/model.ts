@@ -124,18 +124,23 @@ export type SavedMeal = {
 /** A range target; either end may be open. */
 export type Range = { min?: number; max?: number };
 
+/** How demanding a day's training is, from the planned workouts' total duration. */
+export type DayType = 'rest_or_light' | 'moderate' | 'high' | 'very_high';
+
 export type NutritionTargets = {
   energy_kcal?: Range;
   protein_g?: Range;
   carbohydrate_g?: Range;
   fat_g?: Range;
   fluid_ml?: Range;
+  /** Carbohydrate ranges that follow the day's planned training; when set they replace `carbohydrate_g`. */
+  carbohydrateByDayType?: Record<DayType, Range>;
   /** manual: set by the athlete. suggested: proposed by FORM's rules and approved by the athlete. */
   source: 'manual' | 'suggested';
   /** The rule version, for suggested targets. */
   ruleVersion?: string;
-  /** What the suggestion was based on, shown with it. */
-  basis?: string;
+  /** Body weight the suggestion was computed from. */
+  weightKg?: number;
   approvedAt: number;
 };
 

@@ -4,6 +4,8 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import type { Profile } from './athlete/model';
 import type { ParsedActivity, Provider } from './health/model';
 import * as health from './health/state';
+import type { Food, FoodSnapshot, Nutrients, Quantity } from './nutrition/model';
+import * as nutrition from './nutrition/state';
 import type { BlockResult, Session, WorkoutContent, WorkoutSource } from './workout/model';
 import * as state from './workout/state';
 import { EMPTY_DATA, type BenchmarkInput, type DirtySets, type RemoteSnapshot, type WorkoutData } from './workout/state';
@@ -41,6 +43,17 @@ type Actions = {
   removeObservation: (observationId: string) => void;
   /** Deletes all data from one source; recorded workout results stay. */
   removeSource: (provider: Provider) => void;
+
+  // Nutrition. Writes that can be refused return the reasons instead of saving.
+  addFood: (input: nutrition.FoodInput) => NutritionResult<{ foodId: string }>;
+  removeFood: (foodId: string) => void;
+  logFood: (food: Food | FoodSnapshot, quantity: Quantity, ctx: nutrition.LogContext) => NutritionResult<{ entryId: string }>;
+  logQuickAdd: (input: { label?: string; nutrients: Nutrients; fluidMl?: number }, ctx: nutrition.LogContext) => NutritionResult<{ entryId: string }>;
+  updateEntry: (entryId: string, patch: Parameters<typeof nutrition.updateEntry>[2]) => NutritionResult<object>;
+  removeEntry: (entryId: string) => void;
+  saveMeal: (name: string, entryIds: string[]) => NutritionResult<{ mealId: string }>;
+  logSavedMeal: (mealId: string, ctx: nutrition.LogContext) => NutritionResult<{ entryIds: string[] }>;
+  removeSavedMeal: (mealId: string) => void;
   /** Removes everything stored on this device. */
   wipe: () => void;
 
@@ -52,9 +65,19 @@ type Actions = {
 
 export type WorkoutsState = WorkoutData & Actions;
 
+type NutritionResult<T> = ({ ok: true } & T) | { ok: false; issues: { field: string; message: string }[] };
+
+/** Applies a nutrition transition and returns its outcome without the data. */
+function applying<T extends object>(set: (data: WorkoutData) => void, res: ({ ok: true; data: WorkoutData } & T) | { ok: false; issues: { field: string; message: string; severity: string }[] }): NutritionResult<T> {
+  if (!res.ok) return res;
+  const { data, ...rest } = res;
+  set(data);
+  return rest as { ok: true } & T;
+}
+
 function pickData(s: WorkoutData): WorkoutData {
-  const { ownerUserId, workouts, versions, scheduled, sessions, profile, benchmarks, activities, observations, dirty } = s;
-  return { ownerUserId, workouts, versions, scheduled, sessions, profile, benchmarks, activities, observations, dirty };
+  const { ownerUserId, workouts, versions, scheduled, sessions, profile, benchmarks, activities, observations, foods, foodLog, savedMeals, dirty } = s;
+  return { ownerUserId, workouts, versions, scheduled, sessions, profile, benchmarks, activities, observations, foods, foodLog, savedMeals, dirty };
 }
 
 export const useWorkoutsStore = create<WorkoutsState>()(
@@ -109,6 +132,15 @@ export const useWorkoutsStore = create<WorkoutsState>()(
       },
       removeObservation: (observationId) => set(health.removeObservation(pickData(get()), observationId, Date.now())),
       removeSource: (provider) => set(health.removeSource(pickData(get()), provider, Date.now())),
+      addFood: (input) => applying(set, nutrition.addFood(pickData(get()), input, Date.now())),
+      removeFood: (foodId) => set(nutrition.removeFood(pickData(get()), foodId, Date.now())),
+      logFood: (food, quantity, ctx) => applying(set, nutrition.logFood(pickData(get()), food, quantity, ctx, Date.now())),
+      logQuickAdd: (input, ctx) => applying(set, nutrition.logQuickAdd(pickData(get()), input, ctx, Date.now())),
+      updateEntry: (entryId, patch) => applying(set, nutrition.updateEntry(pickData(get()), entryId, patch, Date.now())),
+      removeEntry: (entryId) => set(nutrition.removeEntry(pickData(get()), entryId, Date.now())),
+      saveMeal: (name, entryIds) => applying(set, nutrition.saveMeal(pickData(get()), name, entryIds, Date.now())),
+      logSavedMeal: (mealId, ctx) => applying(set, nutrition.logSavedMeal(pickData(get()), mealId, ctx, Date.now())),
+      removeSavedMeal: (mealId) => set(nutrition.removeSavedMeal(pickData(get()), mealId, Date.now())),
       wipe: () => set(state.wipe()),
 
       attachToUser: (userId) => set(state.attachToUser(pickData(get()), userId)),
@@ -118,13 +150,13 @@ export const useWorkoutsStore = create<WorkoutsState>()(
     {
       name: 'form-workouts-store',
       storage: createJSONStorage(() => AsyncStorage),
-      version: 4,
+      version: 5,
       migrate: (persisted, version) => {
         let data = persisted as unknown;
         if (version < 2) data = state.migrateLegacy(data as Parameters<typeof state.migrateLegacy>[0], Date.now());
         // migrateLegacy already produces the current shape; only a genuine v2 payload needs upgrading.
         else if (version < 3) data = state.upgradeV2(data as Parameters<typeof state.upgradeV2>[0]);
-        // v4 added activities and measurements; every older payload gets the missing collections.
+        // v4 added activities and measurements, v5 nutrition; every older payload gets the missing collections.
         return state.withCurrentShape(data as Partial<WorkoutData>);
       },
       partialize: (s): WorkoutData => pickData(s),

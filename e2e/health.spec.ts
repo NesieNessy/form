@@ -24,7 +24,7 @@ test('a v3 store is upgraded and keeps the planned run', async () => {
   await app.click('Health & Activities');
   await app.see('No activities yet.');
   const s = await app.stored();
-  expect(s.version).toBe(4);
+  expect(s.version).toBe(5); // the current store version
   expect(s.state.activities).toEqual({});
   expect(Object.keys(s.state.scheduled)).toHaveLength(1);
 });

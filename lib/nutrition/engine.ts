@@ -166,8 +166,9 @@ export function validateFood(food: Pick<Food, 'name' | 'basis' | 'nutrients' | '
     }
   }
   if (food.basis !== 'per_serving') {
-    const mass = (['protein_g', 'carbohydrate_g', 'fat_g', 'fiber_g'] as const).reduce((s, k) => s + (food.nutrients[k] ?? 0), 0);
-    if (mass > 105) issues.push({ field: 'nutrients', message: 'Protein, carbohydrate, fat and fiber add up to more than 100 g per 100. Check the values.', severity: 'error' });
+    // Fiber is left out: many labels count it inside carbohydrate.
+    const mass = (['protein_g', 'carbohydrate_g', 'fat_g'] as const).reduce((s, k) => s + (food.nutrients[k] ?? 0), 0);
+    if (mass > 105) issues.push({ field: 'nutrients', message: 'Protein, carbohydrate and fat add up to more than 100 g per 100. Check the values.', severity: 'error' });
   }
   const energy = food.nutrients.energy_kcal;
   const p = food.nutrients.protein_g;

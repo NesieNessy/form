@@ -1,5 +1,6 @@
 import type { Benchmark, Profile } from '../athlete/model';
 import type { ExternalActivity, HealthObservation } from '../health/model';
+import type { Food, FoodLogEntry, NutritionTargets, SavedMeal } from '../nutrition/model';
 import type {
   Block,
   BlockConfig,
@@ -368,6 +369,8 @@ export type ProfileRow = {
   available_days: number[] | null;
   minutes_per_session: number | null;
   weekly_session_target: number;
+  hide_energy?: boolean;
+  nutrition_targets?: NutritionTargets | null;
   updated_at: string;
 };
 
@@ -380,6 +383,8 @@ export function profileToRow(profile: Profile, userId: string): ProfileRow {
     available_days: profile.availableDays,
     minutes_per_session: profile.minutesPerSession ?? null,
     weekly_session_target: profile.weeklySessionTarget,
+    hide_energy: profile.hideEnergy ?? false,
+    nutrition_targets: profile.nutritionTargets ?? null,
     updated_at: iso(profile.updatedAt),
   };
 }
@@ -392,6 +397,8 @@ export function rowToProfile(row: Omit<ProfileRow, 'user_id'>): Profile {
     availableDays: row.available_days ?? [],
     minutesPerSession: row.minutes_per_session ?? undefined,
     weeklySessionTarget: row.weekly_session_target,
+    hideEnergy: row.hide_energy || undefined,
+    nutritionTargets: row.nutrition_targets ?? undefined,
     updatedAt: ms(row.updated_at),
   }) as Profile;
 }
@@ -593,4 +600,142 @@ export function rowToObservation(row: ObservationRow): HealthObservation {
     updatedAt: ms(row.updated_at),
     deletedAt: msOrUndefined(row.deleted_at),
   }) as HealthObservation;
+}
+
+// ------------------------------------------------------------- nutrition
+
+export type FoodRow = {
+  id: string;
+  user_id?: string;
+  name: string;
+  brand: string | null;
+  basis: Food['basis'];
+  nutrients: Food['nutrients'];
+  servings: Food['servings'];
+  density_g_per_ml: number | string | null;
+  is_fluid: boolean;
+  source_note: string | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+};
+
+export function foodToRow(f: Food, userId: string): FoodRow {
+  return {
+    id: f.id,
+    user_id: userId,
+    name: f.name,
+    brand: f.brand ?? null,
+    basis: f.basis,
+    nutrients: f.nutrients,
+    servings: f.servings,
+    density_g_per_ml: f.densityGPerMl ?? null,
+    is_fluid: f.isFluid ?? false,
+    source_note: f.sourceNote ?? null,
+    created_at: iso(f.createdAt),
+    updated_at: iso(f.updatedAt),
+    deleted_at: isoOrNull(f.deletedAt),
+  };
+}
+
+export function rowToFood(row: FoodRow): Food {
+  return prune({
+    id: row.id,
+    name: row.name,
+    brand: row.brand ?? undefined,
+    basis: row.basis,
+    nutrients: row.nutrients ?? {},
+    servings: row.servings ?? [],
+    densityGPerMl: numOrUndefined(row.density_g_per_ml),
+    isFluid: row.is_fluid || undefined,
+    source: 'user',
+    sourceNote: row.source_note ?? undefined,
+    createdAt: ms(row.created_at),
+    updatedAt: ms(row.updated_at),
+    deletedAt: msOrUndefined(row.deleted_at),
+  }) as Food;
+}
+
+export type FoodLogRow = {
+  id: string;
+  user_id?: string;
+  consumed_at: string;
+  local_date: string;
+  meal_type: FoodLogEntry['mealType'];
+  food: FoodLogEntry['food'] | null;
+  quantity: FoodLogEntry['quantity'] | null;
+  label: string | null;
+  nutrients: FoodLogEntry['nutrients'];
+  fluid_ml: number | string | null;
+  session_id: string | null;
+  entry_method: FoodLogEntry['entryMethod'];
+  estimated: boolean;
+  note: string | null;
+  revision: number;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+};
+
+export function foodLogToRow(e: FoodLogEntry, userId: string): FoodLogRow {
+  return {
+    id: e.id,
+    user_id: userId,
+    consumed_at: iso(e.consumedAt),
+    local_date: e.localDate,
+    meal_type: e.mealType,
+    food: e.food ?? null,
+    quantity: e.quantity ?? null,
+    label: e.label ?? null,
+    nutrients: e.nutrients,
+    fluid_ml: e.fluidMl ?? null,
+    session_id: e.sessionId ?? null,
+    entry_method: e.entryMethod,
+    estimated: e.estimated,
+    note: e.note ?? null,
+    revision: e.revision,
+    created_at: iso(e.createdAt),
+    updated_at: iso(e.updatedAt),
+    deleted_at: isoOrNull(e.deletedAt),
+  };
+}
+
+export function rowToFoodLog(row: FoodLogRow): FoodLogEntry {
+  return prune({
+    id: row.id,
+    consumedAt: ms(row.consumed_at),
+    localDate: String(row.local_date).slice(0, 10),
+    mealType: row.meal_type,
+    food: row.food ?? undefined,
+    quantity: row.quantity ?? undefined,
+    label: row.label ?? undefined,
+    nutrients: row.nutrients ?? {},
+    fluidMl: numOrUndefined(row.fluid_ml),
+    sessionId: row.session_id ?? undefined,
+    entryMethod: row.entry_method,
+    estimated: row.estimated,
+    note: row.note ?? undefined,
+    revision: row.revision,
+    createdAt: ms(row.created_at),
+    updatedAt: ms(row.updated_at),
+    deletedAt: msOrUndefined(row.deleted_at),
+  }) as FoodLogEntry;
+}
+
+export type SavedMealRow = {
+  id: string;
+  user_id?: string;
+  name: string;
+  items: SavedMeal['items'];
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+};
+
+export function savedMealToRow(m: SavedMeal, userId: string): SavedMealRow {
+  return { id: m.id, user_id: userId, name: m.name, items: m.items, created_at: iso(m.createdAt), updated_at: iso(m.updatedAt), deleted_at: isoOrNull(m.deletedAt) };
+}
+
+export function rowToSavedMeal(row: SavedMealRow): SavedMeal {
+  return prune({ id: row.id, name: row.name, items: row.items ?? [], createdAt: ms(row.created_at), updatedAt: ms(row.updated_at), deletedAt: msOrUndefined(row.deleted_at) }) as SavedMeal;
 }

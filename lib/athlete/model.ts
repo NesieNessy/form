@@ -1,5 +1,6 @@
 import { ACTIVITIES, getActivity } from '../workout/catalog';
 import { formatClock, formatKg } from '../workout/format';
+import type { NutritionTargets } from '../nutrition/model';
 import type { Sport } from '../workout/model';
 
 /**
@@ -17,6 +18,10 @@ export type Profile = {
   availableDays: number[];
   minutesPerSession?: number;
   weeklySessionTarget: number;
+  /** Hide energy (calories) throughout the nutrition screens; everything else is still tracked. */
+  hideEnergy?: boolean;
+  /** Nutrition targets the athlete set or approved; none until then. */
+  nutritionTargets?: NutritionTargets;
   updatedAt: number;
 };
 
