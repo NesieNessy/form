@@ -31,7 +31,15 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       # Unit tests plus the real migrations in an in-process Postgres (PGlite).
-      - run: npm test
+      - name: Unit and database tests
+        run: |
+          set -o pipefail
+          npm test 2>&1 | tee test-output.txt
+      # Job logs need a login; annotations do not, so failures are reported as annotations too.
+      - name: Report failing tests
+        if: failure()
+        run: |
+          grep -nE "✖|AssertionError|Error:|expected|actual" test-output.txt | head -40 | while IFS= read -r line; do echo "::error title=npm test::${line}"; done
 
   e2e:
     name: Web build and end-to-end tests
