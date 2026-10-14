@@ -96,8 +96,10 @@ describe('recovery migration', () => {
     assert.equal(s.wearable_raw, undefined, 'raw readings need their own grant');
     const [row] = s.recovery_summary ?? [];
     assert.deepEqual([row.status, row.choice, row.signals], ['attention', 'lighter', summary.signals]);
+    // Only status, signal directions and the choice: no values, units, metrics or plan references.
+    assert.deepEqual(Object.keys(row).sort(), ['choice', 'local_date', 'rule_version', 'signals', 'status']);
     const text = JSON.stringify(s);
-    for (const leak of ['58', 'bpm', 'subjective', 'scheduledId']) assert.equal(text.includes(leak), false, leak);
+    for (const leak of ['"value"', 'bpm', 'subjective', 'scheduledId', 'detail']) assert.equal(text.includes(leak), false, leak);
     assert.equal(await h.count('audit_events', `action = 'data.read' and data_category = 'recovery_summary'`), 1);
   });
 
