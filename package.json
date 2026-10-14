@@ -35,6 +35,7 @@
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.9",
+    "@playwright/test": "^1.64.0",
     "@types/react": "~19.2.2",
     "esbuild": "^0.28.2",
     "tsx": "^4.23.15",
@@ -49,7 +50,9 @@
     "test": "tsx --test --test-concurrency=1 lib/workout/workout.test.ts lib/ai/ai.test.ts lib/health/health.test.ts supabase/tests/workout_core.test.ts supabase/tests/athlete_foundation.test.ts supabase/tests/ai_proposals.test.ts supabase/tests/health_data.test.ts",
     "gen:activity-seed": "tsx scripts/gen-activity-seed.ts",
     "build:edge-core": "tsx scripts/build-edge-core.ts",
-    "eval": "tsx scripts/run-evals.ts"
+    "eval": "tsx scripts/run-evals.ts",
+    "e2e:build": "node e2e/build.cjs",
+    "e2e": "tsx e2e/fixtures.ts && playwright test"
   },
   "private": true
 }

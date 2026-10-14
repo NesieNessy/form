@@ -1,0 +1,59 @@
+# Build, test and end-to-end test on every push and pull request.
+#
+# No secrets are used: the app is built in local mode (no Supabase), so the
+# end-to-end tests never sign in, sync or call the assistant, and CI spends
+# nothing on AI. The paid assistant evaluation (`npm run eval`) stays manual.
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Typecheck and tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      # Unit tests plus the real migrations in an in-process Postgres (PGlite).
+      - run: npm test
+
+  e2e:
+    name: Web build and end-to-end tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Build the web app (local mode)
+        run: npm run e2e:build
+      - run: npm run e2e
+      - name: Keep the report when something fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

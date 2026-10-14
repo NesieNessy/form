@@ -42,6 +42,17 @@ After changing `lib/workout/catalog.ts`, run `npm run gen:activity-seed` to rege
 
 After changing anything the assistant uses (`lib/ai`, the validator, the catalog, `lib/strings.ts`), run `npm run build:edge-core` and deploy the function again. A test fails if the bundle is stale.
 
+End-to-end tests run the exported web app in a browser, in local mode (no account, no Supabase, no AI calls):
+
+```bash
+npm run e2e:build   # web export into dist-e2e/, ignoring .env.local
+npm run e2e         # generates fixtures, then runs Playwright (e2e/*.spec.ts)
+```
+
+Locally, set `E2E_BROWSER_CHANNEL=msedge` to use the installed Edge, or run `npx playwright install chromium` once. The build clears Metro's cache, so start a dev server afterwards with `npx expo start --clear`.
+
+GitHub Actions (`.github/workflows/ci.yml`) runs the typecheck, `npm test`, the web build and the end-to-end tests on every push and pull request. It uses no secrets and makes no AI calls.
+
 `npm run eval` runs the assistant's evaluation cases against the deployed function. It makes 16 real model calls (about 40 cents) and needs `EVAL_EMAIL` and `EVAL_PASSWORD` for a test account.
 
 ## Where things are
