@@ -256,13 +256,21 @@ Left over from Step 11:
 
 Source: [07-stage-5](concepts/07-stage-5-movement-analysis.md)
 
-- [ ] Separate consents for recording, model inference and professional sharing.
-- [ ] Signed, time-limited upload and download URLs with per-asset access checks.
-- [ ] Quality assessment that returns "cannot assess reliably" for poor footage.
-- [ ] One or two movements with fixed camera guides (bodyweight squat first).
-- [ ] Bounded observation vocabulary with timestamps; no diagnosis or injury prediction.
-- [ ] Coach and physio review with attributed annotations.
-- [ ] Retention expiry and deletion that propagates to derived data.
+- [x] Separate consents for each clip (More → Movement Clips, migration `0015_movement.sql`). Recording consent is required ("everyone visible agreed"). Analysis on the device and sharing with professionals are separate switches, and professionals also need the athlete's Video grant. Research or model-training use is not offered, and a check constraint keeps it off. Withdrawing analysis consent deletes the analyses.
+- [x] Private storage bucket `movement-videos` (100 MB, MP4/MOV/WebM). Files sit under the athlete's folder at a random id, and can be uploaded only to a path the athlete registered first. Professionals get 5-minute signed links only while the clip is shared, the grant is active and the retention date has not passed. Revoking the grant stops new links straight away.
+- [x] Pose estimation runs on the device: MediaPipe's pose landmarker in the browser, with frames never sent anywhere. The library, its runtime and the model load from a pinned CDN release. The deterministic engine (`lib/movement/analysis.ts`, `squat_v1`) checks quality first and returns "cannot assess reliably", with the reasons, for short clips, low frame rate, no person, hidden joints, the body leaving the frame, the wrong camera angle, or too few repetitions.
+- [x] Bodyweight squat from the side and from the front, each with a camera guide.
+- [x] Fixed observation vocabulary: repetitions, depth, depth from rep to rep, torso angle (rough and rounded, never above moderate confidence), heels, tempo, knee path and hip level. Each observation has a confidence and the timestamps it refers to, and the timestamps jump the player. The server rejects any other label, and there is no diagnosis field. A note on every analysis says it is not a diagnosis.
+- [x] Coach and physio review: the athlete asks a connected professional with the Video grant for a review. The professional sees the clip on the athlete's page, and timestamped notes are stored and shown with their author and role. A professional's note answers the request and notifies the athlete.
+- [x] Retention of 30, 90 or 365 days. Expired clips and unfinished uploads are removed when the athlete next opens Movement Clips. Deleting a clip removes the file, its analyses, notes and review requests. Deleting the account removes the clip files first, and the export lists the clip records.
+
+Left over from Step 12:
+
+- [ ] Analysis on phones: needs a native pose model. Native playback needs a video module too. Upload and sharing already work there.
+- [ ] Server-side retention sweep for people who never open the app again: a scheduled job that removes expired files (the database cannot delete stored files itself).
+- [ ] Malware and content scanning of uploads. Today only type and size are checked.
+- [ ] Evaluation on real annotated footage (body types, clothing, light, camera angles) with qualified reviewers. So far the engine is tested only on synthetic pose data, and the browser pipeline was checked end to end on a clip with no person in it.
+- [ ] More movements (barbell lifts, running, mobility), comparing clips over time, studio filming rules, and drawn annotations.
 
 ## Step 13 — A polished frontend for the athlete
 

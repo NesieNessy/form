@@ -35,6 +35,7 @@
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.9",
+    "@mediapipe/tasks-vision": "^1.1.0",
     "@playwright/test": "^1.64.0",
     "@types/react": "~19.2.2",
     "esbuild": "^0.28.2",
@@ -47,7 +48,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit && tsc -p tsconfig.node.json",
-    "test": "tsx --test --test-concurrency=1 lib/workout/workout.test.ts lib/ai/ai.test.ts lib/ai/meal.test.ts lib/ai/chat.test.ts lib/health/health.test.ts lib/nutrition/nutrition.test.ts lib/coaching/coaching.test.ts lib/recovery/recovery.test.ts lib/rehab/rehab.test.ts lib/goals/goals.test.ts supabase/tests/workout_core.test.ts supabase/tests/athlete_foundation.test.ts supabase/tests/ai_proposals.test.ts supabase/tests/health_data.test.ts supabase/tests/nutrition.test.ts supabase/tests/coach_beta.test.ts supabase/tests/recovery.test.ts supabase/tests/rehab.test.ts supabase/tests/coach_chat.test.ts supabase/tests/goals.test.ts supabase/tests/studio.test.ts lib/studio/studio.test.ts",
+    "test": "tsx --test --test-concurrency=1 lib/workout/workout.test.ts lib/ai/ai.test.ts lib/ai/meal.test.ts lib/ai/chat.test.ts lib/health/health.test.ts lib/nutrition/nutrition.test.ts lib/coaching/coaching.test.ts lib/recovery/recovery.test.ts lib/rehab/rehab.test.ts lib/goals/goals.test.ts supabase/tests/workout_core.test.ts supabase/tests/athlete_foundation.test.ts supabase/tests/ai_proposals.test.ts supabase/tests/health_data.test.ts supabase/tests/nutrition.test.ts supabase/tests/coach_beta.test.ts supabase/tests/recovery.test.ts supabase/tests/rehab.test.ts supabase/tests/coach_chat.test.ts supabase/tests/goals.test.ts supabase/tests/studio.test.ts lib/studio/studio.test.ts lib/movement/movement.test.ts supabase/tests/movement.test.ts",
     "gen:activity-seed": "tsx scripts/gen-activity-seed.ts",
     "build:edge-core": "tsx scripts/build-edge-core.ts",
     "eval": "tsx scripts/run-evals.ts",

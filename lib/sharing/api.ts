@@ -152,7 +152,17 @@ const MESSAGES: Record<string, string> = {
   NOT_STAFF: 'Shifts are for staff only.',
   INVALID_SHIFT: 'A shift ends after it starts and lasts at most 16 hours.',
   SHIFT_OVERLAPS: 'That overlaps another shift for this person.',
-  RANGE_TOO_LONG: 'Choose a shorter period.',};
+  RANGE_TOO_LONG: 'Choose a shorter period.',
+  RECORDING_CONSENT_REQUIRED: 'Confirm that everyone visible in the clip agreed to be filmed.',
+  INVALID_RETENTION: 'Choose how long to keep the clip.',
+  UNSUPPORTED_VIDEO: 'Use an MP4, MOV or WebM video.',
+  VIDEO_TOO_LARGE: 'The video is larger than 100 MB. Record a shorter clip.',
+  UNKNOWN_MOVEMENT: 'Choose a movement and camera view.',
+  NOT_UPLOADED: 'The upload did not finish. Try again.',
+  ANALYSIS_NOT_ALLOWED: 'Analysis is switched off for this clip.',
+  INVALID_ANALYSIS: 'The analysis could not be saved.',
+  SHARE_VIDEO_FIRST: 'Share this clip, and the Video category with this person under Sharing & Privacy, first.',
+  INVALID_TIME: 'The time must be within the clip.',};
 
 function friendly(message: string | undefined): string {
   if (!message) return 'Something went wrong. Try again.';

@@ -9,6 +9,7 @@ import { SegmentedTabs } from '@/components/ui/SegmentedTabs';
 import { Toast } from '@/components/ui/Toast';
 import { FieldCard } from '@/components/workout/FieldCard';
 import { signOut, useAuthStore } from '@/lib/auth';
+import { removeAllMyClipFiles } from '@/lib/movement/api';
 import {
   RELATIONSHIP_TYPES,
   acceptInvite,
@@ -150,6 +151,9 @@ export default function SharingScreen() {
     if (busy || deleteText.trim().toUpperCase() !== DELETE_WORD) return;
     setBusy(true);
     if (signedIn) {
+      // Stored clip files are not removed by the database, so they go first.
+      const userId = useAuthStore.getState().userId;
+      if (userId) await removeAllMyClipFiles(userId).catch(() => undefined);
       const res = await deleteMyAccount();
       if (!res.ok) {
         setToast(res.error);

@@ -88,6 +88,13 @@ const accountItems: MenuItem[] = [
     route: '/studio',
   },
   {
+    icon: Icons.video,
+    color: colors.purple,
+    title: strings.movementTitle,
+    subtitle: strings.movementMenuSubtitle,
+    route: '/movement',
+  },
+  {
     icon: Icons.heartPulse,
     color: colors.teal,
     title: strings.physioTitle,
