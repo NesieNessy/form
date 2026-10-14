@@ -2,6 +2,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { CommentThread } from '@/components/coaching/CommentThread';
+import { SharedGoals } from '@/components/goals/SharedGoals';
 import { Card } from '@/components/ui/Card';
 import { DetailHeader } from '@/components/ui/DetailHeader';
 import { GradientButton } from '@/components/ui/GradientButton';
@@ -150,6 +151,8 @@ export default function CoachAthleteScreen() {
             </Card>
           );
         })}
+
+        <SharedGoals athleteId={athleteId} onError={setToast} />
       </ScrollView>
       <Toast message={toast ?? ''} visible={Boolean(toast)} />
     </View>

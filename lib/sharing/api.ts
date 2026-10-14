@@ -1,7 +1,10 @@
 import type { Benchmark, Profile } from '../athlete/model';
+import type { Goal } from '../goals/model';
 import { supabase } from '../supabase';
 import {
   rowToBenchmark,
+  rowToGoal,
+  type GoalRow,
   rowToProfile,
   rowToSession,
   rowToVersion,
@@ -290,6 +293,26 @@ export type RosterRow = {
 };
 
 export const coachRoster = () => call<RosterRow[]>('coach_roster');
+
+// ------------------------------------------------------------------ goals
+
+export type GoalReview = { id: string; body: string; by_me?: boolean; author_name: string | null; created_at: string };
+export type SharedGoal = Omit<GoalRow, 'user_id'> & { reviews: GoalReview[] };
+
+/** A connected athlete's shared goals; every call is logged in their access log. */
+export async function listSharedGoals(athleteId: string): Promise<Result<{ shared: boolean; goals: { goal: Goal; reviews: GoalReview[] }[] }>> {
+  const res = await call<{ shared: boolean; goals: SharedGoal[] }>('list_shared_goals', { p_athlete: athleteId });
+  if (!res.ok) return res;
+  return { ok: true, data: { shared: res.data.shared, goals: res.data.goals.map((g) => ({ goal: rowToGoal(g as GoalRow), reviews: g.reviews ?? [] })) } };
+}
+
+export const addGoalReview = (goalId: string, body: string) => call<string>('add_goal_review', { p_goal: goalId, p_body: body });
+
+/** Reviews a professional left on one of the athlete's own goals. */
+export async function goalReviews(goalId: string): Promise<GoalReview[]> {
+  const { data } = await supabase.from('goal_reviews').select('id, body, created_at, author_id').eq('goal_id', goalId).order('created_at');
+  return ((data as { id: string; body: string; created_at: string }[] | null) ?? []).map((r) => ({ id: r.id, body: r.body, created_at: r.created_at, author_name: null }));
+}
 
 // ------------------------------------------------------- notifications
 

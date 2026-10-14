@@ -36,6 +36,7 @@ export const MIGRATIONS = [
   'migrations/0010_recovery.sql',
   'migrations/0011_rehab.sql',
   'migrations/0012_coach_chat.sql',
+  'migrations/0013_goals.sql',
 ];
 
 export function readMigration(relativePath: string): string {

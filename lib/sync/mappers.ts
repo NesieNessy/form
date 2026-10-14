@@ -1,6 +1,7 @@
 import type { Benchmark, Profile } from '../athlete/model';
 import type { ExternalActivity, HealthObservation } from '../health/model';
 import type { Food, FoodLogEntry, NutritionTargets, SavedMeal } from '../nutrition/model';
+import type { Goal } from '../goals/model';
 import type { RecoveryDay } from '../recovery/model';
 import type { ActivityTag, CaseNote, ClinicalRecords, InjuryEpisode, Issuer, RehabPlan, Restriction, RtsDecision, SymptomLog } from '../rehab/model';
 import type {
@@ -932,4 +933,66 @@ export function parseClinical(json: ClinicalJson, fetchedAt: number): ClinicalRe
     notes: (json.notes ?? []).map((n): CaseNote => ({ id: n.id, episodeId: n.episode_id, body: n.body, author: issuer(n.author), createdAt: ms(n.created_at) })),
     fetchedAt,
   };
+}
+
+// ------------------------------------------------------------------ goals
+
+export type GoalRow = {
+  id: string;
+  user_id?: string;
+  title: string;
+  metric: Goal['metric'];
+  target: number | string | null;
+  target_date: string;
+  baseline: Goal['baseline'] | null;
+  milestones: Goal['milestones'];
+  visibility: Goal['visibility'];
+  status: Goal['status'];
+  completed_on: string | null;
+  revisions: Goal['revisions'];
+  progress: Goal['progress'] | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+};
+
+export function goalToRow(g: Goal, userId: string): GoalRow {
+  return {
+    id: g.id,
+    user_id: userId,
+    title: g.title,
+    metric: g.metric,
+    target: g.target ?? null,
+    target_date: g.targetDate,
+    baseline: g.baseline ?? null,
+    milestones: g.milestones,
+    visibility: g.visibility,
+    status: g.status,
+    completed_on: g.completedOn ?? null,
+    revisions: g.revisions,
+    progress: g.progress ?? null,
+    created_at: iso(g.createdAt),
+    updated_at: iso(g.updatedAt),
+    deleted_at: isoOrNull(g.deletedAt),
+  };
+}
+
+export function rowToGoal(row: GoalRow): Goal {
+  return prune({
+    id: row.id,
+    title: row.title,
+    metric: row.metric,
+    target: numOrUndefined(row.target),
+    targetDate: String(row.target_date).slice(0, 10),
+    baseline: row.baseline ?? undefined,
+    milestones: row.milestones ?? [],
+    visibility: row.visibility,
+    status: row.status,
+    completedOn: row.completed_on ? String(row.completed_on).slice(0, 10) : undefined,
+    revisions: row.revisions ?? [],
+    progress: row.progress ?? undefined,
+    createdAt: ms(row.created_at),
+    updatedAt: ms(row.updated_at),
+    deletedAt: msOrUndefined(row.deleted_at),
+  }) as Goal;
 }

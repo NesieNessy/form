@@ -218,10 +218,16 @@ Left over from Step 9:
 
 Source: [06-stage-4](concepts/06-stage-4-goal-and-progress.md)
 
-- [ ] Replace the current `goals` table with the full model: metric, unit, target date, baseline, milestones, visibility, revision history.
-- [ ] Deterministic progress calculation with sample size and comparability rules (scaled versus RX, different routes, different FTP protocols).
-- [ ] Goal wizard, milestone timeline and periodic review.
-- [ ] Shared coach review view; rehab goals completable only by a qualified person.
+- [x] Full goal model (`lib/goals/model.ts`, table `athlete_goals`, migration `0013_goals.sql`). Goal kinds: one-rep max, FTP or pace benchmark, time over a distance, sessions a week, days of food logging, finishing an event, and a rehab stage. Each goal has a target, a target date, a baseline, milestones, private or shared visibility, and a status. The first schema's `goals` table stays empty and unused; it is exported as `goals_legacy`.
+- [x] Deterministic progress (`lib/goals/progress.ts`). Every number lists the records it came from. Only true singles and 1RM benchmarks count toward a one-rep max. A distance time compares only efforts within ±3 % of that distance in the same sport, and routes are not adjusted. A benchmark uses the latest value and flags mixed methods. A note says when there has been no new result for 8 weeks. Habit goals are counted by full weeks and are never marked achieved automatically. Progress is not projected forward.
+- [x] Goal wizard with a suggested baseline from the latest comparable result, plus milestones (Goals screen under More). The detail screen shows evidence, weekly counts, notes, the milestone list and the full history. Every target or date change is kept with its reason. Progress is recalculated when the screen opens, and milestones and achievement are recorded from the evidence. The athlete can pause, resume, stop or record an event as finished, but cannot mark a goal achieved by hand.
+- [x] Shared coach view. A coach sees a goal only when the athlete grants the Goals category and marks that goal as shared (`list_shared_goals`, which is logged in the access log). Coaches can leave review comments (`add_goal_review`), and the athlete is notified and reads them on the goal. A rehab stage counts only when a verified clinician records it.
+
+Left over from Step 10:
+
+- [ ] Periodic review prompts (for example a monthly "still the right goal?"), and charts of progress over time.
+- [ ] Goals for nutrition targets beyond logging days, and comparing plan with actual sessions.
+- [ ] Physio-side view of rehab-stage goals; today the physio sees only the case.
 
 ## Step 11 — Studio beta
 
@@ -245,15 +251,36 @@ Source: [07-stage-5](concepts/07-stage-5-movement-analysis.md)
 
 ## Step 13 — A polished frontend for the athlete
 
-Requested on 2026-10-14. Each step so far added screens that work and are tested, but the app has grown screen by screen; this step makes it one coherent, pleasant product.
+Requested on 2026-10-14. The design it follows is Step 14. Each step so far added screens that work and are tested, but the app has grown screen by screen; this step makes it one coherent, pleasant product.
 
 - [ ] Navigation: the More list has grown long (health, nutrition, recovery, rehab, coaching, chat). Group features into a clear home and tab structure, with today's essentials (planned workout, recovery, check-in, fuel) on the home screen.
-- [ ] Replace the remaining sample-data screens (Trends, Insights, Comparison, Goals & Forecasts, Long-Term Progress) with real data or remove them.
+- [ ] Replace the remaining sample-data screens (Trends, Insights, Comparison, Long-Term Progress; Goals became real in Step 10) with real data or remove them.
 - [ ] A shared design system: consistent cards, headers, empty states, loading and error states, form controls (one checkbox, one 0–10 scale, one date/time field), spacing and typography.
 - [ ] Onboarding: first-run flow (sports, equipment, goals, optional account), and explanations of consent and AI where they first appear.
 - [ ] Phone-first polish: test on iOS and Android devices (so far only a desktop browser), safe areas, keyboard handling, haptics, dark/light, large text.
 - [ ] Accessibility pass: screen-reader labels and order, contrast, touch targets, reduced motion.
 - [ ] Visual regression screenshots in the end-to-end suite so later changes cannot quietly break layouts.
+
+## Step 14 — App design: the FORM design system and frontend architecture
+
+Requested on 2026-10-14. Source: [11-frontend-ux-ui-architecture](concepts/11-frontend-ux-ui-architecture.md), [12-form-brand-design-system](concepts/12-form-brand-design-system.md), [form-design-tokens.css](concepts/form-design-tokens.css). This is the design that Step 13's polish is built on. Do the token and component work here first, then the Step 13 screen work against it.
+
+Where the code differs today: `theme/colors.ts` has a dark-only palette with its own five-colour gradient (not the logo's seven stops), every primary button is a `GradientButton`, there is no light mode, all text is English, and there is no professional desktop layout.
+
+- [ ] Tokens: replace `theme/colors.ts` with the layered tokens from the spec. The brand primitives are the seven exact logo stops. Light and dark semantic tokens follow (canvas, surface, raised, text, muted, border, action, focus, success, warning, danger, info), then component tokens. Spacing uses the 4 px scale, radii are 8/12/16, and the type scale is the one in the spec.
+- [ ] Theme: light, dark and system modes with a setting under Profile. The device setting is the default. Respect reduced motion and large text.
+- [ ] Buttons: primary actions become solid action blue. The gradient is kept for the logo, onboarding, completion moments and thin accent rules only. Destructive actions use danger styling. Retire the gradient as the default button and the per-sport accent colours on data.
+- [ ] Numbers: tabular numerals for timers, pace, heart rate, load, watts and nutrition. Large legible timer (56–88 px) and 48–56 px player controls.
+- [ ] Provenance: one shared label for measured, device-estimated, calculated, self-reported and AI-suggested values, used on health, recovery, nutrition and goals.
+- [ ] Status never by colour alone: planned, completed, skipped, warnings and recovery states also carry a label, icon or pattern.
+- [ ] Athlete navigation: settle the tab bar. The blueprint names both Today · Train · Progress · Health · More and Today · Train · Plan · Insights · Profile, so this needs a decision. Nutrition, rehab, goals and Ask FORM become contextual shortcuts on Today.
+- [ ] AI proposal pattern: one shared draft card with summary, sources, assumptions and a before/after diff, plus the job states (working, needs clarification, draft ready, validation issues, awaiting approval, applied or failed). Use it for import, adaptation, meal parsing and chat drafts.
+- [ ] Professional workspace: a workspace switcher (personal, coach, physio) with the client context header (who is viewing whose data, and why) and Request access in place of tabs that are not shared. Add a wider desktop layout for coach and physio screens.
+- [ ] Edge states as designed flows, per section 12 of the blueprint: no wearable, stale data, revoked access while open, offline session, unknown exercise, time-zone mismatch, and the others listed there.
+- [ ] Localisation groundwork: move `lib/strings.ts` to a keyed catalogue with English and German, with locale-aware number, date and unit formats.
+- [ ] Privacy blur for sensitive previews (health, rehab, nutrition) with an explicit reveal.
+- [ ] Checks: automated contrast tests on the computed token pairs in both themes, axe checks on the web build, keyboard-only paths, a 320 px width and 200 % text, and screenshots of key screens in both themes in the e2e suite.
+- [ ] Out of scope for this app for now: the monorepo split and separate professional and studio web apps in section 8.1. The blueprint prefers a modular monolith first, which is what the Expo app is.
 
 ## Alongside every step
 

@@ -9,6 +9,9 @@ import * as nutrition from './nutrition/state';
 import type { CheckIn, Insight, OptionKind } from './recovery/model';
 import * as recovery from './recovery/state';
 import * as rehab from './rehab/state';
+import type { Goal } from './goals/model';
+import type { ProgressInputs } from './goals/progress';
+import * as goals from './goals/state';
 import { newUuid } from './id';
 import { withFreshIds, type BlockResult, type Session, type WorkoutContent, type WorkoutSource } from './workout/model';
 import * as state from './workout/state';
@@ -75,6 +78,15 @@ type Actions = {
   removeEpisode: (episodeId: string) => void;
   addSymptomLog: (episodeId: string, input: rehab.SymptomInput) => { ok: true; logId: string } | { ok: false; error: string };
   removeSymptomLog: (logId: string) => void;
+
+  addGoal: (input: goals.GoalInput) => { ok: true; goalId: string } | { ok: false; error: string };
+  reviseGoal: (goalId: string, patch: { title?: string; target?: number; targetDate?: string }, reason: string) => { ok: true } | { ok: false; error: string };
+  setGoalStatus: (goalId: string, status: 'active' | 'paused' | 'abandoned') => void;
+  setGoalVisibility: (goalId: string, visibility: Goal['visibility']) => void;
+  recordEventFinished: (goalId: string, date: string) => { ok: true } | { ok: false; error: string };
+  removeGoal: (goalId: string) => void;
+  /** Recalculates progress from everything on the device and records what changed. */
+  refreshGoals: () => void;
   /** Removes everything stored on this device. */
   wipe: () => void;
 
@@ -97,8 +109,8 @@ function applying<T extends object>(set: (data: WorkoutData) => void, res: ({ ok
 }
 
 function pickData(s: WorkoutData): WorkoutData {
-  const { ownerUserId, workouts, versions, scheduled, sessions, profile, benchmarks, activities, observations, foods, foodLog, savedMeals, recovery, episodes, symptomLogs, clinical, dirty } = s;
-  return { ownerUserId, workouts, versions, scheduled, sessions, profile, benchmarks, activities, observations, foods, foodLog, savedMeals, recovery, episodes, symptomLogs, clinical, dirty };
+  const { ownerUserId, workouts, versions, scheduled, sessions, profile, benchmarks, activities, observations, foods, foodLog, savedMeals, recovery, episodes, symptomLogs, clinical, goals: goalList, dirty } = s;
+  return { ownerUserId, workouts, versions, scheduled, sessions, profile, benchmarks, activities, observations, foods, foodLog, savedMeals, recovery, episodes, symptomLogs, clinical, goals: goalList, dirty };
 }
 
 export const useWorkoutsStore = create<WorkoutsState>()(
@@ -196,6 +208,32 @@ export const useWorkoutsStore = create<WorkoutsState>()(
         return { ok: true, logId: res.logId };
       },
       removeSymptomLog: (logId) => set(rehab.removeSymptomLog(pickData(get()), logId, Date.now())),
+      addGoal: (input) => {
+        const res = goals.addGoal(pickData(get()), input, Date.now());
+        if (!res.ok) return res;
+        set(res.data);
+        return { ok: true, goalId: res.goalId };
+      },
+      reviseGoal: (goalId, patch, reason) => {
+        const res = goals.reviseGoal(pickData(get()), goalId, patch, reason, Date.now());
+        if (!res.ok) return res;
+        set(res.data);
+        return { ok: true };
+      },
+      setGoalStatus: (goalId, status) => set(goals.setGoalStatus(pickData(get()), goalId, status, Date.now())),
+      setGoalVisibility: (goalId, visibility) => set(goals.setVisibility(pickData(get()), goalId, visibility, Date.now())),
+      recordEventFinished: (goalId, date) => {
+        const res = goals.recordEventFinished(pickData(get()), goalId, date, Date.now());
+        if (!res.ok) return res;
+        set(res.data);
+        return { ok: true };
+      },
+      removeGoal: (goalId) => set(goals.removeGoal(pickData(get()), goalId, Date.now())),
+      refreshGoals: () => {
+        const d = pickData(get());
+        const next = goals.refreshGoals(d, progressInputsOf(d, Date.now()));
+        if (next !== d) set(next);
+      },
       wipe: () => set(state.wipe()),
 
       attachToUser: (userId) => set(state.attachToUser(pickData(get()), userId)),
@@ -222,4 +260,16 @@ export const useWorkoutsStore = create<WorkoutsState>()(
 /** The plain data slice, for code outside React (sync, export). */
 export function getWorkoutData(): WorkoutData {
   return pickData(useWorkoutsStore.getState());
+}
+
+/** The evidence goal progress is calculated from. */
+export function progressInputsOf(d: WorkoutData, nowMs: number): ProgressInputs {
+  return {
+    benchmarks: Object.values(d.benchmarks),
+    sessions: Object.values(d.sessions),
+    activities: Object.values(d.activities),
+    foodLog: Object.values(d.foodLog),
+    decisions: d.clinical.decisions,
+    nowMs,
+  };
 }

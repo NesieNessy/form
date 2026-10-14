@@ -3,6 +3,9 @@ import { isSupabaseConfigured, supabase } from '../supabase';
 import { getWorkoutData, useWorkoutsStore } from '../workoutsStore';
 import { PROFILE_KEY, type DirtySets, type RemoteSnapshot } from '../workout/state';
 import {
+  goalToRow,
+  rowToGoal,
+  type GoalRow,
   episodeToRow,
   parseClinical,
   rowToEpisode,
@@ -69,7 +72,7 @@ export function pendingChangeCount(dirty: DirtySets): number {
 
 async function push(userId: string): Promise<boolean> {
   const data = getWorkoutData();
-  const done: DirtySets = { versions: [], workouts: [], scheduled: [], sessions: [], benchmarks: [], activities: [], observations: [], foods: [], foodLog: [], savedMeals: [], recovery: [], episodes: [], symptomLogs: [], profile: [] };
+  const done: DirtySets = { versions: [], workouts: [], scheduled: [], sessions: [], benchmarks: [], activities: [], observations: [], foods: [], foodLog: [], savedMeals: [], recovery: [], episodes: [], symptomLogs: [], goals: [], profile: [] };
   let ok = true;
 
   const failedVersions = new Set<string>();
@@ -154,7 +157,7 @@ async function push(userId: string): Promise<boolean> {
     else done.observations.push(...observations.map((o) => o.id));
   }
 
-  const upsertAll = async <T extends { id: string }>(table: string, key: 'foods' | 'foodLog' | 'savedMeals' | 'recovery' | 'episodes' | 'symptomLogs', rows: T[], toRow: (r: T) => object) => {
+  const upsertAll = async <T extends { id: string }>(table: string, key: 'foods' | 'foodLog' | 'savedMeals' | 'recovery' | 'episodes' | 'symptomLogs' | 'goals', rows: T[], toRow: (r: T) => object) => {
     if (!rows.length) return;
     const { error } = await supabase.from(table).upsert(rows.map(toRow));
     if (error) ok = false;
@@ -166,6 +169,7 @@ async function push(userId: string): Promise<boolean> {
   // Episodes before their symptom logs, which reference them; a log whose episode failed is retried next time.
   await upsertAll('injury_episodes', 'episodes', data.dirty.episodes.map((id) => data.episodes[id]).filter(Boolean), (e) => episodeToRow(e, userId));
   await upsertAll('symptom_logs', 'symptomLogs', data.dirty.symptomLogs.map((id) => data.symptomLogs[id]).filter(Boolean), (s) => symptomToRow(s, userId));
+  await upsertAll('athlete_goals', 'goals', data.dirty.goals.map((id) => data.goals[id]).filter(Boolean), (g) => goalToRow(g, userId));
   await upsertAll('daily_recovery', 'recovery', data.dirty.recovery.map((id) => data.recovery[id]).filter(Boolean), (d) => recoveryToRow(d, userId));
 
   useWorkoutsStore.getState().clearDirty(done);
@@ -173,7 +177,7 @@ async function push(userId: string): Promise<boolean> {
 }
 
 async function pull(): Promise<boolean> {
-  const [workouts, versions, scheduled, sessions, benchmarks, profile, activities, observations, foods, foodLog, savedMeals, recoveryDays, episodes, symptomLogs, clinical] = await Promise.all([
+  const [workouts, versions, scheduled, sessions, benchmarks, profile, activities, observations, foods, foodLog, savedMeals, recoveryDays, episodes, symptomLogs, clinical, goals] = await Promise.all([
     supabase.from('workouts').select('*'),
     supabase.from('workout_versions').select('*, blocks(*, steps(*))'),
     supabase.from('scheduled_workouts').select('*'),
@@ -189,8 +193,9 @@ async function pull(): Promise<boolean> {
     supabase.from('injury_episodes').select('*'),
     supabase.from('symptom_logs').select('*'),
     supabase.rpc('my_clinical_records'),
+    supabase.from('athlete_goals').select('*'),
   ]);
-  if (workouts.error || versions.error || scheduled.error || sessions.error || benchmarks.error || profile.error || activities.error || observations.error || foods.error || foodLog.error || savedMeals.error || recoveryDays.error || episodes.error || symptomLogs.error) return false;
+  if (workouts.error || versions.error || scheduled.error || sessions.error || benchmarks.error || profile.error || activities.error || observations.error || foods.error || foodLog.error || savedMeals.error || recoveryDays.error || episodes.error || symptomLogs.error || goals.error) return false;
 
   const snapshot: RemoteSnapshot = {
     versions: (versions.data as VersionRow[]).map(rowToVersion),
@@ -206,6 +211,7 @@ async function pull(): Promise<boolean> {
     recovery: (recoveryDays.data as RecoveryRow[]).map(rowToRecovery),
     episodes: (episodes.data as EpisodeRow[]).map(rowToEpisode),
     symptomLogs: (symptomLogs.data as SymptomRow[]).map(rowToSymptom),
+    goals: (goals.data as GoalRow[]).map(rowToGoal),
     // A failed fetch keeps the cached copy rather than wiping restrictions the athlete must see.
     clinical: clinical.error || !clinical.data ? undefined : parseClinical(clinical.data as ClinicalJson, Date.now()),
     profile: profile.data ? rowToProfile(profile.data as ProfileRow) : undefined,

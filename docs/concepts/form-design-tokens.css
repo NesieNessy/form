@@ -1,0 +1,48 @@
+/* FORM design tokens v1 — reference implementation. The logo stop colors are exact. */
+:root {
+  --form-brand-indigo: #2F4F93;
+  --form-brand-blue: #2E78D2;
+  --form-brand-violet: #6B55B2;
+  --form-brand-berry: #B4467B;
+  --form-brand-orange: #E2764E;
+  --form-brand-gold: #B1A25F;
+  --form-brand-teal: #28A59C;
+  --form-brand-gradient: linear-gradient(90deg, #2F4F93 0%, #2E78D2 18%, #6B55B2 36%, #B4467B 52%, #E2764E 68%, #B1A25F 84%, #28A59C 100%);
+  --form-space-1: 4px; --form-space-2: 8px; --form-space-3: 12px;
+  --form-space-4: 16px; --form-space-6: 24px; --form-space-8: 32px;
+  --form-space-12: 48px; --form-space-16: 64px;
+  --form-radius-control: 8px; --form-radius-card: 12px; --form-radius-modal: 16px;
+  --form-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --form-canvas: #F7F9FC; --form-surface: #FFFFFF; --form-surface-raised: #EFF3F9;
+  --form-text: #17243A; --form-text-muted: #50617B; --form-border: #D9E1EC;
+  --form-action: #254B9A; --form-on-action: #FFFFFF; --form-action-hover: #1B397B;
+  --form-focus: #2254B7; --form-success: #166540; --form-warning: #8B4900;
+  --form-danger: #B42335; --form-info: #2458A6;
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  --form-canvas: #0B1220; --form-surface: #121D30; --form-surface-raised: #1B2A41;
+  --form-text: #F3F7FD; --form-text-muted: #B5C4D7; --form-border: #34445B;
+  --form-action: #91B8FF; --form-on-action: #0B1220; --form-action-hover: #B7D0FF;
+  --form-focus: #A4C5FF; --form-success: #85D6AE; --form-warning: #FFD08B;
+  --form-danger: #FF9CA6; --form-info: #9CC8FF;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]):not([data-theme="dark"]) {
+    --form-canvas: #0B1220; --form-surface: #121D30; --form-surface-raised: #1B2A41;
+    --form-text: #F3F7FD; --form-text-muted: #B5C4D7; --form-border: #34445B;
+    --form-action: #91B8FF; --form-on-action: #0B1220; --form-action-hover: #B7D0FF;
+    --form-focus: #A4C5FF; --form-success: #85D6AE; --form-warning: #FFD08B;
+    --form-danger: #FF9CA6; --form-info: #9CC8FF;
+    color-scheme: dark;
+  }
+}
+.form-app { font-family: var(--form-font); background: var(--form-canvas); color: var(--form-text); }
+.form-card { background: var(--form-surface); border: 1px solid var(--form-border); border-radius: var(--form-radius-card); }
+.form-button-primary { color: var(--form-on-action); background: var(--form-action); border: 0; border-radius: var(--form-radius-control); min-height: 44px; padding: 0 16px; font: inherit; }
+.form-button-primary:hover { background: var(--form-action-hover); }
+.form-focusable:focus-visible, .form-button-primary:focus-visible { outline: 3px solid var(--form-focus); outline-offset: 3px; }
+.form-metric { font-variant-numeric: tabular-nums; }
+.form-brand-rule { height: 3px; background: var(--form-brand-gradient); }
+@media (prefers-reduced-motion: reduce) { .form-app *, .form-app *::before, .form-app *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
