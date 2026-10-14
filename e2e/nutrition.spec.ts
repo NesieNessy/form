@@ -5,6 +5,7 @@
  * against a workout.
  */
 import { expect, test } from '@playwright/test';
+import { STORE_VERSION } from '../lib/workout/state';
 import { close, openApp, readFixture, type App } from './helpers';
 
 const field = (app: App, label: string) => app.page.getByLabel(label, { exact: true }).filter({ visible: true }).first();
@@ -129,7 +130,7 @@ test.describe('targets and fuel around training', () => {
     await app.page.goto('/nutrition');
     await app.see('Nothing logged for this day.');
     const s = await app.stored();
-    expect([s.version, s.state.foodLog, s.state.dirty.foodLog]).toEqual([5, {}, []]);
+    expect([s.version, s.state.foodLog, s.state.dirty.foodLog]).toEqual([STORE_VERSION, {}, []]);
   });
 
   test('suggested targets follow the weight and the day, and need approval', async () => {

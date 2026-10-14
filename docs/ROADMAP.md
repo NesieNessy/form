@@ -162,11 +162,19 @@ Left over from Step 6:
 
 Source: [04-stage-2](concepts/04-stage-2-recovery-and-readiness.md)
 
-- [ ] Daily check-in for fatigue, soreness, stress and energy.
-- [ ] Recovery insight service combining baseline deviations with check-ins; abstains on sparse or conflicting data.
-- [ ] At most a few low-risk options (keep, shorten, reduce intensity, reschedule, rest), each needing athlete approval.
-- [ ] Opt-in recovery summary for coaches, never raw readings.
-- [ ] No readiness percentage unless calibration and uncertainty are documented.
+- [x] Daily check-in (More → Recovery) for fatigue, soreness, stress and energy on 0–10, each optional, plus "I feel ill, or have pain or an injury". Stored as measurements (migration `0010_recovery.sql` adds the metrics).
+- [x] Recovery insight (`lib/recovery/insight.ts`, `recovery_v1`, rules documented in the file): today's resting heart rate, HRV and sleep against the athlete's own baseline, the check-in, and a 7-day training-load jump against the 21 days before. It says "not enough data" without a check-in or a usable measurement, "go by how you feel" when the device and the athlete disagree, and never overrules what the athlete reports. Feeling unwell offers only rest or moving the workout.
+- [x] At most three options for today's planned workout (keep, about a third shorter, about 15 % lighter, move to tomorrow, rest). Shorter and lighter are fixed rules; the change list is shown before choosing, and only the choice changes the plan (as a new version, so the old one stays in the history).
+- [x] Opt-in recovery summary for coaches: one row per day in `daily_recovery` with the status, which signals pointed where, and what the athlete chose; never values or the check-in. Shared under its own consent category (`recovery_summary`), logged on every read, included in the export.
+- [x] No readiness percentage anywhere; the screen says it is not a diagnosis and not a score.
+
+Left over from Step 7:
+
+- [ ] The thresholds in `recovery_v1` are reasoned defaults, not calibrated. Evaluating them needs real data from several sports and devices (and a look at how often they warn too much), and review by a sports scientist or physician.
+- [ ] Therapist restrictions do not exist yet, so they cannot take precedence (Step 8).
+- [ ] The coach sees the summary in the shared view only as data; the coach screens do not show it yet.
+- [ ] Only today is assessed; there is no recovery history view or weekly pattern for the athlete.
+- [ ] Verified in a desktop browser; not tried on a phone.
 
 ## Step 8 — Rehabilitation and physio beta
 

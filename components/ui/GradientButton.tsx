@@ -15,12 +15,15 @@ type Props = {
    */
   variant?: 'primary' | 'secondary' | 'tertiary';
   style?: StyleProp<ViewStyle>;
+  /** For screen readers when the visible label alone is ambiguous (e.g. several "Choose" buttons). */
+  accessibilityLabel?: string;
 };
 
-export function GradientButton({ label, onPress, icon, colorsOverride, variant = 'primary', style }: Props) {
+export function GradientButton({ label, onPress, icon, colorsOverride, variant = 'primary', style, accessibilityLabel }: Props) {
+  const a11y = { accessibilityRole: 'button' as const, accessibilityLabel: accessibilityLabel ?? label };
   if (variant === 'tertiary') {
     return (
-      <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={[styles.tertiary, style]}>
+      <TouchableOpacity {...a11y} onPress={onPress} activeOpacity={0.7} style={[styles.tertiary, style]}>
         {icon}
         <Text style={styles.tertiaryLabel}>{label}</Text>
       </TouchableOpacity>
@@ -29,7 +32,7 @@ export function GradientButton({ label, onPress, icon, colorsOverride, variant =
 
   if (variant === 'secondary') {
     return (
-      <TouchableOpacity onPress={onPress} activeOpacity={0.85} style={[styles.secondary, style]}>
+      <TouchableOpacity {...a11y} onPress={onPress} activeOpacity={0.85} style={[styles.secondary, style]}>
         {icon}
         <Text style={styles.secondaryLabel}>{label}</Text>
       </TouchableOpacity>
@@ -37,7 +40,7 @@ export function GradientButton({ label, onPress, icon, colorsOverride, variant =
   }
 
   return (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.85} style={style}>
+    <TouchableOpacity {...a11y} onPress={onPress} activeOpacity={0.85} style={style}>
       <LinearGradient
         colors={colorsOverride ?? colors.gradient}
         start={{ x: 0, y: 0 }}

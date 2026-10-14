@@ -6,6 +6,8 @@ import type { ParsedActivity, Provider } from './health/model';
 import * as health from './health/state';
 import type { Food, FoodSnapshot, Nutrients, Quantity } from './nutrition/model';
 import * as nutrition from './nutrition/state';
+import type { CheckIn, Insight, OptionKind } from './recovery/model';
+import * as recovery from './recovery/state';
 import { newUuid } from './id';
 import { withFreshIds, type BlockResult, type Session, type WorkoutContent, type WorkoutSource } from './workout/model';
 import * as state from './workout/state';
@@ -57,6 +59,11 @@ type Actions = {
   saveMeal: (name: string, entryIds: string[]) => NutritionResult<{ mealId: string }>;
   logSavedMeal: (mealId: string, ctx: nutrition.LogContext) => NutritionResult<{ entryIds: string[] }>;
   removeSavedMeal: (mealId: string) => void;
+
+  saveCheckIn: (checkIn: CheckIn) => void;
+  /** Records today's summary when it is viewed, so a shared coach summary is current. */
+  recordRecoveryDay: (insight: Insight) => void;
+  chooseRecoveryOption: (insight: Insight, option: OptionKind) => void;
   /** Removes everything stored on this device. */
   wipe: () => void;
 
@@ -79,8 +86,8 @@ function applying<T extends object>(set: (data: WorkoutData) => void, res: ({ ok
 }
 
 function pickData(s: WorkoutData): WorkoutData {
-  const { ownerUserId, workouts, versions, scheduled, sessions, profile, benchmarks, activities, observations, foods, foodLog, savedMeals, dirty } = s;
-  return { ownerUserId, workouts, versions, scheduled, sessions, profile, benchmarks, activities, observations, foods, foodLog, savedMeals, dirty };
+  const { ownerUserId, workouts, versions, scheduled, sessions, profile, benchmarks, activities, observations, foods, foodLog, savedMeals, recovery, dirty } = s;
+  return { ownerUserId, workouts, versions, scheduled, sessions, profile, benchmarks, activities, observations, foods, foodLog, savedMeals, recovery, dirty };
 }
 
 export const useWorkoutsStore = create<WorkoutsState>()(
@@ -149,6 +156,9 @@ export const useWorkoutsStore = create<WorkoutsState>()(
       saveMeal: (name, entryIds) => applying(set, nutrition.saveMeal(pickData(get()), name, entryIds, Date.now())),
       logSavedMeal: (mealId, ctx) => applying(set, nutrition.logSavedMeal(pickData(get()), mealId, ctx, Date.now())),
       removeSavedMeal: (mealId) => set(nutrition.removeSavedMeal(pickData(get()), mealId, Date.now())),
+      saveCheckIn: (checkIn) => set(recovery.saveCheckIn(pickData(get()), checkIn, Date.now())),
+      recordRecoveryDay: (insight) => set(recovery.recordDay(pickData(get()), insight, Date.now())),
+      chooseRecoveryOption: (insight, option) => set(recovery.chooseOption(pickData(get()), insight, option, Date.now())),
       wipe: () => set(state.wipe()),
 
       attachToUser: (userId) => set(state.attachToUser(pickData(get()), userId)),
@@ -158,13 +168,13 @@ export const useWorkoutsStore = create<WorkoutsState>()(
     {
       name: 'form-workouts-store',
       storage: createJSONStorage(() => AsyncStorage),
-      version: 5,
+      version: state.STORE_VERSION,
       migrate: (persisted, version) => {
         let data = persisted as unknown;
         if (version < 2) data = state.migrateLegacy(data as Parameters<typeof state.migrateLegacy>[0], Date.now());
         // migrateLegacy already produces the current shape; only a genuine v2 payload needs upgrading.
         else if (version < 3) data = state.upgradeV2(data as Parameters<typeof state.upgradeV2>[0]);
-        // v4 added activities and measurements, v5 nutrition; every older payload gets the missing collections.
+        // v4 added activities and measurements, v5 nutrition, v6 recovery; every older payload gets the missing collections.
         return state.withCurrentShape(data as Partial<WorkoutData>);
       },
       partialize: (s): WorkoutData => pickData(s),

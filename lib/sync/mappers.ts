@@ -1,6 +1,7 @@
 import type { Benchmark, Profile } from '../athlete/model';
 import type { ExternalActivity, HealthObservation } from '../health/model';
 import type { Food, FoodLogEntry, NutritionTargets, SavedMeal } from '../nutrition/model';
+import type { RecoveryDay } from '../recovery/model';
 import type {
   Block,
   BlockConfig,
@@ -738,4 +739,48 @@ export function savedMealToRow(m: SavedMeal, userId: string): SavedMealRow {
 
 export function rowToSavedMeal(row: SavedMealRow): SavedMeal {
   return prune({ id: row.id, name: row.name, items: row.items ?? [], createdAt: ms(row.created_at), updatedAt: ms(row.updated_at), deletedAt: msOrUndefined(row.deleted_at) }) as SavedMeal;
+}
+
+// --------------------------------------------------------------- recovery
+
+export type RecoveryRow = {
+  id: string;
+  user_id?: string;
+  local_date: string;
+  status: RecoveryDay['status'];
+  signals: RecoveryDay['signals'];
+  rule_version: string;
+  decision: RecoveryDay['decision'] | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+};
+
+export function recoveryToRow(d: RecoveryDay, userId: string): RecoveryRow {
+  return {
+    id: d.id,
+    user_id: userId,
+    local_date: d.localDate,
+    status: d.status,
+    signals: d.signals,
+    rule_version: d.ruleVersion,
+    decision: d.decision ?? null,
+    created_at: iso(d.createdAt),
+    updated_at: iso(d.updatedAt),
+    deleted_at: isoOrNull(d.deletedAt),
+  };
+}
+
+export function rowToRecovery(row: RecoveryRow): RecoveryDay {
+  return prune({
+    id: row.id,
+    localDate: String(row.local_date).slice(0, 10),
+    status: row.status,
+    signals: row.signals ?? [],
+    ruleVersion: row.rule_version,
+    decision: row.decision ?? undefined,
+    createdAt: ms(row.created_at),
+    updatedAt: ms(row.updated_at),
+    deletedAt: msOrUndefined(row.deleted_at),
+  }) as RecoveryDay;
 }

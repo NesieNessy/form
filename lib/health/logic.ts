@@ -1,6 +1,6 @@
 import { strings } from '../strings';
 import type { BlockResult, ScheduledWorkout, Sport, WorkoutContent, WorkoutVersion } from '../workout/model';
-import { localDateOf, METRICS, type ExternalActivity, type HealthObservation, type MetricKey } from './model';
+import { localDateOf, METRIC_ORDER, METRICS, type ExternalActivity, type HealthObservation, type MetricKey } from './model';
 
 /**
  * Deterministic rules for activities and measurements: duplicate
@@ -210,7 +210,7 @@ export type MetricToday = {
 
 /** Each metric's most recent value and how it compares with the athlete's own normal. */
 export function metricOverview(observations: HealthObservation[], today: string): MetricToday[] {
-  return (Object.keys(METRICS) as MetricKey[]).map((metric) => {
+  return METRIC_ORDER.map((metric) => {
     const live = observations.filter((o) => !o.deletedAt && o.metric === metric);
     const latest = live.reduce<HealthObservation | undefined>((a, o) => (!a || o.observedAt > a.observedAt ? o : a), undefined);
     const baseline = personalBaseline(observations, metric, latest ? latest.localDate : today, latest?.method);

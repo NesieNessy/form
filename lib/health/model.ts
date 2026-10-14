@@ -22,7 +22,11 @@ export type MetricKey =
   | 'weight_kg'
   | 'body_fat_pct'
   | 'subjective_fatigue'
-  | 'subjective_soreness';
+  | 'subjective_soreness'
+  | 'subjective_stress'
+  | 'subjective_energy'
+  /** 1 when the athlete reports feeling ill or injured in the daily check-in. Not a diagnosis. */
+  | 'unwell';
 
 export type MetricMeta = {
   label: string;
@@ -45,9 +49,13 @@ export const METRICS: Record<MetricKey, MetricMeta> = {
   body_fat_pct: { label: 'Body fat', unit: '%', min: 2, max: 70, decimals: 1 },
   subjective_fatigue: { label: 'Fatigue', unit: '', min: 0, max: 10, decimals: 0, scale: '0 to 10' },
   subjective_soreness: { label: 'Soreness', unit: '', min: 0, max: 10, decimals: 0, scale: '0 to 10' },
+  subjective_stress: { label: 'Stress', unit: '', min: 0, max: 10, decimals: 0, scale: '0 to 10' },
+  subjective_energy: { label: 'Energy', unit: '', min: 0, max: 10, decimals: 0, scale: '0 to 10' },
+  unwell: { label: 'Feeling unwell', unit: '', min: 0, max: 1, decimals: 0, scale: 'yes or no' },
 };
 
-export const METRIC_ORDER: MetricKey[] = ['resting_hr_bpm', 'hrv_ms', 'sleep_duration_min', 'weight_kg', 'body_fat_pct', 'subjective_fatigue', 'subjective_soreness'];
+/** Metrics listed on the health screen and in the measurement form. unwell is only part of the daily check-in. */
+export const METRIC_ORDER: MetricKey[] = ['resting_hr_bpm', 'hrv_ms', 'sleep_duration_min', 'weight_kg', 'body_fat_pct', 'subjective_fatigue', 'subjective_soreness', 'subjective_stress', 'subjective_energy'];
 
 export type QualityFlag =
   | 'no_heart_rate'

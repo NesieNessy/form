@@ -3,6 +3,7 @@
  * matching to the plan, duplicates, measurements, baselines and deletion.
  */
 import { expect, test } from '@playwright/test';
+import { STORE_VERSION } from '../lib/workout/state';
 import { close, fixture, openApp, readFixture, type App } from './helpers';
 
 test.describe.configure({ mode: 'serial' });
@@ -24,7 +25,7 @@ test('a v3 store is upgraded and keeps the planned run', async () => {
   await app.click('Health & Activities');
   await app.see('No activities yet.');
   const s = await app.stored();
-  expect(s.version).toBe(5); // the current store version
+  expect(s.version).toBe(STORE_VERSION);
   expect(s.state.activities).toEqual({});
   expect(Object.keys(s.state.scheduled)).toHaveLength(1);
 });

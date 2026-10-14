@@ -39,6 +39,13 @@ const accountItems: MenuItem[] = [
     route: '/health',
   },
   {
+    icon: Icons.heart,
+    color: colors.green,
+    title: strings.recoveryTitle,
+    subtitle: strings.recoveryMenuSubtitle,
+    route: '/recovery',
+  },
+  {
     icon: Icons.flame,
     color: colors.orange,
     title: strings.nutritionTitle,

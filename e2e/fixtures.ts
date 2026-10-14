@@ -84,4 +84,27 @@ const { foods: _f, foodLog: _l, savedMeals: _m, ...v4 } = weighed;
 const { foods: _df, foodLog: _dl, savedMeals: _dm, ...dirty4 } = v4.dirty;
 writeFileSync(join(OUT, 'store-v4.json'), JSON.stringify({ state: { ...v4, dirty: dirty4 }, version: 4 }));
 
+// Store v5 (before recovery) with ten ordinary nights, a poor night today, and a squat session planned this evening.
+const squats = createWorkout(
+  EMPTY_DATA,
+  {
+    title: 'Evening Squats',
+    sport: 'strength',
+    blocks: [{ id: newUuid(), type: 'strength', config: { format: 'sets_reps', sets: 5, restSeconds: 120 }, steps: [{ kind: 'exercise', id: newUuid(), name: 'Back Squat', activityId: 'back_squat', prescription: { reps: 5, load: { value: 100, unit: 'kg' } } }] }],
+  },
+  { source: 'manual', scheduledAt: at(23, 30), nowMs: Date.now() }
+);
+let nights = squats.data;
+const morning = at(0, 30);
+for (let d = 1; d <= 10; d++) {
+  const t = morning - d * 86_400_000;
+  nights = addObservation(nights, { metric: 'resting_hr_bpm', value: 50 + (d % 2), unit: 'bpm', observedAt: t }, t).data;
+  nights = addObservation(nights, { metric: 'hrv_ms', value: 70 + (d % 3), unit: 'ms', observedAt: t, method: 'rmssd' }, t).data;
+}
+nights = addObservation(nights, { metric: 'resting_hr_bpm', value: 58, unit: 'bpm', observedAt: morning }, morning).data;
+nights = addObservation(nights, { metric: 'hrv_ms', value: 55, unit: 'ms', observedAt: morning, method: 'rmssd' }, morning).data;
+const { recovery: _r, ...v5 } = nights;
+const { recovery: _dr, ...dirty5 } = v5.dirty;
+writeFileSync(join(OUT, 'store-v5.json'), JSON.stringify({ state: { ...v5, dirty: dirty5 }, version: 5 }));
+
 console.log(`e2e fixtures written to ${OUT}`);

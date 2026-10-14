@@ -3,6 +3,9 @@ import { isSupabaseConfigured, supabase } from '../supabase';
 import { getWorkoutData, useWorkoutsStore } from '../workoutsStore';
 import { PROFILE_KEY, type DirtySets, type RemoteSnapshot } from '../workout/state';
 import {
+  recoveryToRow,
+  rowToRecovery,
+  type RecoveryRow,
   foodLogToRow,
   foodToRow,
   rowToFood,
@@ -58,7 +61,7 @@ export function pendingChangeCount(dirty: DirtySets): number {
 
 async function push(userId: string): Promise<boolean> {
   const data = getWorkoutData();
-  const done: DirtySets = { versions: [], workouts: [], scheduled: [], sessions: [], benchmarks: [], activities: [], observations: [], foods: [], foodLog: [], savedMeals: [], profile: [] };
+  const done: DirtySets = { versions: [], workouts: [], scheduled: [], sessions: [], benchmarks: [], activities: [], observations: [], foods: [], foodLog: [], savedMeals: [], recovery: [], profile: [] };
   let ok = true;
 
   const failedVersions = new Set<string>();
@@ -143,7 +146,7 @@ async function push(userId: string): Promise<boolean> {
     else done.observations.push(...observations.map((o) => o.id));
   }
 
-  const upsertAll = async <T extends { id: string }>(table: string, key: 'foods' | 'foodLog' | 'savedMeals', rows: T[], toRow: (r: T) => object) => {
+  const upsertAll = async <T extends { id: string }>(table: string, key: 'foods' | 'foodLog' | 'savedMeals' | 'recovery', rows: T[], toRow: (r: T) => object) => {
     if (!rows.length) return;
     const { error } = await supabase.from(table).upsert(rows.map(toRow));
     if (error) ok = false;
@@ -152,13 +155,14 @@ async function push(userId: string): Promise<boolean> {
   await upsertAll('foods', 'foods', data.dirty.foods.map((id) => data.foods[id]).filter(Boolean), (f) => foodToRow(f, userId));
   await upsertAll('food_log_entries', 'foodLog', data.dirty.foodLog.map((id) => data.foodLog[id]).filter(Boolean), (e) => foodLogToRow(e, userId));
   await upsertAll('saved_meals', 'savedMeals', data.dirty.savedMeals.map((id) => data.savedMeals[id]).filter(Boolean), (m) => savedMealToRow(m, userId));
+  await upsertAll('daily_recovery', 'recovery', data.dirty.recovery.map((id) => data.recovery[id]).filter(Boolean), (d) => recoveryToRow(d, userId));
 
   useWorkoutsStore.getState().clearDirty(done);
   return ok;
 }
 
 async function pull(): Promise<boolean> {
-  const [workouts, versions, scheduled, sessions, benchmarks, profile, activities, observations, foods, foodLog, savedMeals] = await Promise.all([
+  const [workouts, versions, scheduled, sessions, benchmarks, profile, activities, observations, foods, foodLog, savedMeals, recoveryDays] = await Promise.all([
     supabase.from('workouts').select('*'),
     supabase.from('workout_versions').select('*, blocks(*, steps(*))'),
     supabase.from('scheduled_workouts').select('*'),
@@ -170,8 +174,9 @@ async function pull(): Promise<boolean> {
     supabase.from('foods').select('*'),
     supabase.from('food_log_entries').select('*'),
     supabase.from('saved_meals').select('*'),
+    supabase.from('daily_recovery').select('*'),
   ]);
-  if (workouts.error || versions.error || scheduled.error || sessions.error || benchmarks.error || profile.error || activities.error || observations.error || foods.error || foodLog.error || savedMeals.error) return false;
+  if (workouts.error || versions.error || scheduled.error || sessions.error || benchmarks.error || profile.error || activities.error || observations.error || foods.error || foodLog.error || savedMeals.error || recoveryDays.error) return false;
 
   const snapshot: RemoteSnapshot = {
     versions: (versions.data as VersionRow[]).map(rowToVersion),
@@ -184,6 +189,7 @@ async function pull(): Promise<boolean> {
     foods: (foods.data as FoodRow[]).map(rowToFood),
     foodLog: (foodLog.data as FoodLogRow[]).map(rowToFoodLog),
     savedMeals: (savedMeals.data as SavedMealRow[]).map(rowToSavedMeal),
+    recovery: (recoveryDays.data as RecoveryRow[]).map(rowToRecovery),
     profile: profile.data ? rowToProfile(profile.data as ProfileRow) : undefined,
   };
   // Only keep rows whose version arrived too, so the UI never meets a dangling reference.

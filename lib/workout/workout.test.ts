@@ -379,7 +379,7 @@ describe('state', () => {
     const { data, workoutId, versionId, scheduledId } = createWorkout(EMPTY_DATA, strengthContent(), { source: 'manual', scheduledAt: NOW, nowMs: NOW });
     assert.equal(data.versions[versionId].status, 'published');
     assert.equal(data.scheduled[scheduledId as string].versionId, versionId);
-    assert.deepEqual(data.dirty, { versions: [versionId], workouts: [workoutId], scheduled: [scheduledId], sessions: [], benchmarks: [], activities: [], observations: [], foods: [], foodLog: [], savedMeals: [], profile: [] });
+    assert.deepEqual(data.dirty, { versions: [versionId], workouts: [workoutId], scheduled: [scheduledId], sessions: [], benchmarks: [], activities: [], observations: [], foods: [], foodLog: [], savedMeals: [], recovery: [], profile: [] });
   });
 
   it('stores an invalid workout as a draft that cannot be started', () => {
@@ -449,7 +449,7 @@ describe('state', () => {
     const created = createWorkout(EMPTY_DATA, strengthContent(), { source: 'manual', scheduledAt: NOW, nowMs: NOW });
     const sid = created.scheduledId as string;
     const remoteEntry = { ...created.data.scheduled[sid], status: 'skipped' as const, updatedAt: NOW + 1000 };
-    const snapshot = { workouts: [], versions: [], scheduled: [remoteEntry], sessions: [], benchmarks: [], activities: [], observations: [], foods: [], foodLog: [], savedMeals: [] };
+    const snapshot = { workouts: [], versions: [], scheduled: [remoteEntry], sessions: [], benchmarks: [], activities: [], observations: [], foods: [], foodLog: [], savedMeals: [], recovery: [] };
 
     assert.equal(mergeRemote(created.data, snapshot).scheduled[sid].status, 'planned', 'dirty local row wins');
     const clean = clearDirty(created.data, { scheduled: [sid] });
@@ -657,7 +657,7 @@ describe('profile and benchmarks', () => {
     assert.deepEqual([edited.profile.sports, edited.profile.weeklySessionTarget, edited.profile.updatedAt], [['running'], 3, NOW]);
 
     const remote = { ...edited.profile, sports: ['cycling' as const], updatedAt: NOW + 1000 };
-    const snapshot = { workouts: [], versions: [], scheduled: [], sessions: [], benchmarks: [], activities: [], observations: [], foods: [], foodLog: [], savedMeals: [], profile: remote };
+    const snapshot = { workouts: [], versions: [], scheduled: [], sessions: [], benchmarks: [], activities: [], observations: [], foods: [], foodLog: [], savedMeals: [], recovery: [], profile: remote };
     assert.deepEqual(mergeRemote(edited, snapshot).profile.sports, ['running'], 'an unsent local edit is kept');
     const clean = clearDirty(edited, { profile: [PROFILE_KEY] });
     assert.deepEqual(mergeRemote(clean, snapshot).profile.sports, ['cycling'], 'a newer account copy wins once local is clean');
@@ -680,7 +680,7 @@ describe('profile and benchmarks', () => {
     const upgraded = upgradeV2(v2 as never);
     assert.equal(upgraded.profile.weeklySessionTarget, 3);
     assert.deepEqual(upgraded.benchmarks, {});
-    assert.deepEqual(upgraded.dirty, { versions: ['a'], workouts: [], scheduled: [], sessions: [], benchmarks: [], activities: [], observations: [], foods: [], foodLog: [], savedMeals: [], profile: [] });
+    assert.deepEqual(upgraded.dirty, { versions: ['a'], workouts: [], scheduled: [], sessions: [], benchmarks: [], activities: [], observations: [], foods: [], foodLog: [], savedMeals: [], recovery: [], profile: [] });
     assert.equal(Object.keys(upgraded.sessions).length, 1);
     assert.equal('settings' in upgraded, false);
   });
