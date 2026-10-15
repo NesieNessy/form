@@ -1,3 +1,5 @@
+import { ClientContextHeader } from '@/components/sharing/ClientContextHeader';
+import { WEEKDAYS_SHORT } from '@/lib/i18n/tr';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -21,7 +23,9 @@ export default function SharedAthleteScreen() {
   const { athleteId } = useLocalSearchParams<{ athleteId: string }>();
   const [ctx, setCtx] = useState<SharedContext | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [ended, setEnded] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
+  const [note, setNote] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -29,12 +33,27 @@ export default function SharedAthleteScreen() {
     getSharedContext(athleteId).then((res) => {
       if (cancelled) return;
       if (res.ok) setCtx(res.data);
+      else if (res.code === 'FORBIDDEN') setEnded(true);
       else setError(res.error);
     });
     return () => {
       cancelled = true;
     };
   }, [athleteId]);
+
+  if (ended) {
+    return (
+      <View style={styles.screen}>
+        <DetailHeader title={strings.sharedDataTitle} />
+        <View style={styles.content}>
+          <Card style={styles.card}>
+            <Text style={styles.cardTitle}>{strings.accessEndedTitle}</Text>
+            <Text style={styles.body}>{strings.accessEndedBody}</Text>
+          </Card>
+        </View>
+      </View>
+    );
+  }
 
   if (error || !ctx) {
     return (
@@ -53,6 +72,8 @@ export default function SharedAthleteScreen() {
     <View style={styles.screen}>
       <DetailHeader title={ctx.athlete.displayName} subtitle={strings.youAreTheir(relationshipLabel(ctx.relationshipType).toLowerCase())} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <ClientContextHeader athleteName={ctx.athlete.displayName} relationshipId={ctx.relationshipId} relationshipType={ctx.relationshipType} granted={ctx.granted} onError={setNote} />
+        {note ? <Text style={styles.muted}>{note}</Text> : null}
         <Card style={styles.card}>
           <Text style={styles.body}>{ctx.granted.length === 0 ? strings.nothingSharedYet : strings.sharedViewNotice}</Text>
         </Card>
@@ -78,7 +99,7 @@ export default function SharedAthleteScreen() {
             <Line label={strings.yourEquipment} value={ctx.profile.equipment.join(', ') || strings.notSet} />
             <Line
               label={strings.usualTrainingDays}
-              value={ctx.profile.availableDays.map((d) => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d]).join(', ') || strings.notSet}
+              value={ctx.profile.availableDays.map((d) => WEEKDAYS_SHORT[d]).join(', ') || strings.notSet}
             />
             <Line label={strings.weeklyGoal} value={`${ctx.profile.weeklySessionTarget} ${strings.sessionsPerWeek}`} />
           </Card>

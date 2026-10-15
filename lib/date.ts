@@ -1,5 +1,6 @@
+import { locale } from './strings';
 export function formatDateLabel(date: Date): string {
-  return date.toLocaleDateString('en-US', {
+  return date.toLocaleDateString(locale, {
     weekday: 'short',
     month: 'short',
     day: 'numeric',
@@ -8,7 +9,7 @@ export function formatDateLabel(date: Date): string {
 }
 
 export function formatTimeLabel(date: Date): string {
-  return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  return date.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit' });
 }
 
 export function combineDateAndTime(date: Date, time: Date): number {

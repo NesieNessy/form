@@ -1,7 +1,8 @@
+import { DraftStatus } from '@/components/ui/DraftStatus';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
 import { DetailHeader } from '@/components/ui/DetailHeader';
 import { GradientButton } from '@/components/ui/GradientButton';
@@ -94,7 +95,7 @@ export default function WorkoutImportScreen() {
 
             {busy ? (
               <Card style={styles.busy}>
-                <ActivityIndicator color={colors.blue} />
+                <DraftStatus state="working" />
                 <Text style={styles.body}>{strings.importWorking}</Text>
               </Card>
             ) : (

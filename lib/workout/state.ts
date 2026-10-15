@@ -1,5 +1,11 @@
+import { tr } from '../i18n/tr';
 import { EMPTY_PROFILE, oneRepMaxByActivity, type Benchmark, type Profile } from '../athlete/model';
+import type { ExternalActivity, HealthObservation } from '../health/model';
 import { newUuid } from '../id';
+import type { Food, FoodLogEntry, SavedMeal } from '../nutrition/model';
+import type { Goal } from '../goals/model';
+import type { RecoveryDay } from '../recovery/model';
+import { EMPTY_CLINICAL, type ClinicalRecords, type InjuryEpisode, type SymptomLog } from '../rehab/model';
 import type { LegacyWorkout } from '../types';
 import { wizardToContent } from './fromWizard';
 import type {
@@ -27,15 +33,27 @@ export type DirtySets = {
   scheduled: string[];
   sessions: string[];
   benchmarks: string[];
+  activities: string[];
+  observations: string[];
+  foods: string[];
+  foodLog: string[];
+  savedMeals: string[];
+  recovery: string[];
+  episodes: string[];
+  symptomLogs: string[];
+  goals: string[];
   /** Holds PROFILE_KEY while the profile has unsent changes. */
   profile: string[];
 };
 
 export const PROFILE_KEY = 'profile';
 
-const DIRTY_KEYS = ['versions', 'workouts', 'scheduled', 'sessions', 'benchmarks', 'profile'] as const;
+/** The persisted store's version; raise it whenever WorkoutData gains a collection (see withCurrentShape). */
+export const STORE_VERSION = 8;
 
-const NO_DIRTY: DirtySets = { versions: [], workouts: [], scheduled: [], sessions: [], benchmarks: [], profile: [] };
+const DIRTY_KEYS = ['versions', 'workouts', 'scheduled', 'sessions', 'benchmarks', 'activities', 'observations', 'foods', 'foodLog', 'savedMeals', 'recovery', 'episodes', 'symptomLogs', 'goals', 'profile'] as const;
+
+const NO_DIRTY: DirtySets = { versions: [], workouts: [], scheduled: [], sessions: [], benchmarks: [], activities: [], observations: [], foods: [], foodLog: [], savedMeals: [], recovery: [], episodes: [], symptomLogs: [], goals: [], profile: [] };
 
 export type WorkoutData = {
   /** The signed-in user this local data belongs to; null while it has never been attached to an account. */
@@ -46,6 +64,20 @@ export type WorkoutData = {
   sessions: Record<string, Session>;
   profile: Profile;
   benchmarks: Record<string, Benchmark>;
+  activities: Record<string, ExternalActivity>;
+  observations: Record<string, HealthObservation>;
+  /** The athlete's own foods; the catalog ships with the app. */
+  foods: Record<string, Food>;
+  foodLog: Record<string, FoodLogEntry>;
+  savedMeals: Record<string, SavedMeal>;
+  /** One summary per day: status, which signals, and what the athlete chose. */
+  recovery: Record<string, RecoveryDay>;
+  /** Injury episodes and symptom logs: the athlete's own rehab records. */
+  episodes: Record<string, InjuryEpisode>;
+  symptomLogs: Record<string, SymptomLog>;
+  /** What clinicians recorded for the athlete, as last fetched; read-only here. */
+  clinical: ClinicalRecords;
+  goals: Record<string, Goal>;
   /** Ids changed locally and not yet confirmed by the server. */
   dirty: DirtySets;
 };
@@ -58,10 +90,20 @@ export const EMPTY_DATA: WorkoutData = {
   sessions: {},
   profile: EMPTY_PROFILE,
   benchmarks: {},
+  activities: {},
+  observations: {},
+  foods: {},
+  foodLog: {},
+  savedMeals: {},
+  recovery: {},
+  episodes: {},
+  symptomLogs: {},
+  clinical: EMPTY_CLINICAL,
+  goals: {},
   dirty: NO_DIRTY,
 };
 
-function mark(dirty: DirtySets, patch: Partial<DirtySets>): DirtySets {
+export function mark(dirty: DirtySets, patch: Partial<DirtySets>): DirtySets {
   const next = { ...dirty };
   for (const key of DIRTY_KEYS) {
     const add = patch[key];
@@ -156,6 +198,20 @@ export function scheduleWorkout(data: WorkoutData, workoutId: string, scheduledA
     scheduledId,
     data: { ...data, scheduled: { ...data.scheduled, [scheduledId]: entry }, dirty: mark(data.dirty, { scheduled: [scheduledId] }) },
   };
+}
+
+/** Marks a planned workout as not done, e.g. a rest day the athlete chose. The plan itself stays as it was. */
+export function skipScheduled(data: WorkoutData, scheduledId: string, nowMs: number): WorkoutData {
+  const entry = data.scheduled[scheduledId];
+  if (!entry || entry.deletedAt || entry.status !== 'planned') return data;
+  return { ...data, scheduled: { ...data.scheduled, [scheduledId]: { ...entry, status: 'skipped', updatedAt: nowMs } }, dirty: mark(data.dirty, { scheduled: [scheduledId] }) };
+}
+
+/** Moves a planned workout to another time, keeping its pinned version. */
+export function moveScheduled(data: WorkoutData, scheduledId: string, scheduledAt: number, nowMs: number): WorkoutData {
+  const entry = data.scheduled[scheduledId];
+  if (!entry || entry.deletedAt || entry.status !== 'planned') return data;
+  return { ...data, scheduled: { ...data.scheduled, [scheduledId]: { ...entry, scheduledAt, updatedAt: nowMs } }, dirty: mark(data.dirty, { scheduled: [scheduledId] }) };
 }
 
 /**
@@ -362,6 +418,17 @@ export type RemoteSnapshot = {
   scheduled: ScheduledWorkout[];
   sessions: Session[];
   benchmarks: Benchmark[];
+  activities: ExternalActivity[];
+  observations: HealthObservation[];
+  foods: Food[];
+  foodLog: FoodLogEntry[];
+  savedMeals: SavedMeal[];
+  recovery: RecoveryDay[];
+  episodes: InjuryEpisode[];
+  symptomLogs: SymptomLog[];
+  /** Clinician records; absent when they could not be fetched, so the cached copy stays. */
+  clinical?: ClinicalRecords;
+  goals: Goal[];
   /** Absent when the account has no profile row yet. */
   profile?: Profile;
 };
@@ -401,6 +468,17 @@ export function mergeRemote(data: WorkoutData, remote: RemoteSnapshot): WorkoutD
     scheduled: mergeByUpdatedAt(data.scheduled, remote.scheduled, data.dirty.scheduled),
     sessions,
     benchmarks: mergeByUpdatedAt(data.benchmarks, remote.benchmarks, data.dirty.benchmarks),
+    activities: mergeByUpdatedAt(data.activities, remote.activities, data.dirty.activities),
+    observations: mergeByUpdatedAt(data.observations, remote.observations, data.dirty.observations),
+    foods: mergeByUpdatedAt(data.foods, remote.foods, data.dirty.foods),
+    foodLog: mergeByUpdatedAt(data.foodLog, remote.foodLog, data.dirty.foodLog),
+    savedMeals: mergeByUpdatedAt(data.savedMeals, remote.savedMeals, data.dirty.savedMeals),
+    recovery: mergeByUpdatedAt(data.recovery, remote.recovery, data.dirty.recovery),
+    episodes: mergeByUpdatedAt(data.episodes, remote.episodes, data.dirty.episodes),
+    symptomLogs: mergeByUpdatedAt(data.symptomLogs, remote.symptomLogs, data.dirty.symptomLogs),
+    // Clinician records are the server's alone: the fetched copy replaces the cached one.
+    clinical: remote.clinical ?? data.clinical,
+    goals: mergeByUpdatedAt(data.goals, remote.goals, data.dirty.goals),
     profile: takeRemoteProfile && remote.profile ? remote.profile : data.profile,
   };
 }
@@ -423,10 +501,24 @@ export function attachToUser(data: WorkoutData, userId: string): WorkoutData {
       scheduled: Object.keys(data.scheduled),
       sessions: Object.values(data.sessions).filter((s) => s.status !== 'in_progress').map((s) => s.id),
       benchmarks: Object.keys(data.benchmarks),
+      activities: Object.keys(data.activities),
+      observations: Object.keys(data.observations),
+      foods: Object.keys(data.foods),
+      foodLog: Object.keys(data.foodLog),
+      savedMeals: Object.keys(data.savedMeals),
+      recovery: Object.keys(data.recovery),
+      episodes: Object.keys(data.episodes),
+      symptomLogs: Object.keys(data.symptomLogs),
+      goals: Object.keys(data.goals),
       // A profile that was never edited has nothing worth overwriting the account's copy with.
       profile: data.profile.updatedAt > 0 ? [PROFILE_KEY] : [],
     },
   };
+}
+
+/** Fills in collections and sync keys added after the stored copy was written (v3 had no health data, v4 no nutrition). */
+export function withCurrentShape(old: Partial<WorkoutData>): WorkoutData {
+  return { ...EMPTY_DATA, ...old, dirty: { ...NO_DIRTY, ...old.dirty } } as WorkoutData;
 }
 
 /** Everything on the device is dropped, e.g. after the account was deleted. */
@@ -436,7 +528,7 @@ export function wipe(): WorkoutData {
 
 // ------------------------------------------------- store v2 -> v3
 
-type V2State = Omit<WorkoutData, 'profile' | 'benchmarks' | 'dirty'> & {
+type V2State = Omit<WorkoutData, 'profile' | 'benchmarks' | 'activities' | 'observations' | 'foods' | 'foodLog' | 'savedMeals' | 'recovery' | 'episodes' | 'symptomLogs' | 'clinical' | 'goals' | 'dirty'> & {
   settings?: { weeklySessionTarget?: number };
   dirty?: Partial<DirtySets>;
 };
@@ -467,7 +559,7 @@ export function migrateLegacy(old: LegacyState, nowMs: number): WorkoutData {
   for (const w of old.workouts ?? []) {
     const extras = [
       w.durationLabel ? `Duration: ${w.durationLabel}` : undefined,
-      w.totalVolumeLabel ? `Total volume: ${w.totalVolumeLabel}` : undefined,
+      w.totalVolumeLabel ? tr(`Total volume: ${w.totalVolumeLabel}`, `Gesamtvolumen: ${w.totalVolumeLabel}`) : undefined,
     ].filter(Boolean);
     const notes = [w.notes, ...extras].filter(Boolean).join('\n') || undefined;
     const content = wizardToContent({ title: w.title, category: w.category, notes, sections: w.sections ?? [] });

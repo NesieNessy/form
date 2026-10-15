@@ -1,5 +1,7 @@
+import { tr } from '../i18n/tr';
 import { ACTIVITIES, getActivity } from '../workout/catalog';
 import { formatClock, formatKg } from '../workout/format';
+import type { NutritionTargets } from '../nutrition/model';
 import type { Sport } from '../workout/model';
 
 /**
@@ -17,6 +19,10 @@ export type Profile = {
   availableDays: number[];
   minutesPerSession?: number;
   weeklySessionTarget: number;
+  /** Hide energy (calories) throughout the nutrition screens; everything else is still tracked. */
+  hideEnergy?: boolean;
+  /** Nutrition targets the athlete set or approved; none until then. */
+  nutritionTargets?: NutritionTargets;
   updatedAt: number;
 };
 
@@ -54,11 +60,11 @@ type KindMeta = {
 };
 
 export const BENCHMARK_KINDS: Record<BenchmarkKind, KindMeta> = {
-  one_rep_max: { label: 'One-rep max', unit: 'kg', min: 1, max: 600, needsActivity: true, isPace: false },
-  ftp: { label: 'FTP (cycling)', unit: 'w', min: 30, max: 600, needsActivity: false, isPace: false },
-  threshold_pace: { label: 'Threshold pace (run)', unit: 'sec_per_km', min: 120, max: 900, needsActivity: false, isPace: true },
-  max_heart_rate: { label: 'Max heart rate', unit: 'bpm', min: 100, max: 230, needsActivity: false, isPace: false },
-  css_pace: { label: 'CSS pace (swim)', unit: 'sec_per_100m', min: 50, max: 400, needsActivity: false, isPace: true },
+  one_rep_max: { label: tr('One-rep max', 'One-Rep-Max'), unit: 'kg', min: 1, max: 600, needsActivity: true, isPace: false },
+  ftp: { label: tr('FTP (cycling)', 'FTP (Rad)'), unit: 'w', min: 30, max: 600, needsActivity: false, isPace: false },
+  threshold_pace: { label: tr('Threshold pace (run)', 'Schwellenpace (Laufen)'), unit: 'sec_per_km', min: 120, max: 900, needsActivity: false, isPace: true },
+  max_heart_rate: { label: tr('Max heart rate', 'Maximale Herzfrequenz'), unit: 'bpm', min: 100, max: 230, needsActivity: false, isPace: false },
+  css_pace: { label: tr('CSS pace (swim)', 'CSS-Pace (Schwimmen)'), unit: 'sec_per_100m', min: 50, max: 400, needsActivity: false, isPace: true },
 };
 
 export const BENCHMARK_KIND_ORDER: BenchmarkKind[] = ['one_rep_max', 'ftp', 'threshold_pace', 'css_pace', 'max_heart_rate'];
@@ -75,24 +81,24 @@ export function validateBenchmark(
 ): BenchmarkIssue[] {
   const issues: BenchmarkIssue[] = [];
   const meta = BENCHMARK_KINDS[b.kind];
-  if (!meta) return [{ field: 'kind', message: 'Unknown benchmark type.' }];
+  if (!meta) return [{ field: 'kind', message: tr('Unknown benchmark type.', 'Unbekannte Art von Referenzwert.') }];
 
   if (meta.needsActivity) {
     const activity = getActivity(b.activityId);
-    if (!activity) issues.push({ field: 'activityId', message: 'Choose which lift this is for.' });
-    else if (!activity.loadable) issues.push({ field: 'activityId', message: 'A one-rep max needs a loaded lift.' });
+    if (!activity) issues.push({ field: 'activityId', message: tr('Choose which lift this is for.', 'Wähle, für welche Übung das gilt.') });
+    else if (!activity.loadable) issues.push({ field: 'activityId', message: tr('A one-rep max needs a loaded lift.', 'Ein One-Rep-Max braucht eine Übung mit Gewicht.') });
   }
   if (!(typeof b.value === 'number' && Number.isFinite(b.value) && b.value > 0)) {
-    issues.push({ field: 'value', message: 'Enter a value above zero.' });
+    issues.push({ field: 'value', message: tr('Enter a value above zero.', 'Gib einen Wert über null ein.') });
   } else if (b.value < meta.min || b.value > meta.max) {
-    issues.push({ field: 'value', message: `That is outside the plausible range for ${meta.label.toLowerCase()}. Check the number and unit.` });
+    issues.push({ field: 'value', message: tr(`That is outside the plausible range for ${meta.label.toLowerCase()}. Check the number and unit.`, `Das liegt außerhalb des plausiblen Bereichs für ${meta.label}. Prüfe Zahl und Einheit.`) });
   }
-  if (b.unit !== meta.unit) issues.push({ field: 'value', message: 'Wrong unit for this benchmark.' });
+  if (b.unit !== meta.unit) issues.push({ field: 'value', message: tr('Wrong unit for this benchmark.', 'Falsche Einheit für diesen Referenzwert.') });
 
   if (!/^\d{4}-\d{2}-\d{2}$/.test(b.measuredOn) || Number.isNaN(new Date(`${b.measuredOn}T00:00:00`).getTime())) {
-    issues.push({ field: 'measuredOn', message: 'Enter the date as YYYY-MM-DD.' });
+    issues.push({ field: 'measuredOn', message: tr('Enter the date as YYYY-MM-DD.', 'Gib das Datum als JJJJ-MM-TT ein.') });
   } else if (b.measuredOn > today) {
-    issues.push({ field: 'measuredOn', message: 'The date cannot be in the future.' });
+    issues.push({ field: 'measuredOn', message: tr('The date cannot be in the future.', 'Das Datum kann nicht in der Zukunft liegen.') });
   }
   return issues;
 }

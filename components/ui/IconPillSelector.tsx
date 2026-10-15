@@ -23,7 +23,7 @@ export function IconPillSelector<T extends string>({ options, value, onChange }:
             return (
               <TouchableOpacity key={opt.key} onPress={() => onChange(opt.key)} activeOpacity={0.85}>
                 <LinearGradient
-                  colors={colors.gradient}
+                  colors={[colors.action, colors.action]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   style={styles.pillActiveBorder}

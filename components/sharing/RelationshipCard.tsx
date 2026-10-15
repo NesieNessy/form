@@ -12,7 +12,7 @@ import {
   type DataCategory,
   type Relationship,
 } from '@/lib/sharing/api';
-import { strings } from '@/lib/strings';
+import { strings, locale } from '@/lib/strings';
 import { colors, fontFamily, spacing } from '@/theme/colors';
 
 const DURATIONS = [
@@ -29,7 +29,7 @@ type Props = {
 };
 
 function dateLabel(iso: string): string {
-  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  return new Date(iso).toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 /** One person the athlete shares with: what they can read, for how long, and the way to stop. */
@@ -125,7 +125,7 @@ export function RelationshipCard({ relationship: r, categories, onChanged, onErr
             <GradientButton label={strings.cancel} variant="secondary" style={{ flex: 1 }} onPress={() => setConfirmingEnd(false)} />
             <GradientButton
               label={r.status === 'invited' ? strings.cancelInvitation : strings.endConnection}
-              colorsOverride={[colors.red, colors.red]}
+              variant="danger"
               style={{ flex: 1 }}
               onPress={() => void run('end', () => endRelationship(r.id))}
             />

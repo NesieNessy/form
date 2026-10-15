@@ -1,3 +1,4 @@
+import { tr } from '@/lib/i18n/tr';
 import React, { useEffect, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { GradientButton } from '@/components/ui/GradientButton';
@@ -51,11 +52,11 @@ export function TimePickerModal({ visible, time, onClose, onSelect }: Props) {
         <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
           <View style={styles.row}>
             <View style={styles.field}>
-              <Text style={styles.label}>Hour</Text>
+              <Text style={styles.label}>{tr('Hour', 'Stunde')}</Text>
               <Stepper value={hour12} onChange={setHour12} min={1} max={12} />
             </View>
             <View style={styles.field}>
-              <Text style={styles.label}>Minute</Text>
+              <Text style={styles.label}>{tr('Minute', 'Minute')}</Text>
               <Stepper value={minute} onChange={setMinute} min={0} max={55} step={5} />
             </View>
           </View>

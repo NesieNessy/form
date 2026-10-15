@@ -38,6 +38,7 @@ export function NumberField({ label, value, onChange, suffix, decimals, placehol
           keyboardType={decimals ? 'decimal-pad' : 'number-pad'}
           placeholder={placeholder}
           placeholderTextColor={colors.textTertiary}
+          accessibilityLabel={label?.trim() || undefined}
           selectTextOnFocus
         />
         {suffix ? <Text style={styles.suffix}>{suffix}</Text> : null}

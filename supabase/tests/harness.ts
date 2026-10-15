@@ -21,6 +21,15 @@ const SUPABASE_STUB = `
   grant usage on schema public to anon, authenticated;
   alter default privileges in schema public grant all on tables to anon, authenticated;
   alter default privileges in schema public grant execute on functions to anon, authenticated;
+  create schema storage;
+  create table storage.buckets (id text primary key, name text not null, public boolean not null default false, file_size_limit bigint, allowed_mime_types text[]);
+  create table storage.objects (id uuid primary key default gen_random_uuid(), bucket_id text references storage.buckets (id), name text not null, owner uuid default auth.uid(), created_at timestamptz default now(), unique (bucket_id, name));
+  create function storage.foldername(name text) returns text[] language sql immutable as
+    $$ select (string_to_array(name, '/'))[1:array_length(string_to_array(name, '/'), 1) - 1] $$;
+  alter table storage.objects enable row level security;
+  grant usage on schema storage to anon, authenticated;
+  grant select, insert, update, delete on storage.objects to authenticated;
+  grant select on storage.buckets to authenticated;
 `;
 
 export const MIGRATIONS = [
@@ -29,6 +38,17 @@ export const MIGRATIONS = [
   'migrations/0003_athlete_foundation.sql',
   'migrations/0004_drop_placeholder_tables.sql',
   'migrations/0005_ai_proposals.sql',
+  'migrations/0006_health_data.sql',
+  'migrations/0007_nutrition.sql',
+  'migrations/0008_meal_parsing.sql',
+  'migrations/0009_coach_beta.sql',
+  'migrations/0010_recovery.sql',
+  'migrations/0011_rehab.sql',
+  'migrations/0012_coach_chat.sql',
+  'migrations/0013_goals.sql',
+  'migrations/0014_studio.sql',
+  'migrations/0015_movement.sql',
+  'migrations/0016_access_requests.sql',
 ];
 
 export function readMigration(relativePath: string): string {

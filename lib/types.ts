@@ -1,4 +1,4 @@
-// Shapes of the bundled sample data (lib/mockData.ts) and its charts.
+// Shapes used by the workout wizard, presets and icons.
 export type Point = { label: string; value: number };
 
 export type BodyMetricPoint = {

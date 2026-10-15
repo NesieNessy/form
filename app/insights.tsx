@@ -3,8 +3,6 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
 import { DetailHeader } from '@/components/ui/DetailHeader';
 import { Icon } from '@/components/ui/Icon';
-import { SampleBadge } from '@/components/ui/SampleBadge';
-import { insights as sampleInsights } from '@/lib/mockData';
 import { strings } from '@/lib/strings';
 import type { IconKey, Insight } from '@/lib/types';
 import { useTrainingStats } from '@/lib/useTrainingStats';
@@ -21,15 +19,13 @@ const LOOK: Record<ComputedInsight['kind'], { icon: IconKey; color: string }> = 
 
 export default function InsightsScreen() {
   const { hasSessions, insights: computed } = useTrainingStats();
-  const insights: Insight[] = hasSessions
-    ? computed.map((i) => ({ id: i.id, title: i.title, body: i.body, ...LOOK[i.kind] }))
-    : sampleInsights;
+  // Only insights from the athlete's own sessions; none until there are some.
+  const insights: Insight[] = hasSessions ? computed.map((i) => ({ id: i.id, title: i.title, body: i.body, ...LOOK[i.kind] })) : [];
 
   return (
     <View style={styles.screen}>
       <DetailHeader title={strings.insightsTipsTitle} subtitle={strings.insightsTipsSubtitle} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {hasSessions ? null : <SampleBadge explain style={{ marginBottom: spacing.md }} />}
         <Text style={styles.sectionTitle}>{strings.yourInsights}</Text>
         {insights.length === 0 ? <Text style={styles.empty}>{strings.noInsightsYet}</Text> : null}
         <View style={{ gap: spacing.md }}>

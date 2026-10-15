@@ -1,6 +1,7 @@
+import { DraftStatus } from '@/components/ui/DraftStatus';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
 import { ChipSelect } from '@/components/ui/ChipSelect';
 import { DetailHeader } from '@/components/ui/DetailHeader';
@@ -138,7 +139,7 @@ export default function WorkoutAdaptScreen() {
 
             {busy ? (
               <Card style={styles.busy}>
-                <ActivityIndicator color={colors.blue} />
+                <DraftStatus state="working" />
                 <Text style={styles.body}>{strings.adaptWorking}</Text>
               </Card>
             ) : (

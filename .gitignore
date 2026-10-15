@@ -43,3 +43,9 @@ yarn-error.*
 
 # Supabase CLI local state
 supabase/.temp/
+
+# end-to-end tests
+dist-e2e/
+e2e/.fixtures/
+playwright-report/
+test-results/

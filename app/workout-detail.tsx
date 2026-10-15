@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, Share, StyleSheet, Text, View } from 'react-native';
+import { ConflictBanner } from '@/components/rehab/ConflictBanner';
 import { Card } from '@/components/ui/Card';
 import { DetailHeader } from '@/components/ui/DetailHeader';
 import { GradientButton } from '@/components/ui/GradientButton';
@@ -8,6 +9,9 @@ import { Toast } from '@/components/ui/Toast';
 import { ValidationIssues } from '@/components/workout/ValidationIssues';
 import { WorkoutSummaryView } from '@/components/workout/WorkoutSummaryView';
 import { useAuthStore } from '@/lib/auth';
+import { localDateOf } from '@/lib/health/model';
+import { entryAmount, entryName } from '@/lib/nutrition/format';
+import { formatNutrient } from '@/lib/nutrition/model';
 import { strings } from '@/lib/strings';
 import { useScheduleItem } from '@/lib/useWorkouts';
 import { formatClock, formatKg } from '@/lib/workout/format';
@@ -24,6 +28,9 @@ export default function WorkoutDetailScreen() {
   const setTemplate = useWorkoutsStore((s) => s.setTemplate);
   const removeScheduled = useWorkoutsStore((s) => s.removeScheduled);
   const signedIn = useAuthStore((s) => s.status === 'signedIn');
+  const activities = useWorkoutsStore((s) => s.activities);
+  const foodLog = useWorkoutsStore((s) => s.foodLog);
+  const hideEnergy = useWorkoutsStore((s) => !!s.profile.hideEnergy);
 
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
@@ -57,6 +64,9 @@ export default function WorkoutDetailScreen() {
     router.push({ pathname: resumedMode === 'player' ? '/workout-player' : '/workout-log', params: { sessionId: res.sessionId, from: 'detail' } });
   };
 
+  const recording =
+    session?.entryMode === 'import' ? Object.values(activities).find((a) => a.sessionId === session.id && !a.deletedAt) : undefined;
+  const fuel = session ? Object.values(foodLog).filter((e) => e.sessionId === session.id && !e.deletedAt).sort((a, b) => a.consumedAt - b.consumedAt) : [];
   const duration = session ? sessionDurationSeconds(session) : undefined;
   const volume = session ? sessionVolumeKg(session) : 0;
 
@@ -75,6 +85,8 @@ export default function WorkoutDetailScreen() {
 
         <WorkoutSummaryView content={content} dateTimeMs={entry.scheduledAt} blockResults={session?.blockResults} />
 
+        {!session && entry.status === 'planned' ? <ConflictBanner entry={entry} content={content} /> : null}
+
         {session ? (
           <Card style={styles.resultsCard}>
             <Text style={styles.resultsTitle}>{strings.results}</Text>
@@ -84,12 +96,33 @@ export default function WorkoutDetailScreen() {
               {session.rpe !== undefined ? <Chip label={strings.effortRpe} value={String(session.rpe)} /> : null}
             </View>
             {session.notes ? <Text style={styles.resultNotes}>{session.notes}</Text> : null}
+            <View style={styles.fuel}>
+              <Text style={styles.resultsTitle}>{strings.fuelTitle}</Text>
+              {fuel.length === 0 ? <Text style={styles.resultNotes}>{strings.noFuelYet}</Text> : null}
+              {fuel.map((e) => {
+                const key = hideEnergy ? 'carbohydrate_g' : 'energy_kcal';
+                const v = e.nutrients[key];
+                return (
+                  <Text key={e.id} style={styles.resultNotes} onPress={() => router.push({ pathname: '/nutrition-add', params: { entryId: e.id } })}>
+                    {[entryName(e), entryAmount(e), typeof v === 'number' ? formatNutrient(key, v) : undefined].filter(Boolean).join(' · ')}
+                  </Text>
+                );
+              })}
+              <GradientButton
+                label={strings.logFuel}
+                variant="tertiary"
+                onPress={() => router.push({ pathname: '/nutrition-add', params: { sessionId: session.id, date: localDateOf(session.startedAt) } })}
+              />
+            </View>
+            {recording ? (
+              <GradientButton label={strings.viewRecording} variant="tertiary" onPress={() => router.push({ pathname: '/activity', params: { id: recording.id } })} />
+            ) : null}
           </Card>
         ) : null}
 
         {published && !session ? (
           openSession ? (
-            <GradientButton label={strings.resumeWorkout} onPress={() => open(openSession.entryMode)} />
+            <GradientButton label={strings.resumeWorkout} onPress={() => open(openSession.entryMode === 'player' ? 'player' : 'manual')} />
           ) : (
             <>
               <GradientButton label={strings.startWorkout} onPress={() => open('player')} />
@@ -126,7 +159,7 @@ export default function WorkoutDetailScreen() {
               <GradientButton label={strings.cancel} variant="secondary" style={{ flex: 1 }} onPress={() => setConfirmingDelete(false)} />
               <GradientButton
                 label={strings.deleteWorkout}
-                colorsOverride={[colors.red, colors.red]}
+                variant="danger"
                 style={{ flex: 1 }}
                 onPress={() => {
                   removeScheduled(entry.id);
@@ -160,6 +193,7 @@ const styles = StyleSheet.create({
   missingText: { color: colors.textSecondary, fontSize: 14, fontFamily: fontFamily.regular },
   draftNote: { color: colors.amber, fontSize: 13.5, fontFamily: fontFamily.semibold },
   resultsCard: { gap: spacing.sm },
+  fuel: { gap: 4, paddingTop: spacing.sm, borderTopWidth: 1, borderTopColor: colors.border },
   resultsTitle: { color: colors.text, fontSize: 14, fontFamily: fontFamily.bold },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xl },
   chip: { gap: 2 },

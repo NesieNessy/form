@@ -13,6 +13,7 @@ export function FieldCard({ label, style, cardStyle, ...rest }: Props) {
     <Card style={[styles.card, cardStyle]}>
       <Text style={styles.label}>{label}</Text>
       <TextInput
+        accessibilityLabel={label}
         placeholderTextColor={colors.textTertiary}
         style={[styles.input, style]}
         {...rest}

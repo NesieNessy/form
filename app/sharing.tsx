@@ -9,6 +9,7 @@ import { SegmentedTabs } from '@/components/ui/SegmentedTabs';
 import { Toast } from '@/components/ui/Toast';
 import { FieldCard } from '@/components/workout/FieldCard';
 import { signOut, useAuthStore } from '@/lib/auth';
+import { removeAllMyClipFiles } from '@/lib/movement/api';
 import {
   RELATIONSHIP_TYPES,
   acceptInvite,
@@ -25,7 +26,7 @@ import {
   type RelationshipType,
 } from '@/lib/sharing/api';
 import { buildExport, deliverExport } from '@/lib/sharing/exportFile';
-import { strings } from '@/lib/strings';
+import { strings, locale } from '@/lib/strings';
 import { useWorkoutsStore } from '@/lib/workoutsStore';
 import { colors, fontFamily, iconStrokeWidth, spacing } from '@/theme/colors';
 import { Icons } from '@/theme/icons';
@@ -56,7 +57,7 @@ function describe(entry: AccessLogEntry, categories: DataCategory[]): string {
 }
 
 function when(iso: string): string {
-  return new Date(iso).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+  return new Date(iso).toLocaleString(locale, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 }
 
 export default function SharingScreen() {
@@ -117,10 +118,17 @@ export default function SharingScreen() {
     if (busy) return;
     setBusy(true);
     const res = await acceptInvite(code);
-    if (res.ok) {
-      setCode('');
-      setToast(strings.invitationAccepted);
-    } else setToast(res.error);
+    if (!res.ok) {
+      setToast(res.error);
+      setBusy(false);
+      return;
+    }
+    setCode('');
+    // A professional invited this athlete: they choose what to share, starting from nothing.
+    const rel = await listRelationships();
+    const mineNow = rel.ok ? rel.data.find((r) => r.id === res.data && r.role === 'athlete') : undefined;
+    if (mineNow) router.push({ pathname: '/sharing-checklist', params: { relationshipId: mineNow.id, name: mineNow.counterpart_name ?? '' } });
+    else setToast(strings.invitationAccepted);
     await load();
     setBusy(false);
   };
@@ -143,6 +151,9 @@ export default function SharingScreen() {
     if (busy || deleteText.trim().toUpperCase() !== DELETE_WORD) return;
     setBusy(true);
     if (signedIn) {
+      // Stored clip files are not removed by the database, so they go first.
+      const userId = useAuthStore.getState().userId;
+      if (userId) await removeAllMyClipFiles(userId).catch(() => undefined);
       const res = await deleteMyAccount();
       if (!res.ok) {
         setToast(res.error);
@@ -289,7 +300,8 @@ export default function SharingScreen() {
                 />
                 <GradientButton
                   label={strings.deleteForever}
-                  colorsOverride={deleteText.trim().toUpperCase() === DELETE_WORD ? [colors.red, colors.red] : [colors.border, colors.border]}
+                  variant="danger"
+                  disabled={deleteText.trim().toUpperCase() !== DELETE_WORD}
                   style={{ flex: 1 }}
                   onPress={() => void deleteEverything()}
                 />

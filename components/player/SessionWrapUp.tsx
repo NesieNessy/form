@@ -65,9 +65,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  rpeActive: { backgroundColor: colors.blue },
+  rpeActive: { backgroundColor: colors.action },
   rpeLabel: { color: colors.textSecondary, fontSize: 13, fontFamily: fontFamily.semibold },
-  rpeLabelActive: { color: '#fff', fontFamily: fontFamily.bold },
+  rpeLabelActive: { color: colors.onAction, fontFamily: fontFamily.bold },
   notes: {
     color: colors.text,
     fontSize: 14,

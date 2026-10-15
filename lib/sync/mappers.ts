@@ -1,4 +1,9 @@
 import type { Benchmark, Profile } from '../athlete/model';
+import type { ExternalActivity, HealthObservation } from '../health/model';
+import type { Food, FoodLogEntry, NutritionTargets, SavedMeal } from '../nutrition/model';
+import type { Goal } from '../goals/model';
+import type { RecoveryDay } from '../recovery/model';
+import type { ActivityTag, CaseNote, ClinicalRecords, InjuryEpisode, Issuer, RehabPlan, Restriction, RtsDecision, SymptomLog } from '../rehab/model';
 import type {
   Block,
   BlockConfig,
@@ -367,6 +372,8 @@ export type ProfileRow = {
   available_days: number[] | null;
   minutes_per_session: number | null;
   weekly_session_target: number;
+  hide_energy?: boolean;
+  nutrition_targets?: NutritionTargets | null;
   updated_at: string;
 };
 
@@ -379,6 +386,8 @@ export function profileToRow(profile: Profile, userId: string): ProfileRow {
     available_days: profile.availableDays,
     minutes_per_session: profile.minutesPerSession ?? null,
     weekly_session_target: profile.weeklySessionTarget,
+    hide_energy: profile.hideEnergy ?? false,
+    nutrition_targets: profile.nutritionTargets ?? null,
     updated_at: iso(profile.updatedAt),
   };
 }
@@ -391,6 +400,8 @@ export function rowToProfile(row: Omit<ProfileRow, 'user_id'>): Profile {
     availableDays: row.available_days ?? [],
     minutesPerSession: row.minutes_per_session ?? undefined,
     weeklySessionTarget: row.weekly_session_target,
+    hideEnergy: row.hide_energy || undefined,
+    nutritionTargets: row.nutrition_targets ?? undefined,
     updatedAt: ms(row.updated_at),
   }) as Profile;
 }
@@ -442,4 +453,546 @@ export function rowToBenchmark(row: BenchmarkRow): Benchmark {
     updatedAt: ms(row.updated_at),
     deletedAt: msOrUndefined(row.deleted_at),
   }) as Benchmark;
+}
+
+// ----------------------------------------------- activities and measurements
+
+export type ActivityRow = {
+  id: string;
+  user_id?: string;
+  provider: ExternalActivity['provider'];
+  external_id: string;
+  source: Partial<ExternalActivity['source']>;
+  sport: ExternalActivity['sport'];
+  name: string | null;
+  started_at: string;
+  ended_at: string;
+  elapsed_seconds: number | string;
+  moving_seconds: number | string | null;
+  distance_m: number | string | null;
+  elevation_gain_m: number | string | null;
+  avg_heart_rate: number | string | null;
+  max_heart_rate: number | string | null;
+  avg_power_w: number | string | null;
+  avg_cadence: number | string | null;
+  calories_estimate: number | string | null;
+  quality: ExternalActivity['quality'] | null;
+  series: ExternalActivity['series'] | null;
+  status: ExternalActivity['status'];
+  session_id: string | null;
+  duplicate_of_id: string | null;
+  ingested_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+};
+
+export function activityToRow(a: ExternalActivity, userId: string): ActivityRow {
+  return {
+    id: a.id,
+    user_id: userId,
+    provider: a.provider,
+    external_id: a.externalId,
+    source: a.source,
+    sport: a.sport,
+    name: a.name ?? null,
+    started_at: iso(a.startedAt),
+    ended_at: iso(a.endedAt),
+    elapsed_seconds: a.elapsedSeconds,
+    moving_seconds: a.movingSeconds ?? null,
+    distance_m: a.distanceMeters ?? null,
+    elevation_gain_m: a.elevationGainMeters ?? null,
+    avg_heart_rate: a.avgHeartRate ?? null,
+    max_heart_rate: a.maxHeartRate ?? null,
+    avg_power_w: a.avgPowerWatts ?? null,
+    avg_cadence: a.avgCadence ?? null,
+    calories_estimate: a.caloriesEstimate ?? null,
+    quality: a.quality,
+    series: a.series ?? null,
+    status: a.status,
+    session_id: a.sessionId ?? null,
+    duplicate_of_id: a.duplicateOfId ?? null,
+    ingested_at: iso(a.ingestedAt),
+    updated_at: iso(a.updatedAt),
+    deleted_at: isoOrNull(a.deletedAt),
+  };
+}
+
+export function rowToActivity(row: ActivityRow): ExternalActivity {
+  return prune({
+    id: row.id,
+    provider: row.provider,
+    externalId: row.external_id,
+    source: row.source as ExternalActivity['source'],
+    sport: row.sport,
+    name: row.name ?? undefined,
+    startedAt: ms(row.started_at),
+    endedAt: ms(row.ended_at),
+    elapsedSeconds: Number(row.elapsed_seconds),
+    movingSeconds: numOrUndefined(row.moving_seconds),
+    distanceMeters: numOrUndefined(row.distance_m),
+    elevationGainMeters: numOrUndefined(row.elevation_gain_m),
+    avgHeartRate: numOrUndefined(row.avg_heart_rate),
+    maxHeartRate: numOrUndefined(row.max_heart_rate),
+    avgPowerWatts: numOrUndefined(row.avg_power_w),
+    avgCadence: numOrUndefined(row.avg_cadence),
+    caloriesEstimate: numOrUndefined(row.calories_estimate),
+    quality: row.quality ?? [],
+    series: row.series ?? undefined,
+    status: row.status,
+    sessionId: row.session_id ?? undefined,
+    duplicateOfId: row.duplicate_of_id ?? undefined,
+    ingestedAt: ms(row.ingested_at),
+    updatedAt: ms(row.updated_at),
+    deletedAt: msOrUndefined(row.deleted_at),
+  }) as ExternalActivity;
+}
+
+export type ObservationRow = {
+  id: string;
+  user_id?: string;
+  metric: HealthObservation['metric'];
+  value: number | string | null;
+  unit: string;
+  observed_at: string;
+  local_date: string;
+  ingested_at: string;
+  provider: HealthObservation['provider'];
+  external_id: string | null;
+  device: string | null;
+  origin: HealthObservation['origin'];
+  method: string | null;
+  updated_at: string;
+  deleted_at: string | null;
+};
+
+export function observationToRow(o: HealthObservation, userId: string): ObservationRow {
+  return {
+    id: o.id,
+    user_id: userId,
+    metric: o.metric,
+    value: o.value,
+    unit: o.unit,
+    observed_at: iso(o.observedAt),
+    local_date: o.localDate,
+    ingested_at: iso(o.ingestedAt),
+    provider: o.provider,
+    external_id: o.externalId ?? null,
+    device: o.device ?? null,
+    origin: o.origin,
+    method: o.method ?? null,
+    updated_at: iso(o.updatedAt),
+    deleted_at: isoOrNull(o.deletedAt),
+  };
+}
+
+export function rowToObservation(row: ObservationRow): HealthObservation {
+  return prune({
+    id: row.id,
+    metric: row.metric,
+    // A deleted row has had its value erased on the server.
+    value: Number(row.value ?? 0),
+    unit: row.unit,
+    observedAt: ms(row.observed_at),
+    localDate: String(row.local_date).slice(0, 10),
+    ingestedAt: ms(row.ingested_at),
+    provider: row.provider,
+    externalId: row.external_id ?? undefined,
+    device: row.device ?? undefined,
+    origin: row.origin,
+    method: row.method ?? undefined,
+    updatedAt: ms(row.updated_at),
+    deletedAt: msOrUndefined(row.deleted_at),
+  }) as HealthObservation;
+}
+
+// ------------------------------------------------------------- nutrition
+
+export type FoodRow = {
+  id: string;
+  user_id?: string;
+  name: string;
+  brand: string | null;
+  basis: Food['basis'];
+  nutrients: Food['nutrients'];
+  servings: Food['servings'];
+  density_g_per_ml: number | string | null;
+  is_fluid: boolean;
+  source_note: string | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+};
+
+export function foodToRow(f: Food, userId: string): FoodRow {
+  return {
+    id: f.id,
+    user_id: userId,
+    name: f.name,
+    brand: f.brand ?? null,
+    basis: f.basis,
+    nutrients: f.nutrients,
+    servings: f.servings,
+    density_g_per_ml: f.densityGPerMl ?? null,
+    is_fluid: f.isFluid ?? false,
+    source_note: f.sourceNote ?? null,
+    created_at: iso(f.createdAt),
+    updated_at: iso(f.updatedAt),
+    deleted_at: isoOrNull(f.deletedAt),
+  };
+}
+
+export function rowToFood(row: FoodRow): Food {
+  return prune({
+    id: row.id,
+    name: row.name,
+    brand: row.brand ?? undefined,
+    basis: row.basis,
+    nutrients: row.nutrients ?? {},
+    servings: row.servings ?? [],
+    densityGPerMl: numOrUndefined(row.density_g_per_ml),
+    isFluid: row.is_fluid || undefined,
+    source: 'user',
+    sourceNote: row.source_note ?? undefined,
+    createdAt: ms(row.created_at),
+    updatedAt: ms(row.updated_at),
+    deletedAt: msOrUndefined(row.deleted_at),
+  }) as Food;
+}
+
+export type FoodLogRow = {
+  id: string;
+  user_id?: string;
+  consumed_at: string;
+  local_date: string;
+  meal_type: FoodLogEntry['mealType'];
+  food: FoodLogEntry['food'] | null;
+  quantity: FoodLogEntry['quantity'] | null;
+  label: string | null;
+  nutrients: FoodLogEntry['nutrients'];
+  fluid_ml: number | string | null;
+  session_id: string | null;
+  entry_method: FoodLogEntry['entryMethod'];
+  estimated: boolean;
+  note: string | null;
+  revision: number;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+};
+
+export function foodLogToRow(e: FoodLogEntry, userId: string): FoodLogRow {
+  return {
+    id: e.id,
+    user_id: userId,
+    consumed_at: iso(e.consumedAt),
+    local_date: e.localDate,
+    meal_type: e.mealType,
+    food: e.food ?? null,
+    quantity: e.quantity ?? null,
+    label: e.label ?? null,
+    nutrients: e.nutrients,
+    fluid_ml: e.fluidMl ?? null,
+    session_id: e.sessionId ?? null,
+    entry_method: e.entryMethod,
+    estimated: e.estimated,
+    note: e.note ?? null,
+    revision: e.revision,
+    created_at: iso(e.createdAt),
+    updated_at: iso(e.updatedAt),
+    deleted_at: isoOrNull(e.deletedAt),
+  };
+}
+
+export function rowToFoodLog(row: FoodLogRow): FoodLogEntry {
+  return prune({
+    id: row.id,
+    consumedAt: ms(row.consumed_at),
+    localDate: String(row.local_date).slice(0, 10),
+    mealType: row.meal_type,
+    food: row.food ?? undefined,
+    quantity: row.quantity ?? undefined,
+    label: row.label ?? undefined,
+    nutrients: row.nutrients ?? {},
+    fluidMl: numOrUndefined(row.fluid_ml),
+    sessionId: row.session_id ?? undefined,
+    entryMethod: row.entry_method,
+    estimated: row.estimated,
+    note: row.note ?? undefined,
+    revision: row.revision,
+    createdAt: ms(row.created_at),
+    updatedAt: ms(row.updated_at),
+    deletedAt: msOrUndefined(row.deleted_at),
+  }) as FoodLogEntry;
+}
+
+export type SavedMealRow = {
+  id: string;
+  user_id?: string;
+  name: string;
+  items: SavedMeal['items'];
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+};
+
+export function savedMealToRow(m: SavedMeal, userId: string): SavedMealRow {
+  return { id: m.id, user_id: userId, name: m.name, items: m.items, created_at: iso(m.createdAt), updated_at: iso(m.updatedAt), deleted_at: isoOrNull(m.deletedAt) };
+}
+
+export function rowToSavedMeal(row: SavedMealRow): SavedMeal {
+  return prune({ id: row.id, name: row.name, items: row.items ?? [], createdAt: ms(row.created_at), updatedAt: ms(row.updated_at), deletedAt: msOrUndefined(row.deleted_at) }) as SavedMeal;
+}
+
+// --------------------------------------------------------------- recovery
+
+export type RecoveryRow = {
+  id: string;
+  user_id?: string;
+  local_date: string;
+  status: RecoveryDay['status'];
+  signals: RecoveryDay['signals'];
+  rule_version: string;
+  decision: RecoveryDay['decision'] | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+};
+
+export function recoveryToRow(d: RecoveryDay, userId: string): RecoveryRow {
+  return {
+    id: d.id,
+    user_id: userId,
+    local_date: d.localDate,
+    status: d.status,
+    signals: d.signals,
+    rule_version: d.ruleVersion,
+    decision: d.decision ?? null,
+    created_at: iso(d.createdAt),
+    updated_at: iso(d.updatedAt),
+    deleted_at: isoOrNull(d.deletedAt),
+  };
+}
+
+export function rowToRecovery(row: RecoveryRow): RecoveryDay {
+  return prune({
+    id: row.id,
+    localDate: String(row.local_date).slice(0, 10),
+    status: row.status,
+    signals: row.signals ?? [],
+    ruleVersion: row.rule_version,
+    decision: row.decision ?? undefined,
+    createdAt: ms(row.created_at),
+    updatedAt: ms(row.updated_at),
+    deletedAt: msOrUndefined(row.deleted_at),
+  }) as RecoveryDay;
+}
+
+// ------------------------------------------------------------------ rehab
+
+export type EpisodeRow = {
+  id: string;
+  user_id?: string;
+  body_region: InjuryEpisode['bodyRegion'];
+  laterality: InjuryEpisode['laterality'];
+  onset_date: string | null;
+  onset_type: InjuryEpisode['onsetType'];
+  reported_problem: string;
+  affected_activities: ActivityTag[] | null;
+  status: InjuryEpisode['status'];
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+};
+
+export function episodeToRow(e: InjuryEpisode, userId: string): EpisodeRow {
+  return {
+    id: e.id,
+    user_id: userId,
+    body_region: e.bodyRegion,
+    laterality: e.laterality,
+    onset_date: e.onsetDate ?? null,
+    onset_type: e.onsetType,
+    reported_problem: e.reportedProblem,
+    affected_activities: e.affectedActivities,
+    status: e.status,
+    created_at: iso(e.createdAt),
+    updated_at: iso(e.updatedAt),
+    deleted_at: isoOrNull(e.deletedAt),
+  };
+}
+
+export function rowToEpisode(row: EpisodeRow): InjuryEpisode {
+  return prune({
+    id: row.id,
+    bodyRegion: row.body_region,
+    laterality: row.laterality,
+    onsetDate: row.onset_date ? String(row.onset_date).slice(0, 10) : undefined,
+    onsetType: row.onset_type,
+    reportedProblem: row.reported_problem,
+    affectedActivities: row.affected_activities ?? [],
+    status: row.status,
+    createdAt: ms(row.created_at),
+    updatedAt: ms(row.updated_at),
+    deletedAt: msOrUndefined(row.deleted_at),
+  }) as InjuryEpisode;
+}
+
+export type SymptomRow = {
+  id: string;
+  user_id?: string;
+  episode_id: string;
+  logged_at: string;
+  local_date: string;
+  intensity: number;
+  function_score: number | null;
+  context: string | null;
+  red_flags: SymptomLog['redFlags'] | null;
+  note: string | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+};
+
+export function symptomToRow(s: SymptomLog, userId: string): SymptomRow {
+  return {
+    id: s.id,
+    user_id: userId,
+    episode_id: s.episodeId,
+    logged_at: iso(s.loggedAt),
+    local_date: s.localDate,
+    intensity: s.intensity,
+    function_score: s.function ?? null,
+    context: s.context ?? null,
+    red_flags: s.redFlags,
+    note: s.note ?? null,
+    created_at: iso(s.createdAt),
+    updated_at: iso(s.updatedAt),
+    deleted_at: isoOrNull(s.deletedAt),
+  };
+}
+
+export function rowToSymptom(row: SymptomRow): SymptomLog {
+  return prune({
+    id: row.id,
+    episodeId: row.episode_id,
+    loggedAt: ms(row.logged_at),
+    localDate: String(row.local_date).slice(0, 10),
+    intensity: row.intensity,
+    function: row.function_score ?? undefined,
+    context: row.context ?? undefined,
+    redFlags: row.red_flags ?? [],
+    note: row.note ?? undefined,
+    createdAt: ms(row.created_at),
+    updatedAt: ms(row.updated_at),
+    deletedAt: msOrUndefined(row.deleted_at),
+  }) as SymptomLog;
+}
+
+type IssuerRow = { id: string; name: string | null; role: string; verified: boolean };
+const issuer = (i: IssuerRow): Issuer => ({ id: i.id, name: i.name, role: i.role, verified: !!i.verified });
+
+export type ClinicalJson = {
+  restrictions: { id: string; episode_id: string; tags: ActivityTag[]; rule: Restriction['rule']; note: string | null; issuer: IssuerRow; effective_from: string; expires_on: string | null; status: Restriction['status']; lifted_at: string | null; created_at: string }[];
+  plans: { id: string; episode_id: string; version: number; status: RehabPlan['status']; content: RehabPlan['content']; sessions_per_week: number | null; notes: string | null; author: IssuerRow; created_at: string }[];
+  decisions: { id: string; episode_id: string; stage: RtsDecision['stage']; criteria: string; clinician: IssuerRow; decided_at: string }[];
+  notes: { id: string; episode_id: string; body: string; author: IssuerRow; created_at: string }[];
+};
+
+/** The clinician records a case returns, in the app's shape. */
+export function parseClinical(json: ClinicalJson, fetchedAt: number): ClinicalRecords {
+  return {
+    restrictions: (json.restrictions ?? []).map((r) =>
+      prune({
+        id: r.id,
+        episodeId: r.episode_id,
+        tags: r.tags ?? [],
+        rule: r.rule,
+        note: r.note ?? undefined,
+        issuer: issuer(r.issuer),
+        effectiveFrom: String(r.effective_from).slice(0, 10),
+        expiresOn: r.expires_on ? String(r.expires_on).slice(0, 10) : undefined,
+        status: r.status,
+        liftedAt: msOrUndefined(r.lifted_at),
+        createdAt: ms(r.created_at),
+      }) as Restriction
+    ),
+    plans: (json.plans ?? []).map((p) =>
+      prune({
+        id: p.id,
+        episodeId: p.episode_id,
+        version: p.version,
+        status: p.status,
+        content: p.content,
+        sessionsPerWeek: p.sessions_per_week ?? undefined,
+        notes: p.notes ?? undefined,
+        author: issuer(p.author),
+        createdAt: ms(p.created_at),
+      }) as RehabPlan
+    ),
+    decisions: (json.decisions ?? []).map((d) => ({ id: d.id, episodeId: d.episode_id, stage: d.stage, criteria: d.criteria, clinician: issuer(d.clinician), decidedAt: ms(d.decided_at) })),
+    notes: (json.notes ?? []).map((n): CaseNote => ({ id: n.id, episodeId: n.episode_id, body: n.body, author: issuer(n.author), createdAt: ms(n.created_at) })),
+    fetchedAt,
+  };
+}
+
+// ------------------------------------------------------------------ goals
+
+export type GoalRow = {
+  id: string;
+  user_id?: string;
+  title: string;
+  metric: Goal['metric'];
+  target: number | string | null;
+  target_date: string;
+  baseline: Goal['baseline'] | null;
+  milestones: Goal['milestones'];
+  visibility: Goal['visibility'];
+  status: Goal['status'];
+  completed_on: string | null;
+  revisions: Goal['revisions'];
+  progress: Goal['progress'] | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+};
+
+export function goalToRow(g: Goal, userId: string): GoalRow {
+  return {
+    id: g.id,
+    user_id: userId,
+    title: g.title,
+    metric: g.metric,
+    target: g.target ?? null,
+    target_date: g.targetDate,
+    baseline: g.baseline ?? null,
+    milestones: g.milestones,
+    visibility: g.visibility,
+    status: g.status,
+    completed_on: g.completedOn ?? null,
+    revisions: g.revisions,
+    progress: g.progress ?? null,
+    created_at: iso(g.createdAt),
+    updated_at: iso(g.updatedAt),
+    deleted_at: isoOrNull(g.deletedAt),
+  };
+}
+
+export function rowToGoal(row: GoalRow): Goal {
+  return prune({
+    id: row.id,
+    title: row.title,
+    metric: row.metric,
+    target: numOrUndefined(row.target),
+    targetDate: String(row.target_date).slice(0, 10),
+    baseline: row.baseline ?? undefined,
+    milestones: row.milestones ?? [],
+    visibility: row.visibility,
+    status: row.status,
+    completedOn: row.completed_on ? String(row.completed_on).slice(0, 10) : undefined,
+    revisions: row.revisions ?? [],
+    progress: row.progress ?? undefined,
+    createdAt: ms(row.created_at),
+    updatedAt: ms(row.updated_at),
+    deletedAt: msOrUndefined(row.deleted_at),
+  }) as Goal;
 }

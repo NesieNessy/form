@@ -3,9 +3,8 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
 import { DetailHeader } from '@/components/ui/DetailHeader';
 import { Icon } from '@/components/ui/Icon';
-import { SampleBadge } from '@/components/ui/SampleBadge';
 import { SegmentedTabs } from '@/components/ui/SegmentedTabs';
-import { performanceOverview as samplePerformance, timeRanges } from '@/lib/mockData';
+
 import { strings } from '@/lib/strings';
 import type { IconKey } from '@/lib/types';
 import { useTrainingStats } from '@/lib/useTrainingStats';
@@ -14,6 +13,12 @@ import { colors, fontFamily, radius, spacing } from '@/theme/colors';
 
 type Tile = { label: string; value: string; sub: string; icon: IconKey; color: string };
 
+const RANGES = [
+  { key: '4w', label: strings.range4w },
+  { key: '3m', label: strings.range3m },
+  { key: '1y', label: strings.range1y },
+  { key: 'all', label: strings.all },
+];
 const signed = (n: number, suffix = '') => `${n > 0 ? '+' : ''}${n}${suffix}`;
 
 export default function PerformanceOverviewScreen() {
@@ -51,14 +56,14 @@ export default function PerformanceOverviewScreen() {
           color: colors.green,
         },
       ]
-    : samplePerformance;
+    : [];
 
   return (
     <View style={styles.screen}>
       <DetailHeader title={strings.performanceOverviewTitle} subtitle={strings.performanceOverviewSubtitle} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {hasSessions ? null : <SampleBadge explain style={{ marginBottom: spacing.md }} />}
-        <SegmentedTabs options={timeRanges} value={range} onChange={(key) => setRange(key as RangeKey)} scrollable size="sm" />
+        {hasSessions ? null : <Text style={styles.empty}>{strings.noInsightsYet}</Text>}
+        <SegmentedTabs options={RANGES} value={range} onChange={(key) => setRange(key as RangeKey)} scrollable size="sm" />
         <View style={{ height: spacing.lg }} />
 
         <View style={styles.grid}>
@@ -79,6 +84,7 @@ export default function PerformanceOverviewScreen() {
 }
 
 const styles = StyleSheet.create({
+  empty: { color: colors.textSecondary, fontSize: 13.5, lineHeight: 20, marginBottom: spacing.md, fontFamily: fontFamily.regular },
   screen: { flex: 1, backgroundColor: colors.bg },
   content: { paddingHorizontal: spacing.screenX, paddingBottom: spacing.xxl },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },

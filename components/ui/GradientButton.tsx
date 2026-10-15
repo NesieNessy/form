@@ -1,97 +1,52 @@
-import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { StyleProp, StyleSheet, Text, TouchableOpacity, ViewStyle } from 'react-native';
-import { colors, fontFamily, radius } from '@/theme/colors';
+import { colors, fontFamily, radius, touch } from '@/theme/colors';
 
 type Props = {
   label: string;
   onPress?: () => void;
   icon?: React.ReactNode;
-  colorsOverride?: readonly [string, string, ...string[]];
   /**
-   * primary: FORM gradient, for the one key action on a screen.
-   * secondary: dark card + border, for supporting actions.
-   * tertiary: text/icon only, for low-emphasis actions.
+   * primary: solid action colour, for the one key action on a screen.
+   * secondary: surface with a border, for supporting actions.
+   * tertiary: text only, for low-emphasis actions.
+   * danger: solid danger colour, for destructive actions only.
    */
-  variant?: 'primary' | 'secondary' | 'tertiary';
+  variant?: 'primary' | 'secondary' | 'tertiary' | 'danger';
+  /** Without an onPress the button is shown and announced as unavailable. */
+  disabled?: boolean;
   style?: StyleProp<ViewStyle>;
+  /** For screen readers when the visible label alone is ambiguous (e.g. several "Choose" buttons). */
+  accessibilityLabel?: string;
 };
 
-export function GradientButton({ label, onPress, icon, colorsOverride, variant = 'primary', style }: Props) {
-  if (variant === 'tertiary') {
-    return (
-      <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={[styles.tertiary, style]}>
-        {icon}
-        <Text style={styles.tertiaryLabel}>{label}</Text>
-      </TouchableOpacity>
-    );
-  }
-
-  if (variant === 'secondary') {
-    return (
-      <TouchableOpacity onPress={onPress} activeOpacity={0.85} style={[styles.secondary, style]}>
-        {icon}
-        <Text style={styles.secondaryLabel}>{label}</Text>
-      </TouchableOpacity>
-    );
-  }
-
+/**
+ * The app's button. The name is historical: the brand gradient is kept for
+ * the logo and rare brand moments (docs/concepts/12-form-brand-design-system.md),
+ * and buttons are solid.
+ */
+export function GradientButton({ label, onPress, icon, variant = 'primary', disabled, style, accessibilityLabel }: Props) {
+  const off = disabled ?? !onPress;
+  const a11y = { accessibilityRole: 'button' as const, accessibilityLabel: accessibilityLabel ?? label, accessibilityState: { disabled: off } };
+  const box = variant === 'primary' ? styles.primary : variant === 'danger' ? styles.danger : variant === 'secondary' ? styles.secondary : styles.tertiary;
+  const text = variant === 'primary' || variant === 'danger' ? styles.solidLabel : variant === 'secondary' ? styles.secondaryLabel : styles.tertiaryLabel;
   return (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.85} style={style}>
-      <LinearGradient
-        colors={colorsOverride ?? colors.gradient}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-        style={styles.primary}
-      >
-        {icon}
-        <Text style={styles.primaryLabel}>{label}</Text>
-      </LinearGradient>
+    <TouchableOpacity {...a11y} onPress={off ? undefined : onPress} disabled={off} activeOpacity={0.8} style={[box, off && styles.off, style]}>
+      {icon}
+      <Text style={text}>{label}</Text>
     </TouchableOpacity>
   );
 }
 
+const base = { flexDirection: 'row' as const, alignItems: 'center' as const, justifyContent: 'center' as const, gap: 8, minHeight: touch.min + 4, paddingHorizontal: 20, borderRadius: radius.button };
+
 const styles = StyleSheet.create({
-  primary: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    borderRadius: radius.button,
-  },
-  primaryLabel: {
-    color: '#fff',
-    fontSize: 15,
-    fontFamily: fontFamily.bold,
-  },
-  secondary: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    paddingVertical: 15,
-    borderRadius: radius.button,
-    backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  secondaryLabel: {
-    color: colors.text,
-    fontSize: 15,
-    fontFamily: fontFamily.semibold,
-  },
-  tertiary: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    paddingVertical: 8,
-  },
-  tertiaryLabel: {
-    color: colors.textSecondary,
-    fontSize: 14,
-    fontFamily: fontFamily.semibold,
-  },
+  primary: { ...base, backgroundColor: colors.action },
+  danger: { ...base, backgroundColor: colors.danger },
+  secondary: { ...base, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.borderStrong },
+  tertiary: { ...base, minHeight: touch.min, paddingHorizontal: 8 },
+  off: { opacity: 0.45 },
+  solidLabel: { color: colors.onAction, fontSize: 15, fontFamily: fontFamily.bold },
+  secondaryLabel: { color: colors.text, fontSize: 15, fontFamily: fontFamily.semibold },
+  tertiaryLabel: { color: colors.action, fontSize: 14, fontFamily: fontFamily.semibold },
 });

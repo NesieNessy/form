@@ -1,3 +1,4 @@
+import { DraftStatus, type DraftState } from '@/components/ui/DraftStatus';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -68,6 +69,15 @@ export default function ProposalScreen() {
   const stale = proposal.source.kind === 'workout' && (!entry || entry.deletedAt !== undefined || entry.status !== 'planned' || entry.versionId !== proposal.source.version_id);
   const canSave = pending && validation.valid && !stale;
   const sourceText = proposal.source.kind === 'workout' ? null : proposal.source.text;
+  const draftState: DraftState = !pending
+    ? proposal.status === 'approved'
+      ? 'applied'
+      : 'closed'
+    : proposal.open_questions.length > 0
+      ? 'needs_clarification'
+      : !validation.valid || stale
+        ? 'validation_issues'
+        : 'awaiting_approval';
 
   const save = async () => {
     if (busy || !canSave) return;
@@ -121,8 +131,9 @@ export default function ProposalScreen() {
 
   return (
     <View style={styles.screen}>
-      <DetailHeader title={isAdaptation ? strings.proposalAdaptTitle : strings.proposalImportTitle} subtitle={strings.proposalSubtitle} />
+      <DetailHeader title={isAdaptation ? strings.proposalAdaptTitle : strings.proposalImportTitle} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+        <DraftStatus state={draftState} />
         {!pending ? (
           <Card>
             <Text style={styles.body}>

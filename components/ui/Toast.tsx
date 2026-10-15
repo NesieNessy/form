@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, Text } from 'react-native';
+import { useReducedMotion } from '@/lib/useReducedMotion';
 import { colors, fontFamily, radius, spacing } from '@/theme/colors';
 
 type Props = {
@@ -9,17 +10,18 @@ type Props = {
 
 export function Toast({ message, visible }: Props) {
   const opacity = useRef(new Animated.Value(0)).current;
+  const reduced = useReducedMotion();
 
   useEffect(() => {
     Animated.timing(opacity, {
       toValue: visible ? 1 : 0,
-      duration: 200,
+      duration: reduced ? 0 : 200,
       useNativeDriver: true,
     }).start();
-  }, [visible, opacity]);
+  }, [visible, opacity, reduced]);
 
   return (
-    <Animated.View pointerEvents="none" style={[styles.wrap, { opacity }]}>
+    <Animated.View pointerEvents="none" style={[styles.wrap, { opacity }]} accessibilityRole="alert" accessibilityLiveRegion="polite">
       <Text style={styles.text}>{message}</Text>
     </Animated.View>
   );

@@ -13,7 +13,7 @@ import {
   type NotificationPreferences,
 } from '@/lib/sharing/api';
 import { hourLabel } from '@/lib/sharing/quietHours';
-import { strings } from '@/lib/strings';
+import { strings, locale } from '@/lib/strings';
 import { colors, fontFamily, spacing } from '@/theme/colors';
 
 const CATEGORIES: { key: AppNotification['category']; label: string }[] = [
@@ -84,7 +84,7 @@ export default function NotificationsScreen() {
                 <Text style={styles.itemTitle}>{n.title}</Text>
                 <Text style={styles.body}>{n.body}</Text>
                 <Text style={styles.when}>
-                  {new Date(n.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                  {new Date(n.created_at).toLocaleString(locale, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
                 </Text>
               </Card>
             ))}

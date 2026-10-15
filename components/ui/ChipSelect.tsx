@@ -23,7 +23,7 @@ export function ChipSelect<K extends string | number>({ options, selected, onTog
             activeOpacity={0.8}
             style={[styles.chip, on && styles.chipOn]}
             accessibilityRole="checkbox"
-            accessibilityState={{ checked: on }}
+            accessibilityState={{ checked: on }} aria-checked={on}
             accessibilityLabel={opt.label}
           >
             <Text style={[styles.label, on && styles.labelOn]}>{opt.label}</Text>

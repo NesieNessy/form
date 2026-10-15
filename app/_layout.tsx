@@ -6,15 +6,17 @@ import {
   Inter_800ExtraBold,
   useFonts,
 } from '@expo-google-fonts/inter';
+import { useReducedMotion } from '@/lib/useReducedMotion';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect } from 'react';
-import { Platform, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { SignInScreen } from '@/components/auth/SignInScreen';
 import { initAuth, useAuthStore } from '@/lib/auth';
-import { colors, fontFamily, layout } from '@/theme/colors';
+import { useLayout } from '@/lib/useLayout';
+import { colors, fontFamily, layout, themeMode } from '@/theme/colors';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -33,11 +35,11 @@ export default function RootLayout() {
     Inter_700Bold,
     Inter_800ExtraBold,
   });
-  const { width } = useWindowDimensions();
-  const isDesktopWeb = Platform.OS === 'web' && width >= layout.desktopBreakpoint;
+  const { wide } = useLayout();
 
   const authStatus = useAuthStore((s) => s.status);
   const ready = fontsLoaded && authStatus !== 'loading';
+  const reducedMotion = useReducedMotion();
 
   useEffect(() => {
     initAuth();
@@ -51,9 +53,9 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <StatusBar style="light" />
-      <View style={[styles.backdrop, isDesktopWeb && styles.desktopBackdrop]}>
-        <View style={[styles.appContainer, isDesktopWeb && styles.desktopContainer]}>
+      <StatusBar style={themeMode === 'dark' ? 'light' : 'dark'} />
+      <View style={styles.backdrop}>
+        <View style={styles.appContainer}>
           {/* Signed out, no route is mounted at all, so no screen can show the previous account's data. */}
           {authStatus === 'signedOut' ? (
             <SignInScreen />
@@ -62,8 +64,18 @@ export default function RootLayout() {
               screenOptions={{
                 headerShown: false,
                 contentStyle: { backgroundColor: colors.bg },
-                animation: 'slide_from_right',
+                animation: reducedMotion ? 'none' : 'slide_from_right',
               }}
+              // The tabs use the full width; every screen opened from them keeps a readable column on tablets and desktops.
+              screenLayout={({ route, children }) =>
+                route.name === '(tabs)' || !wide ? (
+                  children
+                ) : (
+                  <View style={styles.pageBackdrop}>
+                    <View style={styles.pageColumn}>{children}</View>
+                  </View>
+                )
+              }
             >
               <Stack.Screen name="(tabs)" />
               <Stack.Screen name="workout-player" options={{ gestureEnabled: false }} />
@@ -76,26 +88,16 @@ export default function RootLayout() {
 }
 
 const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: colors.bg,
-  },
-  desktopBackdrop: {
-    backgroundColor: '#000000',
-    alignItems: 'center',
-  },
-  appContainer: {
+  backdrop: { flex: 1, backgroundColor: colors.bg, alignItems: 'center' },
+  appContainer: { flex: 1, width: '100%', maxWidth: layout.appMaxWidth },
+  pageBackdrop: { flex: 1, backgroundColor: colors.bgElevated, alignItems: 'center' },
+  pageColumn: {
     flex: 1,
     width: '100%',
-  },
-  desktopContainer: {
-    maxWidth: layout.containerMaxWidth,
+    maxWidth: layout.pageMaxWidth,
+    backgroundColor: colors.bg,
     borderLeftWidth: 1,
     borderRightWidth: 1,
     borderColor: colors.border,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.6,
-    shadowRadius: 48,
   },
 });
