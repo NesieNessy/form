@@ -9,6 +9,7 @@ import { TabHeader } from '@/components/ui/TabHeader';
 import { WeekStrip } from '@/components/ui/WeekStrip';
 import { ProgressRing } from '@/components/charts/ProgressRing';
 import { isSameDay } from '@/lib/date';
+import { useLayout } from '@/lib/useLayout';
 import { readPreference } from '@/lib/preferences';
 import { locale, strings } from '@/lib/strings';
 import { useTrainingStats } from '@/lib/useTrainingStats';
@@ -33,6 +34,7 @@ function greetingFor(hour: number): string {
  */
 export default function TodayScreen() {
   const stats = useTrainingStats('all');
+  const { wide } = useLayout();
   const items = useScheduleItems();
   const weeklyTarget = useWorkoutsStore((s) => s.profile.weeklySessionTarget);
   const observations = useWorkoutsStore((s) => s.observations);
@@ -95,6 +97,7 @@ export default function TodayScreen() {
         <GradientButton
           label={upNext?.openSession ? strings.resumeWorkout : strings.startWorkout}
           onPress={() => (upNext ? router.push(`/workout-detail?id=${upNext.entry.id}`) : router.push('/workout-new'))}
+          style={wide ? styles.wideButton : undefined}
         />
 
         <Text style={styles.sectionTitle}>{strings.shortcuts}</Text>
@@ -107,9 +110,12 @@ export default function TodayScreen() {
           ))}
         </View>
 
-        <View style={styles.cards}>
-          <TodayPlanCard items={todays} />
-          <RecoveryCard />
+        <View style={wide ? styles.columns : styles.cards}>
+          <View style={wide ? styles.column : styles.stack}>
+            <TodayPlanCard items={todays} />
+            <RecoveryCard />
+          </View>
+          <View style={wide ? styles.column : styles.stack}>
           <FuelCard />
           <GoalCard />
           <Card style={styles.goalCard}>
@@ -125,6 +131,7 @@ export default function TodayScreen() {
             <View style={styles.divider} />
             <WeekStrip days={stats.week.days} />
           </Card>
+          </View>
         </View>
 
         {progress.length ? (
@@ -148,6 +155,10 @@ const styles = StyleSheet.create({
   greeting: { color: colors.text, fontSize: 24, fontFamily: fontFamily.bold, marginTop: spacing.sm },
   date: { color: colors.textSecondary, fontSize: 14, marginTop: 4, marginBottom: spacing.lg, fontFamily: fontFamily.regular },
   cards: { gap: spacing.md, marginTop: spacing.lg },
+  columns: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.lg, marginTop: spacing.lg },
+  column: { flex: 1, minWidth: 0, gap: spacing.md },
+  stack: { gap: spacing.md },
+  wideButton: { alignSelf: 'flex-start', minWidth: 360 },
   goalCard: { gap: spacing.lg },
   goalRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg },
   goalTextWrap: { flex: 1 },

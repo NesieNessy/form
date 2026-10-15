@@ -1,3 +1,4 @@
+import { useLayout } from '@/lib/useLayout';
 import { router, useFocusEffect } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -26,6 +27,7 @@ const VIEW_TABS = [
 ];
 
 export default function WorkoutsScreen() {
+  const { wide } = useLayout();
   const items = useScheduleItems();
   const templates = useTemplates();
   const scheduleWorkout = useWorkoutsStore((s) => s.scheduleWorkout);
@@ -94,11 +96,49 @@ export default function WorkoutsScreen() {
         <Text style={styles.pageSubtitle}>{strings.workoutsListSubtitle}</Text>
       </View>
       <View style={styles.tabsWrap}>
-        <SegmentedTabs options={VIEW_TABS} value={view} onChange={setView} />
+        <SegmentedTabs options={wide ? VIEW_TABS.filter((t) => t.key !== 'calendar') : VIEW_TABS} value={wide && view === 'calendar' ? 'list' : view} onChange={setView} />
       </View>
 
       <ScrollView contentContainerStyle={styles.list} showsVerticalScrollIndicator={false}>
-        {view === 'list' ? (
+        {/* Tablets and desktops show the list and the calendar side by side. */}
+        {wide && view !== 'templates' ? (
+          <View style={styles.columns}>
+            <View style={styles.column}>
+            <GradientButton label={strings.newWorkout} onPress={() => router.push('/workout-new')} />
+            {signedIn ? <GradientButton label={strings.importWithAi} variant="secondary" onPress={() => router.push('/workout-import')} /> : null}
+            {drafts.length > 0 ? <Text style={styles.draftsTitle}>{strings.draftsWaiting}</Text> : null}
+            {drafts.map((draft) => (
+              <TouchableOpacity key={draft.id} activeOpacity={0.75} onPress={() => router.push({ pathname: '/proposal', params: { id: draft.id } })}>
+                <Card style={styles.templateRow}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.templateTitle} numberOfLines={1}>
+                      {draft.content.title}
+                    </Text>
+                    <Text style={styles.pageSubtitle}>{draft.type === 'workout_adaptation' ? strings.draftAdaptation : strings.draftImport}</Text>
+                  </View>
+                  <Icons.chevronRight size={18} color={colors.textTertiary} />
+                </Card>
+              </TouchableOpacity>
+            ))}
+            {items.map((item) => (
+              <WorkoutCard key={item.entry.id} item={item} />
+            ))}
+            </View>
+            <View style={styles.column}>
+            <MonthCalendar items={items} selected={selectedDay} onSelect={setSelectedDay} />
+            {dayItems.length === 0 ? <Text style={styles.dayEmpty}>{strings.nothingPlannedThisDay}</Text> : null}
+            {dayItems.map((item) => (
+              <WorkoutCard key={item.entry.id} item={item} showTime />
+            ))}
+            <GradientButton
+              label={strings.planWorkoutThisDay}
+              variant="secondary"
+              onPress={() => router.push({ pathname: '/workout-new', params: { date: String(selectedDay.getTime()) } })}
+            />
+            </View>
+          </View>
+        ) : null}
+        {!wide && view === 'list' ? (
           <>
             <GradientButton label={strings.newWorkout} onPress={() => router.push('/workout-new')} />
             {signedIn ? <GradientButton label={strings.importWithAi} variant="secondary" onPress={() => router.push('/workout-import')} /> : null}
@@ -122,7 +162,7 @@ export default function WorkoutsScreen() {
           </>
         ) : null}
 
-        {view === 'calendar' ? (
+        {!wide && view === 'calendar' ? (
           <>
             <MonthCalendar items={items} selected={selectedDay} onSelect={setSelectedDay} />
             {dayItems.length === 0 ? <Text style={styles.dayEmpty}>{strings.nothingPlannedThisDay}</Text> : null}
@@ -188,6 +228,8 @@ export default function WorkoutsScreen() {
 }
 
 const styles = StyleSheet.create({
+  columns: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.lg },
+  column: { flex: 1, minWidth: 0, gap: spacing.md },
   screen: { flex: 1, backgroundColor: colors.bg },
   titleRow: { paddingHorizontal: spacing.screenX, marginBottom: spacing.md },
   tabsWrap: { paddingHorizontal: spacing.screenX, marginBottom: spacing.md },

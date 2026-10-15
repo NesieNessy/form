@@ -344,15 +344,22 @@ Left over within Step 14 after the first pass (2026-10-14):
 
 ## Step 15 — Mobile, tablet and desktop layouts
 
-Requested on 2026-10-15; the rule is in [CLAUDE.md](../CLAUDE.md). Every screen must work on mobile, tablet and desktop. Today the app is built phone-first: on a wide web window it sits in an 840 px column, it has no tablet layout, and only the coach's athlete page uses two columns.
+Requested on 2026-10-15; the rule is in [CLAUDE.md](../CLAUDE.md). Every screen must work on mobile, tablet and desktop.
 
-- [ ] Layout breakpoints in `theme/colors.ts` (mobile, tablet about 600–1023 px, desktop 1024 px and up) and a shared hook that says which one applies, replacing the single desktop check in `useContentWidth`.
-- [ ] Tablet and desktop navigation: a side rail or sidebar instead of the bottom tab bar on wide screens, and a wider content area than the current 840 px column where it helps.
-- [ ] Two-column or grid layouts where the extra width helps: Today (plan and recovery beside food and goals), Train (list beside the calendar), Progress and Trends (charts side by side), nutrition (day beside the week), coach roster and physio cases (list beside detail).
-- [ ] Forms and the workout builder: comfortable widths on large screens, with no line stretching edge to edge.
-- [ ] Workout player: large timer and controls in landscape and on tablets.
-- [ ] Desktop keyboard use: tab order, visible focus, Enter and Escape in dialogs.
-- [ ] Checks in the e2e suite at 390, 768 and 1280 px for the key screens: no sideways scrolling, no clipped content, axe at each size.
+- [x] Breakpoints in ``theme/colors.ts``: mobile below 600 px, tablet 600–1023 px, desktop 1024 px and up. ``useLayout()`` says which applies, and ``useContentWidth()`` gives the width of a pushed screen's column.
+- [x] Navigation: a bottom tab bar on phones, a side rail on tablets, and a sidebar with labels on desktops. The tab screens use the full width (up to 1440 px). Every screen opened from them sits in a centred column of at most 840 px, so forms, the builder and the player keep comfortable widths.
+- [x] Wide layouts:
+  - Today in two columns (plan and recovery; food, goal and week), with a normal-width start button.
+  - Train with the list and the calendar side by side.
+  - Progress, Health and More as two-column grids.
+  - The coach's athlete page in two columns.
+- [x] Checks in ``e2e/layout.spec.ts``: no sideways scrolling on nine key screens at 390, 768 and 1280 px, and axe at the tablet and desktop sizes. It also checks that the navigation sits at the side on wide screens and at the bottom on phones, and that pushed screens stay within 840 px. The keyboard check is in ``e2e/a11y.spec.ts``.
+
+Left over from Step 15:
+
+- [ ] Landscape on phones, and the workout player's controls in landscape on tablets.
+- [ ] Wide layouts for the remaining list-and-detail screens: nutrition (day beside the week), physio cases, the studio timetable.
+- [ ] Testing on real tablets (iPad, Android) as well as in a desktop browser.
 ## Alongside every step
 
 Source: [performance_security_agents_concept_en.md](concepts/performance_security_agents_concept_en.md), [08-backlog](concepts/08-additional-agent-and-module-backlog.md)

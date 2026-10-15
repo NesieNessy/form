@@ -184,10 +184,15 @@ export const iconStrokeWidth = 1.75;
 /** Touch targets: at least 44 points, 48 to 56 for the workout player's key actions. */
 export const touch = { min: 44, player: 52 };
 
-// On web, above this window width we treat the browser as desktop and
-// constrain the app to a phone-width column (see app/_layout.tsx and
-// lib/useContentWidth.ts) instead of stretching it edge to edge.
+/**
+ * Layout sizes (CLAUDE.md: every screen works on mobile, tablet and desktop).
+ * Mobile is below `tabletBreakpoint`, desktop from `desktopBreakpoint`.
+ * The tab screens use the full width, up to `appMaxWidth`; screens opened
+ * from them keep a readable column of at most `pageMaxWidth`.
+ */
 export const layout = {
-  desktopBreakpoint: 700,
-  containerMaxWidth: 840,
+  tabletBreakpoint: 600,
+  desktopBreakpoint: 1024,
+  pageMaxWidth: 840,
+  appMaxWidth: 1440,
 };
