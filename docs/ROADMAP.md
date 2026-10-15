@@ -302,8 +302,19 @@ Where the code started: a dark-only palette with its own five-colour gradient, e
   - More keeps the assistant, coaching, physio, studios, profile, sharing, notifications and settings.
   - Today starts with the next action, then shortcuts that depend on the day: check in until done, food, rehab while a case is open, goals while one is active, and Ask FORM.
 - [x] AI drafts: one shared `DraftStatus` header (AI-draft tag, the state in words and an icon, and "nothing is saved until you say so") on the proposal screen, the import and adaptation waits, meal parsing and chat drafts. The proposal screen already shows the change list, the reasons and the original text. "Saved" appears only once something really is saved.
-- [ ] Professional workspace: a workspace switcher (personal, coach, physio) with the client context header (who is viewing whose data, and why) and Request access in place of tabs that are not shared. Add a wider desktop layout for coach and physio screens.
-- [ ] Edge states as designed flows, per section 12 of the blueprint: no wearable, stale data, revoked access while open, offline session, unknown exercise, time-zone mismatch, and the others listed there.
+- [x] Professional workspace:
+  - A switcher (Personal / Coaching / Physio) at the top of More when signed in. It changes the list, never anyone's access.
+  - A context header on the coach's athlete page and the shared-data screen: whose data, in which role and why, what is shared, and "Request access" for the rest. A request only notifies the athlete, is repeated at most once a week per area, and is logged (migration `0016_access_requests.sql`).
+  - A "no longer shared" state when access ends while a screen is open.
+  - Two columns on the coach's athlete page on desktop.
+  - Physio screens stay one column: their cases are already shared one by one.
+- [x] Edge states:
+  - Stale measurements say how old they are and that they are not used for today.
+  - Not enough recovery data offers the check-in or measurements.
+  - Revoked access shows "no longer shared".
+  - Already covered: offline (the device copy comes first, with a sync status), unknown exercise (validation note), no wearable (each source's status).
+
+  Left over: a time-zone change notice, concurrent edits by two professionals, and a failed clip upload with retry.
 - [x] English and German (decided 2026-10-14):
   - Catalogues: `lib/i18n/en.ts` and `lib/i18n/de.ts`. The compiler requires every key in both.
   - Library text uses `tr(en, de)`: server error messages, validation, the movement vocabulary, rehab, goal, recovery and nutrition texts, and the exercise and food names. In German the English exercise name stays a search synonym.

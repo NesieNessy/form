@@ -48,6 +48,7 @@ export const MIGRATIONS = [
   'migrations/0013_goals.sql',
   'migrations/0014_studio.sql',
   'migrations/0015_movement.sql',
+  'migrations/0016_access_requests.sql',
 ];
 
 export function readMigration(relativePath: string): string {

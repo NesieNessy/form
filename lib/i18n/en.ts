@@ -1187,7 +1187,22 @@ export const en = {
   privacyLabel: 'Privacy in public',
   privacyToggle: 'Hide health values until tapped',
   privacyHint: 'Recovery, measurements, food and rehab values show as dots until you tap them. Useful in a gym or a class.',
-  // Workout fuel
+  workspaceLabel: 'Workspace',
+  workspacePersonal: 'Personal',
+  workspaceCoaching: 'Coaching',
+  workspacePhysio: 'Physio',
+  workspaceHint: 'Switching changes what this list shows, not who owns any data.',
+  viewingAs: (name: string, role: string, purpose: string) => `You are viewing ${name}'s data as their ${role}, for ${purpose}.`,
+  sharedWithYouNow: 'Shared with you',
+  notSharedWithYou: 'Not shared',
+  nothingSharedShort: 'Nothing yet.',
+  requestAccess: 'Request Access',
+  accessRequested: 'Asked',
+  requestAccessHint: 'They get a notification and decide. Nothing changes until they share it.',  accessEndedTitle: 'No longer shared with you',
+  accessEndedBody: 'They ended the connection or stopped sharing. What you saw before is not shown again. They can share again at any time.',
+  staleValue: (days: number) => `Last value ${days} days ago, so it is not used for today.`,
+  limitedDataHelp: 'A check-in takes a few seconds and is enough for a first picture. A connected device or imported recordings add measurements.',
+  connectData: 'Add Measurements',  // Workout fuel
   fuelTitle: 'Training Fuel',  logFuel: 'Log Fuel',
   noFuelYet: 'Nothing logged for this session.',
 } as const;

@@ -14,7 +14,7 @@ With no configuration the app runs in **local mode**: everything is stored on th
 ## Connect Supabase (optional)
 
 1. Create a Supabase project.
-2. In the SQL editor run `supabase/schema.sql`, then each file in `supabase/migrations/` in order (`0002` through `0015`).
+2. In the SQL editor run `supabase/schema.sql`, then each file in `supabase/migrations/` in order (`0002` through `0016`).
 3. Copy `.env.example` to `.env.local` (git-ignored) and fill in the project URL and publishable key. The names must start with `EXPO_PUBLIC_`.
 4. Restart with a clean bundler cache: `npx expo start --clear`.
 

@@ -23,7 +23,8 @@ import type { ScheduleStatus, Session, WorkoutVersion } from '../workout/model';
  * signed-in user; none of it works in local mode.
  */
 
-export type Result<T> = { ok: true; data: T } | { ok: false; error: string };
+/** A failed call carries a message for people and, when the server sent one, its error code. */
+export type Result<T> = { ok: true; data: T } | { ok: false; error: string; code?: string };
 
 export type RelationshipType = 'training_coach' | 'physiotherapist' | 'dietitian';
 
@@ -101,6 +102,7 @@ export type PerformanceSummary = {
 
 export type SharedContext = {
   athlete: { id: string; displayName: string };
+  relationshipId: string;
   relationshipType: RelationshipType;
   retrievedAt: number;
   /** Categories the athlete currently shares. Anything not listed was not returned at all. */
@@ -165,7 +167,10 @@ const MESSAGES_EN: Record<string, string> = {
   INVALID_ANALYSIS: 'The analysis could not be saved.',
   SHARE_VIDEO_FIRST: 'Share this clip, and the Video category with this person under Sharing & Privacy, first.',
   INVALID_TIME: 'The time must be within the clip.',
+  ALREADY_SHARED: 'They already share this with you.',
+  REQUESTED_RECENTLY: 'You asked for this in the last 7 days. Give them time to decide.',
 };
+
 const MESSAGES_DE: Record<string, string> = {
   NOT_AUTHENTICATED: 'Du musst angemeldet sein.',
   FORBIDDEN: 'Darauf hast du keinen Zugriff.',
@@ -219,6 +224,8 @@ const MESSAGES_DE: Record<string, string> = {
   INVALID_ANALYSIS: 'Die Analyse konnte nicht gespeichert werden.',
   SHARE_VIDEO_FIRST: 'Teile zuerst diesen Clip und unter Teilen & Datenschutz den Bereich Video mit dieser Person.',
   INVALID_TIME: 'Die Zeit muss innerhalb des Clips liegen.',
+  ALREADY_SHARED: 'Das wird bereits mit dir geteilt.',
+  REQUESTED_RECENTLY: 'Du hast in den letzten 7 Tagen danach gefragt. Lass der Person Zeit für die Entscheidung.',
 };
 
 const MESSAGES = language === 'de' ? MESSAGES_DE : MESSAGES_EN;
@@ -235,7 +242,7 @@ function friendly(message: string | undefined): string {
 export async function call<T>(fn: string, args?: Record<string, unknown>): Promise<Result<T>> {
   try {
     const { data, error } = await supabase.rpc(fn, args);
-    if (error) return { ok: false, error: friendly(error.message) };
+    if (error) return { ok: false, error: friendly(error.message), code: Object.keys(MESSAGES).find((key) => error.message?.includes(key)) };
     return { ok: true, data: data as T };
   } catch (e) {
     return { ok: false, error: friendly(e instanceof Error ? e.message : undefined) };
@@ -243,6 +250,9 @@ export async function call<T>(fn: string, args?: Record<string, unknown>): Promi
 }
 
 export const listRelationships = () => call<Relationship[]>('list_relationships');
+
+/** Asks the athlete to share a category; it only notifies them (supabase/migrations/0016_access_requests.sql). */
+export const requestDataAccess = (relationshipId: string, category: string) => call<string>('request_data_access', { p_relationship: relationshipId, p_category: category });
 
 export const inviteProfessional = (email: string, type: RelationshipType) =>
   call<{ relationship_id: string; invite_code: string; expires_at: string }>('invite_professional', {
@@ -281,6 +291,7 @@ export async function listCategories(): Promise<Result<DataCategory[]>> {
 
 type SharedContextRow = {
   athlete: { id: string; display_name: string | null };
+  relationship_id: string;
   relationship_type: RelationshipType;
   retrieved_at: string;
   granted: string[];
@@ -294,6 +305,7 @@ type SharedContextRow = {
 export function parseSharedContext(row: SharedContextRow): SharedContext {
   const ctx: SharedContext = {
     athlete: { id: row.athlete.id, displayName: row.athlete.display_name ?? 'Athlete' },
+    relationshipId: row.relationship_id,
     relationshipType: row.relationship_type,
     retrievedAt: new Date(row.retrieved_at).getTime(),
     granted: row.granted ?? [],

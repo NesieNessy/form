@@ -197,6 +197,9 @@ function ActivityRow({ activity, highlight }: { activity: ExternalActivity; high
   );
 }
 
+/** Whole days since a YYYY-MM-DD date. */
+const staleDays = (date: string) => Math.floor((Date.now() - new Date(`${date}T12:00:00`).getTime()) / 86_400_000);
+
 function MetricCard({ item, observations }: { item: MetricToday; observations: HealthObservation[] }) {
   const [open, setOpen] = useState(false);
   const removeObservation = useWorkoutsStore((s) => s.removeObservation);
@@ -220,6 +223,7 @@ function MetricCard({ item, observations }: { item: MetricToday; observations: H
               : strings.baselineAfter(item.baseline.needed - item.baseline.days)}
           </Text>
           {item.unusual ? <Text style={styles.unusual}>{strings.outsideUsualRange}</Text> : null}
+          {staleDays(latest.localDate) > 3 ? <Text style={styles.rowMeta}>{strings.staleValue(staleDays(latest.localDate))}</Text> : null}
         </View>
         <View style={{ alignItems: 'flex-end' }}>
           <Sensitive style={styles.metricValue}>{metricWithUnit(item.metric, latest.value)}</Sensitive>

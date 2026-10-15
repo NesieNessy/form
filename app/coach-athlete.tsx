@@ -1,3 +1,5 @@
+import { useContentWidth } from '@/lib/useContentWidth';
+import { ClientContextHeader } from '@/components/sharing/ClientContextHeader';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -11,7 +13,7 @@ import { Toast } from '@/components/ui/Toast';
 import { DatePickerModal } from '@/components/workout/DatePickerModal';
 import { FieldCard } from '@/components/workout/FieldCard';
 import { formatDateLabel } from '@/lib/date';
-import { assignWorkout, cancelAssignment, getAssignmentOutcomes, listAssignments, type Assignment, type AssignmentOutcome } from '@/lib/sharing/api';
+import { assignWorkout, cancelAssignment, getAssignmentOutcomes, listAssignments, listRelationships, type Assignment, type AssignmentOutcome, type Relationship } from '@/lib/sharing/api';
 import { strings } from '@/lib/strings';
 import { syncNow } from '@/lib/sync';
 import { formatClock } from '@/lib/workout/format';
@@ -40,6 +42,7 @@ export default function CoachAthleteScreen() {
   const [pickingDate, setPickingDate] = useState(false);
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
+  const [rel, setRel] = useState<Relationship | null>(null);
 
   useEffect(() => {
     if (!toast) return;
@@ -48,11 +51,12 @@ export default function CoachAthleteScreen() {
   }, [toast]);
 
   const load = useCallback(async () => {
-    const [a, o] = await Promise.all([listAssignments(), getAssignmentOutcomes(athleteId)]);
+    const [a, o, r] = await Promise.all([listAssignments(), getAssignmentOutcomes(athleteId), listRelationships()]);
+    if (r.ok) setRel(r.data.find((x) => x.id === relationshipId) ?? null);
     if (a.ok) setSent(a.data.filter((x) => x.role === 'coach' && x.athlete_id === athleteId));
     else setToast(a.error);
     if (o.ok) setOutcomes(o.data);
-  }, [athleteId]);
+  }, [athleteId, relationshipId]);
 
   useEffect(() => {
     void load();
@@ -83,11 +87,30 @@ export default function CoachAthleteScreen() {
   };
 
   const name = sent[0]?.athlete_name ?? strings.coachingTitle;
+  // On a wide screen the plan and the history sit side by side.
+  const wide = useContentWidth() >= 760;
 
   return (
     <View style={styles.screen}>
       <DetailHeader title={name} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+        <View style={wide ? styles.columns : styles.stack}>
+        <View style={wide ? styles.column : styles.stack}>
+        {rel && rel.status !== 'active' ? (
+          <Card style={styles.card}>
+            <Text style={styles.cardTitle}>{strings.accessEndedTitle}</Text>
+            <Text style={styles.body}>{strings.accessEndedBody}</Text>
+          </Card>
+        ) : null}
+        {rel && rel.status === 'active' ? (
+          <ClientContextHeader
+            athleteName={rel.counterpart_name ?? name}
+            relationshipId={rel.id}
+            relationshipType={rel.relationship_type}
+            granted={rel.grants.map((g) => g.data_category)}
+            onError={setToast}
+          />
+        ) : null}
         <GradientButton label={strings.viewSharedData} variant="secondary" onPress={() => router.push({ pathname: '/shared-athlete', params: { athleteId } })} />
 
         <Card style={styles.card}>
@@ -98,7 +121,7 @@ export default function CoachAthleteScreen() {
           {sendable.map((w) => {
             const on = picked === w.id;
             return (
-              <TouchableOpacity key={w.id} style={[styles.choice, on && styles.choiceOn]} onPress={() => setPicked(on ? null : w.id)} accessibilityRole="radio" accessibilityState={{ checked: on }}>
+              <TouchableOpacity key={w.id} style={[styles.choice, on && styles.choiceOn]} onPress={() => setPicked(on ? null : w.id)} accessibilityRole="radio" accessibilityState={{ checked: on }} aria-checked={on}>
                 <Text style={styles.choiceText}>{versions[w.currentVersionId].content.title}</Text>
                 {w.isTemplate ? <Text style={styles.meta}>{strings.template}</Text> : null}
               </TouchableOpacity>
@@ -113,6 +136,8 @@ export default function CoachAthleteScreen() {
           <FieldCard label={strings.messageOptional} value={message} onChangeText={setMessage} placeholder={strings.messagePlaceholder} maxLength={1000} cardStyle={styles.inset} />
           <GradientButton label={busy ? strings.saving : strings.send} onPress={picked && !busy ? () => void send() : undefined} />
         </Card>
+        </View>
+        <View style={wide ? styles.column : styles.stack}>
 
         <Text style={styles.sectionTitle}>{strings.sentWorkouts}</Text>
         {outcomes && !outcomes.planShared && !outcomes.sessionsShared ? <Text style={styles.hint}>{strings.outcomeNotShared}</Text> : null}
@@ -155,6 +180,8 @@ export default function CoachAthleteScreen() {
 
         <SharedGoals athleteId={athleteId} onError={setToast} />
         <SharedClips athleteId={athleteId} onError={setToast} />
+        </View>
+        </View>
       </ScrollView>
       <Toast message={toast ?? ''} visible={Boolean(toast)} />
     </View>
@@ -164,6 +191,9 @@ export default function CoachAthleteScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
   content: { paddingHorizontal: spacing.screenX, paddingBottom: spacing.xxl, gap: spacing.md },
+  columns: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.lg },
+  column: { flex: 1, minWidth: 0, gap: spacing.md },
+  stack: { gap: spacing.md },
   sectionTitle: { color: colors.text, fontSize: 16, fontFamily: fontFamily.bold, marginTop: spacing.md },
   card: { gap: spacing.sm },
   cardTitle: { color: colors.text, fontSize: 15, fontFamily: fontFamily.bold },

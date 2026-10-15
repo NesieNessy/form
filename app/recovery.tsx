@@ -110,6 +110,12 @@ export default function RecoveryScreen() {
         <Text style={styles.sectionTitle}>{strings.todayTitle}</Text>
         <Card style={[styles.card, insight.status === 'attention' && styles.attention, insight.status === 'unwell' && styles.unwell]}>
           <Text style={styles.status}>{STATUS_TEXT[insight.status]}</Text>
+          {insight.status === 'limited_data' ? (
+            <>
+              <Text style={styles.hint}>{strings.limitedDataHelp}</Text>
+              <GradientButton label={strings.connectData} variant="tertiary" onPress={() => router.push('/health')} />
+            </>
+          ) : null}
           {insight.signals.map((s) => (
             <View key={s.key} style={styles.signal}>
               <View style={{ gap: 2 }}>

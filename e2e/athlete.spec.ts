@@ -102,9 +102,8 @@ test('the export downloads what is on the device', async () => {
 test('coaching screens explain they need an account', async () => {
   const { see, click, back } = app;
   await back();
-  await click('Coaching');
-  await see('Coaching needs an account');
-  await back();
+  // Without an account there is no workspace switcher, so the coaching workspace is not offered.
+  await app.notSee('Coaching');
   await click('From Your Coach');
   await see('Workouts from a coach need an account');
   await back();
