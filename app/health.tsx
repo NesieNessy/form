@@ -1,3 +1,6 @@
+import { Sensitive } from '@/components/ui/Sensitive';
+import { SourceTag } from '@/components/ui/SourceTag';
+import { observationSource } from '@/lib/provenance';
 import * as DocumentPicker from 'expo-document-picker';
 import { router } from 'expo-router';
 import React, { useMemo, useState } from 'react';
@@ -219,8 +222,9 @@ function MetricCard({ item, observations }: { item: MetricToday; observations: H
           {item.unusual ? <Text style={styles.unusual}>{strings.outsideUsualRange}</Text> : null}
         </View>
         <View style={{ alignItems: 'flex-end' }}>
-          <Text style={styles.metricValue}>{metricWithUnit(item.metric, latest.value)}</Text>
+          <Sensitive style={styles.metricValue}>{metricWithUnit(item.metric, latest.value)}</Sensitive>
           <Text style={styles.rowMeta}>{shortDay(latest.localDate)}</Text>
+          <SourceTag source={observationSource(latest.provider)} />
         </View>
       </TouchableOpacity>
       {series.length >= 2 ? (
@@ -229,7 +233,7 @@ function MetricCard({ item, observations }: { item: MetricToday; observations: H
       {history.map((o) => (
         <View key={o.id} style={styles.historyRow}>
           <Text style={styles.historyDate}>{shortDay(o.localDate)}</Text>
-          <Text style={styles.historyValue}>{metricWithUnit(o.metric, o.value)}</Text>
+          <Sensitive style={styles.historyValue}>{metricWithUnit(o.metric, o.value)}</Sensitive>
           <TouchableOpacity onPress={() => removeObservation(o.id)} hitSlop={8} accessibilityLabel={`${strings.deleteWorkout} ${metricWithUnit(o.metric, o.value)}`}>
             <Icons.trash size={15} color={colors.textTertiary} strokeWidth={iconStrokeWidth} />
           </TouchableOpacity>

@@ -1,5 +1,5 @@
 import { WEEKDAY_INITIALS } from '@/lib/i18n/tr';
-import { locale } from '@/lib/strings';
+import { locale, strings } from '@/lib/strings';
 import React, { useMemo, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
@@ -63,7 +63,15 @@ export function MonthCalendar({ items, selected, onSelect }: Props) {
           const isToday = isSameDay(d, today);
           const mark = marks.get(d.getTime());
           return (
-            <TouchableOpacity key={d.toISOString()} style={styles.dayCell} activeOpacity={0.7} onPress={() => onSelect(d)}>
+            <TouchableOpacity
+              key={d.toISOString()}
+              style={styles.dayCell}
+              activeOpacity={0.7}
+              onPress={() => onSelect(d)}
+              accessibilityRole="button"
+              accessibilityState={{ selected: isSelected }}
+              accessibilityLabel={[d.toLocaleDateString(locale, { weekday: 'long', month: 'long', day: 'numeric' }), isToday ? strings.today : '', mark?.done ? strings.completed : '', mark?.planned ? strings.planned : ''].filter(Boolean).join(', ')}
+            >
               <View style={[styles.dayInner, isSelected && styles.daySelected, !isSelected && isToday && styles.dayToday]}>
                 <Text style={[styles.dayLabel, !inMonth && styles.dayLabelMuted, isSelected && styles.dayLabelSelected]}>
                   {d.getDate()}

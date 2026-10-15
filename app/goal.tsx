@@ -1,3 +1,5 @@
+import { SourceTag } from '@/components/ui/SourceTag';
+import { evidenceSource } from '@/lib/provenance';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
@@ -152,7 +154,10 @@ export default function GoalScreen() {
             .reverse()
             .map((e, i) => (
               <View key={`${e.date}-${i}`} style={styles.between}>
-                <Text style={styles.body} numberOfLines={1}>{`${e.date} · ${e.label}`}</Text>
+                <View style={{ flexShrink: 1, gap: 2 }}>
+                  <Text style={styles.body} numberOfLines={1}>{`${e.date} · ${e.label}`}</Text>
+                  <SourceTag source={evidenceSource(e.source)} />
+                </View>
                 <Text style={styles.value}>{goal.metric.kind === 'rehab_stage' || goal.metric.kind === 'event' ? '' : value(e.value)}</Text>
               </View>
             ))}

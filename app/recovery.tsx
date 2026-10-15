@@ -1,3 +1,6 @@
+import { Sensitive } from '@/components/ui/Sensitive';
+import { SourceTag } from '@/components/ui/SourceTag';
+import { signalSource } from '@/lib/provenance';
 import { router, useFocusEffect } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -109,10 +112,13 @@ export default function RecoveryScreen() {
           <Text style={styles.status}>{STATUS_TEXT[insight.status]}</Text>
           {insight.signals.map((s) => (
             <View key={s.key} style={styles.signal}>
-              <Text style={styles.signalLabel}>{strings.signalLabels[s.key]}</Text>
-              <Text style={[styles.signalValue, s.direction === 'worse' && styles.worse]}>
+              <View style={{ gap: 2 }}>
+                <Text style={styles.signalLabel}>{strings.signalLabels[s.key]}</Text>
+                <SourceTag source={signalSource(s.source)} />
+              </View>
+              <Sensitive style={[styles.signalValue, s.direction === 'worse' && styles.worse]}>
                 {`${s.direction === 'worse' ? strings.directionWorse : s.direction === 'better' ? strings.directionBetter : strings.directionUsual} · ${s.detail}`}
-              </Text>
+              </Sensitive>
             </View>
           ))}
           {insight.missing.length ? <Text style={styles.hint}>{`${strings.missingTitle}: ${insight.missing.join(', ')}.`}</Text> : null}

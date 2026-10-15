@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
 import { DetailHeader } from '@/components/ui/DetailHeader';
 import { SegmentedTabs } from '@/components/ui/SegmentedTabs';
 import { applyOnRestart, writePreference } from '@/lib/preferences';
+import { usePrivacy } from '@/lib/privacy';
 import { languagePreference, strings, type LanguagePreference } from '@/lib/strings';
 import { colors, fontFamily, spacing, themePreference, type ThemePreference } from '@/theme/colors';
 
@@ -12,6 +13,8 @@ export default function SettingsScreen() {
   const [theme, setTheme] = useState<ThemePreference>(themePreference);
   const [lang, setLang] = useState<LanguagePreference>(languagePreference);
   const [note, setNote] = useState<string | null>(null);
+  const hideSensitive = usePrivacy((s) => s.hideSensitive);
+  const setHideSensitive = usePrivacy((s) => s.setHideSensitive);
 
   const save = (key: 'theme' | 'language', value: string) => {
     writePreference(key, value);
@@ -54,6 +57,14 @@ export default function SettingsScreen() {
             size="sm"
           />
         </Card>
+        <Card style={styles.card}>
+          <Text style={styles.label}>{strings.privacyLabel}</Text>
+          <View style={styles.row}>
+            <Text style={[styles.toggle, { flex: 1 }]}>{strings.privacyToggle}</Text>
+            <Switch value={hideSensitive} onValueChange={setHideSensitive} accessibilityLabel={strings.privacyToggle} trackColor={{ true: colors.action, false: colors.cardAlt }} />
+          </View>
+          <Text style={styles.note}>{strings.privacyHint}</Text>
+        </Card>
         {note ? <Text style={styles.note}>{note}</Text> : null}
       </ScrollView>
     </View>
@@ -66,4 +77,6 @@ const styles = StyleSheet.create({
   card: { gap: spacing.sm },
   label: { color: colors.textSecondary, fontSize: 13, fontFamily: fontFamily.medium },
   note: { color: colors.textSecondary, fontSize: 13, lineHeight: 19, fontFamily: fontFamily.regular },
+  row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  toggle: { color: colors.text, fontSize: 14, fontFamily: fontFamily.semibold },
 });

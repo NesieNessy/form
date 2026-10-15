@@ -1,3 +1,4 @@
+import { DraftStatus } from '@/components/ui/DraftStatus';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -441,6 +442,7 @@ function DescribeTab({ ctx, setCtx }: { ctx: LogContext; setCtx: (c: LogContext)
           <Text style={styles.hint}>{strings.describeHint}</Text>
         </Card>
         <Errors errors={errors} />
+        {busy ? <DraftStatus state="working" /> : null}
         <GradientButton label={busy ? strings.reading : strings.makeDraft} onPress={busy || !text.trim() ? undefined : read} />
       </>
     );
@@ -450,6 +452,7 @@ function DescribeTab({ ctx, setCtx }: { ctx: LogContext; setCtx: (c: LogContext)
   return (
     <>
       <Text style={styles.sectionTitle}>{strings.draftItemsTitle}</Text>
+      <DraftStatus state={questions.length ? 'needs_clarification' : 'awaiting_approval'} />
       <Text style={styles.hint}>{strings.describeHint}</Text>
       {questions.map((q) => (
         <Text key={q} style={styles.question}>{q}</Text>

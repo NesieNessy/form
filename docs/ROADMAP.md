@@ -294,14 +294,14 @@ Where the code started: a dark-only palette with its own five-colour gradient, e
 - [x] Theme: light, dark and system modes under More → Appearance & Language (`app/settings.tsx`), with the device setting as the default. The theme is read once at start-up (`lib/preferences*.ts`). The web app reloads when it changes, and phones apply it on the next launch, because screen styles are built when each screen loads.
 - [x] Buttons: primary actions become solid action blue. The gradient is kept for the logo, onboarding, completion moments and thin accent rules only. Destructive actions use danger styling. Retire the gradient as the default button and the per-sport accent colours on data.
 - [x] Numbers: tabular numerals for timers and metric styles (`tabular` and `typography.metric`), and a 68 px player clock. Buttons are at least 48 px high.
-- [ ] Provenance: one shared label for measured, device-estimated, calculated, self-reported and AI-suggested values, used on health, recovery, nutrition and goals.
-- [ ] Status never by colour alone: planned, completed, skipped, warnings and recovery states also carry a label, icon or pattern.
+- [x] Provenance: one shared `SourceTag` (icon and words) mapped in `lib/provenance.ts`. It appears on measurements, recovery signals, food entries (AI draft or estimate), goal evidence and clip analyses.
+- [x] Status never by colour alone. Workout cards and recovery already had words. The week strip now marks finished days with a check, the month calendar uses an outline for planned and a fill for done, and both have screen-reader labels.
 - [x] Athlete navigation: Today · Train · Progress · Health · More (decided 2026-10-14).
   - Progress holds goals (active goals on top), trends and the sample analyses, kept apart until Step 13.
   - Health holds recovery, activities, nutrition, rehab and clips.
   - More keeps the assistant, coaching, physio, studios, profile, sharing, notifications and settings.
   - Today starts with the next action, then shortcuts that depend on the day: check in until done, food, rehab while a case is open, goals while one is active, and Ask FORM.
-- [ ] AI proposal pattern: one shared draft card with summary, sources, assumptions and a before/after diff, plus the job states (working, needs clarification, draft ready, validation issues, awaiting approval, applied or failed). Use it for import, adaptation, meal parsing and chat drafts.
+- [x] AI drafts: one shared `DraftStatus` header (AI-draft tag, the state in words and an icon, and "nothing is saved until you say so") on the proposal screen, the import and adaptation waits, meal parsing and chat drafts. The proposal screen already shows the change list, the reasons and the original text. "Saved" appears only once something really is saved.
 - [ ] Professional workspace: a workspace switcher (personal, coach, physio) with the client context header (who is viewing whose data, and why) and Request access in place of tabs that are not shared. Add a wider desktop layout for coach and physio screens.
 - [ ] Edge states as designed flows, per section 12 of the blueprint: no wearable, stale data, revoked access while open, offline session, unknown exercise, time-zone mismatch, and the others listed there.
 - [x] English and German (decided 2026-10-14):
@@ -310,7 +310,7 @@ Where the code started: a dark-only palette with its own five-colour gradient, e
   - Dates use `locale` and `timeLocale` (24-hour), and weekday names are localised.
   - Language setting next to the theme; the default follows the device.
   - Tests run in English (the e2e browser is pinned to en-US).
-- [ ] Privacy blur for sensitive previews (health, rehab, nutrition) with an explicit reveal.
+- [x] Privacy blur: "Hide health values until tapped" under Appearance & Language. While it is on, measurement, recovery, nutrition and symptom values show as dots until tapped.
 - [ ] Checks: contrast tests on the token pairs in both themes are done (`theme/contrast.test.ts`: text 4.5:1 on every surface, button labels 4.5:1, strong borders 3:1). Still to do:, axe checks on the web build, keyboard-only paths, a 320 px width and 200 % text, and screenshots of key screens in both themes in the e2e suite.
 - [ ] Out of scope for this app for now: the monorepo split and separate professional and studio web apps in section 8.1. The blueprint prefers a modular monolith first, which is what the Expo app is.
 Left over within Step 14 after the first pass (2026-10-14):

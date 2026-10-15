@@ -1,3 +1,5 @@
+import { Sensitive } from '@/components/ui/Sensitive';
+import { tr } from '@/lib/i18n/tr';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -141,9 +143,9 @@ export default function RehabCaseScreen() {
           {logs.slice(0, 8).map((l) => (
             <View key={l.id} style={styles.line}>
               <Text style={styles.meta}>{day(l.loggedAt)}</Text>
-              <Text style={[styles.lineValue, l.redFlags.length > 0 && styles.flagged]}>
-                {[`${l.intensity}/10`, l.function !== undefined ? `function ${l.function}/10` : undefined, l.context].filter(Boolean).join(' · ')}
-              </Text>
+              <Sensitive style={[styles.lineValue, l.redFlags.length > 0 && styles.flagged]}>
+                {[`${l.intensity}/10`, l.function !== undefined ? `${tr('function', 'Funktion')} ${l.function}/10` : undefined, l.context].filter(Boolean).join(' · ')}
+              </Sensitive>
             </View>
           ))}
         </Card>

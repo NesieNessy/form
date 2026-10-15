@@ -4,7 +4,7 @@
  * is used in Node (tests, the edge bundle) and keeps the defaults; the web
  * and native builds use preferences.web.ts and preferences.native.ts.
  */
-export type PreferenceKey = 'theme' | 'language';
+export type PreferenceKey = 'theme' | 'language' | 'privacy';
 
 export function readPreference(_key: PreferenceKey): string | null {
   return null;

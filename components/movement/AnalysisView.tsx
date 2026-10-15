@@ -1,3 +1,4 @@
+import { SourceTag } from '@/components/ui/SourceTag';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
@@ -14,6 +15,7 @@ export function AnalysisView({ analysis, onSeek }: { analysis: ClipAnalysis; onS
   return (
     <Card style={styles.card}>
       <Text style={styles.title}>{analysis.usable ? strings.observations : strings.cannotAssess}</Text>
+      <SourceTag source="calculated" />
       {!analysis.usable ? (
         <>
           <Text style={styles.label}>{strings.whyNot}</Text>

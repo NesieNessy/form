@@ -1181,7 +1181,13 @@ export const en = {
   shortcutAsk: 'Ask FORM',
   shortcutRehab: 'Rehab',
   activeGoals: (n: number) => (n === 1 ? '1 active goal' : `${n} active goals`),
-  moreAnalyses: 'More analyses (sample data)',  // Workout fuel
+  moreAnalyses: 'More analyses (sample data)',  sourceTag: { measurement: 'Measurement', device: 'From a device', self: 'Entered by you', calculated: 'Calculated by FORM', estimate: 'Your estimate', ai: 'AI draft, checked by you', clinician: 'From a clinician' } as Record<string, string>,
+  draftState: { working: 'Working on it', needs_clarification: 'Needs your answer', validation_issues: 'Has problems to fix', awaiting_approval: 'Waiting for your approval', applied: 'Saved', failed: 'Did not work', closed: 'Closed' } as Record<string, string>,
+  sensitiveHidden: 'Hidden, tap to show',
+  privacyLabel: 'Privacy in public',
+  privacyToggle: 'Hide health values until tapped',
+  privacyHint: 'Recovery, measurements, food and rehab values show as dots until you tap them. Useful in a gym or a class.',
+  // Workout fuel
   fuelTitle: 'Training Fuel',  logFuel: 'Log Fuel',
   noFuelYet: 'Nothing logged for this session.',
 } as const;

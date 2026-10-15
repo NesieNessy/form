@@ -1,3 +1,4 @@
+import { DraftStatus } from '@/components/ui/DraftStatus';
 import { router } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -233,6 +234,7 @@ function ProposalCard({ proposal, done, onDone, userId, onMemory }: { proposal: 
   if (proposal.type === 'workout') {
     return (
       <Card style={styles.card}>
+        <DraftStatus state="awaiting_approval" />
         <Text style={styles.rowTitle}>{strings.chatDraftTitle(proposal.title)}</Text>
         <GradientButton label={strings.chatReviewDraft} variant="secondary" onPress={() => router.push({ pathname: '/proposal', params: { id: proposal.proposal_id } })} />
       </Card>
@@ -245,6 +247,7 @@ function ProposalCard({ proposal, done, onDone, userId, onMemory }: { proposal: 
     const move = describeMove(entry.scheduledAt, target);
     return (
       <Card style={styles.card}>
+        <DraftStatus state={done === strings.chatMoved ? 'applied' : done ? 'closed' : 'awaiting_approval'} />
         <Text style={styles.rowTitle}>{strings.chatMoveTitle(proposal.title)}</Text>
         <Text style={styles.before}>{move.from}</Text>
         <Text style={styles.after}>{move.to}</Text>

@@ -107,8 +107,8 @@ test.describe('logging food on a fresh device', () => {
     await app.click('Suggest From My Training');
     await app.see('Log your weight under Health & Activities first.');
     await app.click('Set Targets');
-    await app.page.getByLabel('From').first().fill('1000');
-    await app.page.getByLabel('To').first().fill('1200');
+    await app.page.getByLabel('From', { exact: true }).filter({ visible: true }).first().fill('1000');
+    await app.page.getByLabel('To', { exact: true }).filter({ visible: true }).first().fill('1200');
     await app.click('Save');
     await app.see('very low energy target');
     await app.click('Save'); // saving again after the warning keeps the athlete's choice

@@ -1,3 +1,6 @@
+import { Sensitive } from '@/components/ui/Sensitive';
+import { SourceTag } from '@/components/ui/SourceTag';
+import { foodEntrySource } from '@/lib/provenance';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -65,7 +68,7 @@ export default function NutritionScreen() {
               <View key={key} style={styles.totalRow}>
                 <Text style={styles.totalLabel}>{NUTRIENTS[key].label}</Text>
                 <View style={{ alignItems: 'flex-end' }}>
-                  <Text style={styles.totalValue}>{totalText(key, day.nutrients[key], day.entries)}</Text>
+                  <Sensitive style={styles.totalValue}>{totalText(key, day.nutrients[key], day.entries)}</Sensitive>
                   {target ? <Text style={styles.target}>{target}</Text> : null}
                 </View>
               </View>
@@ -163,9 +166,10 @@ function EntryRow({ entry, hideEnergy }: { entry: FoodLogEntry; hideEnergy: bool
     <TouchableOpacity style={styles.entryRow} activeOpacity={0.7} onPress={() => router.push({ pathname: '/nutrition-add', params: { entryId: entry.id } })}>
       <View style={{ flex: 1 }}>
         <Text style={styles.entryName}>{entryName(entry)}</Text>
-        <Text style={styles.meta}>{[entryAmount(entry), entry.estimated ? 'estimate' : ''].filter(Boolean).join(' · ')}</Text>
+        <Text style={styles.meta}>{entryAmount(entry)}</Text>
+        {foodEntrySource(entry) ? <SourceTag source={foodEntrySource(entry)!} /> : null}
       </View>
-      <Text style={styles.entryValue}>{typeof v === 'number' ? formatNutrient(key, v) : '–'}</Text>
+      <Sensitive style={styles.entryValue}>{typeof v === 'number' ? formatNutrient(key, v) : '–'}</Sensitive>
     </TouchableOpacity>
   );
 }
