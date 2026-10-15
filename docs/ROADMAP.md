@@ -342,6 +342,17 @@ Left over within Step 14 after the first pass (2026-10-14):
 - [ ] Still English: the sample-data screens and home cards (``lib/mockData.ts``, replaced in Step 13), the preset workouts, and notifications written by the database.
 - [x] Reduced motion: screens switch instead of sliding and toasts appear without fading (`lib/useReducedMotion.ts`). Toasts are announced to screen readers. Large text: nothing turns off font scaling, so the device's text size applies.
 
+## Step 15 — Mobile, tablet and desktop layouts
+
+Requested on 2026-10-15; the rule is in [CLAUDE.md](../CLAUDE.md). Every screen must work on mobile, tablet and desktop. Today the app is built phone-first: on a wide web window it sits in an 840 px column, it has no tablet layout, and only the coach's athlete page uses two columns.
+
+- [ ] Layout breakpoints in `theme/colors.ts` (mobile, tablet about 600–1023 px, desktop 1024 px and up) and a shared hook that says which one applies, replacing the single desktop check in `useContentWidth`.
+- [ ] Tablet and desktop navigation: a side rail or sidebar instead of the bottom tab bar on wide screens, and a wider content area than the current 840 px column where it helps.
+- [ ] Two-column or grid layouts where the extra width helps: Today (plan and recovery beside food and goals), Train (list beside the calendar), Progress and Trends (charts side by side), nutrition (day beside the week), coach roster and physio cases (list beside detail).
+- [ ] Forms and the workout builder: comfortable widths on large screens, with no line stretching edge to edge.
+- [ ] Workout player: large timer and controls in landscape and on tablets.
+- [ ] Desktop keyboard use: tab order, visible focus, Enter and Escape in dialogs.
+- [ ] Checks in the e2e suite at 390, 768 and 1280 px for the key screens: no sideways scrolling, no clipped content, axe at each size.
 ## Alongside every step
 
 Source: [performance_security_agents_concept_en.md](concepts/performance_security_agents_concept_en.md), [08-backlog](concepts/08-additional-agent-and-module-backlog.md)
