@@ -21,7 +21,7 @@ async function importFile(name: string) {
 
 test('a v3 store is upgraded and keeps the planned run', async () => {
   await app.page.goto('/');
-  await app.click('More');
+  await app.click('Health');
   await app.click('Health & Activities');
   await app.see('No activities yet.');
   const s = await app.stored();

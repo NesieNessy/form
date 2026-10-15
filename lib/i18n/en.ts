@@ -119,7 +119,7 @@ export const en = {
   targetedWorkoutsSubtitle: 'Browse preset workouts by focus area.',
 
   // More screen
-  moreSubtitle: 'Deeper insights into your progress.',
+  moreSubtitle: 'The assistant, the people you work with, studios and your account.',
 
   // Targeted Workouts screen
   videos: 'Videos',
@@ -1166,7 +1166,22 @@ export const en = {
   languageSystem: 'Like this device',
   languageEnglish: 'English',
   languageGerman: 'Deutsch',
-  settingsNextLaunch: 'Saved. It takes effect the next time you open the app.',  // Workout fuel
+  settingsNextLaunch: 'Saved. It takes effect the next time you open the app.',  // Tabs and hubs
+  tabToday: 'Today',
+  tabTrain: 'Train',
+  tabProgress: 'Progress',
+  tabHealth: 'Health',
+  progressSubtitle: 'Goals, records and trends from what you actually did.',
+  healthHubSubtitle: 'Recovery, activities, food and injuries.',
+  trendsMenuSubtitle: 'Strength, endurance and body data over time.',
+  shortcuts: 'Shortcuts',
+  shortcutCheckIn: 'Check in',
+  shortcutLogFood: 'Log food',
+  shortcutGoals: 'Goals',
+  shortcutAsk: 'Ask FORM',
+  shortcutRehab: 'Rehab',
+  activeGoals: (n: number) => (n === 1 ? '1 active goal' : `${n} active goals`),
+  moreAnalyses: 'More analyses (sample data)',  // Workout fuel
   fuelTitle: 'Training Fuel',  logFuel: 'Log Fuel',
   noFuelYet: 'Nothing logged for this session.',
 } as const;

@@ -5,7 +5,7 @@ import { Sparkline } from '@/components/charts/Sparkline';
 import { Card } from '@/components/ui/Card';
 import { SampleBadge } from '@/components/ui/SampleBadge';
 import { SegmentedTabs } from '@/components/ui/SegmentedTabs';
-import { TabHeader } from '@/components/ui/TabHeader';
+import { DetailHeader } from '@/components/ui/DetailHeader';
 import {
   bodyMetricHistory,
   enduranceSessions,
@@ -65,11 +65,7 @@ export default function TrendsScreen() {
 
   return (
     <View style={styles.screen}>
-      <TabHeader />
-      <View style={styles.titleRow}>
-        <Text style={styles.title}>{strings.yourTrends}</Text>
-      </View>
-
+      <DetailHeader title={strings.yourTrends} />
       <View style={styles.tabsWrap}>
         <SegmentedTabs options={MAIN_TABS} value={mainTab} onChange={setMainTab} scrollable />
       </View>
@@ -385,8 +381,6 @@ function StatRow({ label, value }: { label: string; value: string }) {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
-  titleRow: { paddingHorizontal: spacing.screenX, marginBottom: spacing.md },
-  title: { color: colors.text, fontSize: 22, fontWeight: '700', fontFamily: fontFamily.bold },
   tabsWrap: { paddingHorizontal: spacing.screenX, marginBottom: spacing.md },
   content: { paddingHorizontal: spacing.screenX, paddingBottom: spacing.xxl },
 

@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import React from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
 import { FormScoreCard } from '@/components/ui/FormScoreCard';
 import { GradientButton } from '@/components/ui/GradientButton';
@@ -16,7 +16,8 @@ import { useTrainingStats } from '@/lib/useTrainingStats';
 import { useScheduleItems } from '@/lib/useWorkouts';
 import { enduranceSeries } from '@/lib/workout/analytics';
 import { useWorkoutsStore } from '@/lib/workoutsStore';
-import { colors, fontFamily, spacing } from '@/theme/colors';
+import { colors, fontFamily, iconStrokeWidth, radius, spacing } from '@/theme/colors';
+import { Icons } from '@/theme/icons';
 
 type Stat = { label: string; value: string; delta: string; positive: boolean; direction: 'up' | 'down'; sample: boolean };
 
@@ -30,11 +31,26 @@ export default function HomeScreen() {
   const stats = useTrainingStats('all');
   const items = useScheduleItems();
   const weeklyTarget = useWorkoutsStore((s) => s.profile.weeklySessionTarget);
+  const observations = useWorkoutsStore((s) => s.observations);
+  const episodes = useWorkoutsStore((s) => s.episodes);
+  const goals = useWorkoutsStore((s) => s.goals);
 
   const today = new Date(stats.now);
   // Today's next thing to do: a session already under way, else the earliest one still planned.
   const todays = items.filter((i) => isSameDay(new Date(i.entry.scheduledAt), today) && i.version.status === 'published');
   const upNext = todays.find((i) => i.openSession) ?? [...todays].reverse().find((i) => i.entry.status === 'planned');
+  // Shortcuts that fit today: a check-in until one is made, rehab while a case is open, goals while one is active.
+  const ymd = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  const checkedIn = Object.values(observations).some((o) => !o.deletedAt && o.localDate === ymd && o.metric.startsWith('subjective_'));
+  const openCase = Object.values(episodes).some((e) => !e.deletedAt && e.status !== 'resolved');
+  const activeGoal = Object.values(goals).some((g) => !g.deletedAt && g.status === 'active');
+  const shortcuts = [
+    !checkedIn && { key: 'checkin', label: strings.shortcutCheckIn, icon: Icons.heart, route: '/recovery' },
+    { key: 'food', label: strings.shortcutLogFood, icon: Icons.flame, route: '/nutrition' },
+    openCase && { key: 'rehab', label: strings.shortcutRehab, icon: Icons.personStanding, route: '/rehab' },
+    activeGoal && { key: 'goals', label: strings.shortcutGoals, icon: Icons.target, route: '/goals-forecast' },
+    { key: 'ask', label: strings.shortcutAsk, icon: Icons.sparkles, route: '/chat' },
+  ].filter(Boolean) as { key: string; label: string; icon: typeof Icons.heart; route: string }[];
 
   // Body measurements are not captured yet, so those two tiles stay sample values and say so.
   const [sampleWeight, sampleBodyFat, sampleStrength, sampleEndurance] = homeSummary.stats.map(
@@ -78,15 +94,21 @@ export default function HomeScreen() {
         <Text style={styles.greeting}>{greetingFor(today.getHours())}</Text>
         <Text style={styles.subGreeting}>{homeSummary.subGreeting}</Text>
 
-        <SampleBadge explain style={{ marginBottom: spacing.sm }} />
-        <FormScoreCard
-          score={formScore.score}
-          rating={formScore.rating}
-          deltaLabel={formScore.deltaLabel}
-          breakdown={formScore.breakdown}
+        <GradientButton
+          label={upNext?.openSession ? strings.resumeWorkout : strings.startWorkout}
+          onPress={() => (upNext ? router.push(`/workout-detail?id=${upNext.entry.id}`) : router.push('/workout-new'))}
         />
-        <View style={{ height: spacing.cardGap }} />
+        <Text style={styles.sectionTitle}>{strings.shortcuts}</Text>
+        <View style={styles.shortcuts}>
+          {shortcuts.map((s) => (
+            <TouchableOpacity key={s.key} style={styles.shortcut} onPress={() => router.push(s.route as never)} accessibilityRole="link" accessibilityLabel={s.label}>
+              <s.icon size={16} color={colors.action} strokeWidth={iconStrokeWidth} />
+              <Text style={styles.shortcutText}>{s.label}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
 
+        <View style={{ height: spacing.lg }} />
         <Card style={styles.goalCard}>
           <View style={styles.goalRow}>
             <ProgressRing
@@ -106,9 +128,12 @@ export default function HomeScreen() {
         </Card>
 
         <View style={{ height: spacing.lg }} />
-        <GradientButton
-          label={upNext?.openSession ? strings.resumeWorkout : strings.startWorkout}
-          onPress={() => (upNext ? router.push(`/workout-detail?id=${upNext.entry.id}`) : router.push('/workout-new'))}
+        <SampleBadge explain style={{ marginBottom: spacing.sm }} />
+        <FormScoreCard
+          score={formScore.score}
+          rating={formScore.rating}
+          deltaLabel={formScore.deltaLabel}
+          breakdown={formScore.breakdown}
         />
 
         <Text style={styles.sectionTitle}>{strings.yourProgress}</Text>
@@ -193,6 +218,9 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: spacing.md,
   },
+  shortcuts: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  shortcut: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 44, paddingHorizontal: 14, borderRadius: radius.pill, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border },
+  shortcutText: { color: colors.text, fontSize: 13.5, fontFamily: fontFamily.semibold },
   quoteCard: {
     marginTop: spacing.lg,
     alignItems: 'center',

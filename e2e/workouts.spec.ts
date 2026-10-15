@@ -54,7 +54,7 @@ test('the oldest local store is migrated', async () => {
   const { page, see, click } = app;
   await page.goto('/');
   await see('Weekly Goal');
-  await click('Workouts');
+  await click('Train');
   await see('Legacy Fran');
   await see('Planned');
   await click('Legacy Fran');
@@ -166,6 +166,9 @@ test('an AMRAP counts down, survives leaving, and stops at zero', async () => {
 
 test('the weekly count reflects the sessions completed today', async () => {
   await app.page.goto('/');
-  await app.see('2 / 5 Workouts');
+  // Two sessions today, plus the seeded one from three days ago when that is still this week (weeks start on Monday).
+  const now = new Date();
+  const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7)).getTime();
+  await app.see(`${Date.now() - 3 * DAY >= monday ? 3 : 2} / 5 Workouts`);
   app.expectNoBrowserErrors();
 });

@@ -296,7 +296,11 @@ Where the code started: a dark-only palette with its own five-colour gradient, e
 - [x] Numbers: tabular numerals for timers and metric styles (`tabular` and `typography.metric`), and a 68 px player clock. Buttons are at least 48 px high.
 - [ ] Provenance: one shared label for measured, device-estimated, calculated, self-reported and AI-suggested values, used on health, recovery, nutrition and goals.
 - [ ] Status never by colour alone: planned, completed, skipped, warnings and recovery states also carry a label, icon or pattern.
-- [ ] Athlete navigation: Today · Train · Progress · Health · More (decided 2026-10-14). Nutrition, rehab, goals and Ask FORM become contextual shortcuts on Today.
+- [x] Athlete navigation: Today · Train · Progress · Health · More (decided 2026-10-14).
+  - Progress holds goals (active goals on top), trends and the sample analyses, kept apart until Step 13.
+  - Health holds recovery, activities, nutrition, rehab and clips.
+  - More keeps the assistant, coaching, physio, studios, profile, sharing, notifications and settings.
+  - Today starts with the next action, then shortcuts that depend on the day: check in until done, food, rehab while a case is open, goals while one is active, and Ask FORM.
 - [ ] AI proposal pattern: one shared draft card with summary, sources, assumptions and a before/after diff, plus the job states (working, needs clarification, draft ready, validation issues, awaiting approval, applied or failed). Use it for import, adaptation, meal parsing and chat drafts.
 - [ ] Professional workspace: a workspace switcher (personal, coach, physio) with the client context header (who is viewing whose data, and why) and Request access in place of tabs that are not shared. Add a wider desktop layout for coach and physio screens.
 - [ ] Edge states as designed flows, per section 12 of the blueprint: no wearable, stale data, revoked access while open, offline session, unknown exercise, time-zone mismatch, and the others listed there.

@@ -23,7 +23,7 @@ const ymd = (ms: number) => {
 
 test('a v6 store is upgraded, and a lift goal without a result says it has no starting point', async () => {
   await app.page.goto('/');
-  await app.click('More');
+  await app.click('Progress');
   await app.click('Goals');
   await app.see('No goals yet.');
   await app.click('New Goal');

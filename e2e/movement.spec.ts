@@ -14,7 +14,7 @@ test.afterAll(() => close(app));
 
 test('the movement entry explains that clips need an account', async () => {
   await app.page.goto('/');
-  await app.click('More');
+  await app.click('Health');
   await app.click('Movement Clips');
   await app.see('Clips need an account');
   app.expectNoBrowserErrors();

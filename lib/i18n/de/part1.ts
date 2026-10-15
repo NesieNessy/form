@@ -93,7 +93,7 @@ export const part1 = {
   targetedWorkoutsTitle: 'Gezielte Workouts',
   targetedWorkoutsSubtitle: 'Vorlagen nach Schwerpunkt durchsuchen.',
 
-  moreSubtitle: 'Tiefere Einblicke in deinen Fortschritt.',
+  moreSubtitle: 'Der Assistent, Menschen, mit denen du arbeitest, Studios und dein Konto.',
 
   videos: 'Videos',
   edit: 'Bearbeiten',

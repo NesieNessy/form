@@ -18,7 +18,7 @@ test.afterAll(() => close(app));
 
 test('an injury is noted in the athlete’s words, with what makes it worse', async () => {
   await app.page.goto('/');
-  await app.click('More');
+  await app.click('Health');
   await app.click('Injuries & Rehab');
   await app.see('No injuries noted.');
   await app.see('it does not diagnose');
@@ -51,7 +51,7 @@ test('a symptom entry with a red flag points to prompt care and hides exercise s
 
 test('a planned workout that touches the noted activities is flagged, and changed only on request', async () => {
   await app.page.goto('/');
-  await app.click('Workouts');
+  await app.click('Train');
   await app.click('Run and Jump');
   await app.see('Clashes with your training limits');
   await app.see('Run · running · Limited (your note)');

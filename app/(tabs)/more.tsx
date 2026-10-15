@@ -1,172 +1,24 @@
-import { router } from 'expo-router';
 import React from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { AccountCard } from '@/components/account/AccountCard';
-import { Card } from '@/components/ui/Card';
+import { MenuList, type MenuItem } from '@/components/ui/MenuList';
 import { TabHeader } from '@/components/ui/TabHeader';
 import { strings } from '@/lib/strings';
-import { colors, fontFamily, radius, spacing } from '@/theme/colors';
-import { Icons, type LucideIcon } from '@/theme/icons';
+import { colors, fontFamily, spacing } from '@/theme/colors';
+import { Icons } from '@/theme/icons';
 
-type MenuItem = {
-  icon: LucideIcon;
-  color: string;
-  title: string;
-  subtitle: string;
-  route: string;
-};
-
-const accountItems: MenuItem[] = [
-  {
-    icon: Icons.sparkles,
-    color: colors.purple,
-    title: strings.chatTitle,
-    subtitle: strings.chatMenuSubtitle,
-    route: '/chat',
-  },
-  {
-    icon: Icons.personStanding,
-    color: colors.blue,
-    title: strings.profileTitle,
-    subtitle: strings.profileMenuSubtitle,
-    route: '/profile',
-  },
-  {
-    icon: Icons.users,
-    color: colors.teal,
-    title: strings.sharingTitle,
-    subtitle: strings.sharingMenuSubtitle,
-    route: '/sharing',
-  },
-  {
-    icon: Icons.layoutGrid,
-    color: colors.blue,
-    title: strings.settingsTitle,
-    subtitle: strings.settingsMenuSubtitle,
-    route: '/settings',
-  },
-  {
-    icon: Icons.heartPulse,
-    color: colors.red,
-    title: strings.healthTitle,
-    subtitle: strings.healthMenuSubtitle,
-    route: '/health',
-  },
-  {
-    icon: Icons.heart,
-    color: colors.green,
-    title: strings.recoveryTitle,
-    subtitle: strings.recoveryMenuSubtitle,
-    route: '/recovery',
-  },
-  {
-    icon: Icons.personStanding,
-    color: colors.red,
-    title: strings.rehabTitle,
-    subtitle: strings.rehabMenuSubtitle,
-    route: '/rehab',
-  },
-  {
-    icon: Icons.flame,
-    color: colors.orange,
-    title: strings.nutritionTitle,
-    subtitle: strings.nutritionMenuSubtitle,
-    route: '/nutrition',
-  },
-  {
-    icon: Icons.dumbbell,
-    color: colors.purple,
-    title: strings.fromCoachTitle,
-    subtitle: strings.fromCoachMenuSubtitle,
-    route: '/assignments',
-  },
-  {
-    icon: Icons.users,
-    color: colors.blue,
-    title: strings.coachingTitle,
-    subtitle: strings.coachingMenuSubtitle,
-    route: '/coach',
-  },
-  {
-    icon: Icons.layoutGrid,
-    color: colors.teal,
-    title: strings.studioTitle,
-    subtitle: strings.studioMenuSubtitle,
-    route: '/studio',
-  },
-  {
-    icon: Icons.video,
-    color: colors.purple,
-    title: strings.movementTitle,
-    subtitle: strings.movementMenuSubtitle,
-    route: '/movement',
-  },
-  {
-    icon: Icons.heartPulse,
-    color: colors.teal,
-    title: strings.physioTitle,
-    subtitle: strings.physioMenuSubtitle,
-    route: '/physio',
-  },
-  {
-    icon: Icons.info,
-    color: colors.amber,
-    title: strings.notificationsTitle,
-    subtitle: strings.notificationsMenuSubtitle,
-    route: '/notifications',
-  },
-];
-
-const items: MenuItem[] = [
-  {
-    icon: Icons.personStanding,
-    color: colors.pink,
-    title: strings.bodyDevelopmentTitle,
-    subtitle: strings.bodyDevelopmentSubtitle,
-    route: '/body-development',
-  },
-  {
-    icon: Icons.barChart,
-    color: colors.blue,
-    title: strings.performanceOverviewTitle,
-    subtitle: strings.performanceOverviewSubtitle,
-    route: '/performance-overview',
-  },
-  {
-    icon: Icons.sparkles,
-    color: colors.purple,
-    title: strings.comparisonTitle,
-    subtitle: strings.comparisonSubtitle,
-    route: '/comparison',
-  },
-  {
-    icon: Icons.target,
-    color: colors.teal,
-    title: strings.goalsForecastsTitle,
-    subtitle: strings.goalsForecastsSubtitle,
-    route: '/goals-forecast',
-  },
-  {
-    icon: Icons.lightbulb,
-    color: colors.amber,
-    title: strings.insightsTipsTitle,
-    subtitle: strings.insightsTipsSubtitle,
-    route: '/insights',
-  },
-  {
-    icon: Icons.lineChart,
-    color: colors.orange,
-    title: strings.longTermProgressTitle,
-    subtitle: strings.longTermProgressSubtitle,
-    route: '/long-term-progress',
-  },
-  {
-    icon: Icons.layers,
-    color: colors.green,
-    title: strings.targetedWorkoutsTitle,
-    subtitle: strings.targetedWorkoutsSubtitle,
-    route: '/targeted-workouts',
-  },
+/** Everything that is not training, progress or health: the assistant, people, studios, account and settings. */
+const ITEMS: MenuItem[] = [
+  { icon: Icons.sparkles, color: colors.purple, title: strings.chatTitle, subtitle: strings.chatMenuSubtitle, route: '/chat' },
+  { icon: Icons.dumbbell, color: colors.purple, title: strings.fromCoachTitle, subtitle: strings.fromCoachMenuSubtitle, route: '/assignments' },
+  { icon: Icons.users, color: colors.blue, title: strings.coachingTitle, subtitle: strings.coachingMenuSubtitle, route: '/coach' },
+  { icon: Icons.heartPulse, color: colors.teal, title: strings.physioTitle, subtitle: strings.physioMenuSubtitle, route: '/physio' },
+  { icon: Icons.layoutGrid, color: colors.teal, title: strings.studioTitle, subtitle: strings.studioMenuSubtitle, route: '/studio' },
+  { icon: Icons.layers, color: colors.green, title: strings.targetedWorkoutsTitle, subtitle: strings.targetedWorkoutsSubtitle, route: '/targeted-workouts' },
+  { icon: Icons.personStanding, color: colors.blue, title: strings.profileTitle, subtitle: strings.profileMenuSubtitle, route: '/profile' },
+  { icon: Icons.users, color: colors.teal, title: strings.sharingTitle, subtitle: strings.sharingMenuSubtitle, route: '/sharing' },
+  { icon: Icons.info, color: colors.amber, title: strings.notificationsTitle, subtitle: strings.notificationsMenuSubtitle, route: '/notifications' },
+  { icon: Icons.layoutGrid, color: colors.blue, title: strings.settingsTitle, subtitle: strings.settingsMenuSubtitle, route: '/settings' },
 ];
 
 export default function MoreScreen() {
@@ -179,20 +31,7 @@ export default function MoreScreen() {
       </View>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <AccountCard />
-        {[...accountItems, ...items].map((item) => (
-          <TouchableOpacity key={item.route} activeOpacity={0.75} onPress={() => router.push(item.route as never)}>
-            <Card style={styles.row}>
-              <View style={[styles.iconWrap, { backgroundColor: `${item.color}22` }]}>
-                <item.icon size={20} color={item.color} />
-              </View>
-              <View style={styles.textWrap}>
-                <Text style={styles.itemTitle}>{item.title}</Text>
-                <Text style={styles.itemSubtitle}>{item.subtitle}</Text>
-              </View>
-              <Icons.chevronRight size={18} color={colors.textTertiary} />
-            </Card>
-          </TouchableOpacity>
-        ))}
+        <MenuList items={ITEMS} />
       </ScrollView>
     </View>
   );
@@ -201,18 +40,7 @@ export default function MoreScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
   titleRow: { paddingHorizontal: spacing.screenX, marginBottom: spacing.lg },
-  title: { color: colors.text, fontSize: 22, fontWeight: '700', fontFamily: fontFamily.bold },
-  subtitle: { color: colors.textSecondary, fontSize: 13, marginTop: 4 },
+  title: { color: colors.text, fontSize: 22, fontFamily: fontFamily.bold },
+  subtitle: { color: colors.textSecondary, fontSize: 13, marginTop: 4, fontFamily: fontFamily.regular },
   content: { paddingHorizontal: spacing.screenX, paddingBottom: spacing.xxl, gap: spacing.md },
-  row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  iconWrap: {
-    width: 42,
-    height: 42,
-    borderRadius: radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  textWrap: { flex: 1 },
-  itemTitle: { color: colors.text, fontSize: 15, fontWeight: '700', fontFamily: fontFamily.bold },
-  itemSubtitle: { color: colors.textSecondary, fontSize: 12.5, marginTop: 2 },
 });

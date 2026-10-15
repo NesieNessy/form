@@ -20,7 +20,7 @@ test.describe('logging food on a fresh device', () => {
 
   test('an empty day says so', async () => {
     await app.page.goto('/');
-    await app.click('More');
+    await app.click('Health');
     await app.click('Nutrition');
     await app.see('Nothing logged for this day.');
   });
@@ -150,7 +150,7 @@ test.describe('targets and fuel around training', () => {
 
   test('fuel is logged against the completed workout', async () => {
     await app.page.goto('/');
-    await app.click('Workouts');
+    await app.click('Train');
     await app.visible('Long Ride').first().click();
     await app.see('Training Fuel');
     await app.see('Nothing logged for this session.');

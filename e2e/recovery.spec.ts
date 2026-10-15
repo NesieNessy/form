@@ -27,7 +27,7 @@ async function answer(question: string, value: number) {
 
 test('a v5 store is upgraded, and a poor night against the usual one is pointed out', async () => {
   await app.page.goto('/');
-  await app.click('More');
+  await app.click('Health');
   await app.click('Recovery');
   await app.see('Some signals suggest taking it easier today.');
   await app.see('58 bpm, your normal 51 bpm');
