@@ -10,13 +10,13 @@ import { TimePickerModal } from '@/components/workout/TimePickerModal';
 import { formatDateLabel } from '@/lib/date';
 import { addShift, listShifts, removeShift } from '@/lib/studio/api';
 import { isAdmin, isStaff, type Organization, type People, type Shift } from '@/lib/studio/model';
-import { strings } from '@/lib/strings';
+import { locale, strings, timeLocale } from '@/lib/strings';
 import { colors, iconStrokeWidth } from '@/theme/colors';
 import { Icons } from '@/theme/icons';
 import { s } from './styles';
 
 const DAY = 86_400_000;
-const when = (iso: string) => new Date(iso).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false });
+const when = (iso: string) => new Date(iso).toLocaleString(locale, { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false });
 
 /** Staff shifts for the next two weeks; owners and managers plan them. */
 export function StaffPanel({ org, people, onToast }: { org: Organization; people: People | null; onToast: (m: string) => void }) {
@@ -60,7 +60,7 @@ export function StaffPanel({ org, people, onToast }: { org: Organization; people
               </TouchableOpacity>
             ) : null}
           </View>
-          <Text style={s.meta}>{[`${when(x.starts_at)}–${new Date(x.ends_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`, x.facility, x.note].filter(Boolean).join(' · ')}</Text>
+          <Text style={s.meta}>{[`${when(x.starts_at)}–${new Date(x.ends_at).toLocaleTimeString(timeLocale, { hour: '2-digit', minute: '2-digit' })}`, x.facility, x.note].filter(Boolean).join(' · ')}</Text>
         </Card>
       ))}
       {admin && staff.length ? (
@@ -71,7 +71,7 @@ export function StaffPanel({ org, people, onToast }: { org: Organization; people
           <TouchableOpacity style={s.dateRow} onPress={() => setPicking('date')}>
             <Icons.calendar size={16} color={colors.textSecondary} strokeWidth={iconStrokeWidth} />
             <Text style={s.label}>{strings.shiftStarts}</Text>
-            <Text style={s.dateValue}>{`${formatDateLabel(start)}, ${start.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`}</Text>
+            <Text style={s.dateValue}>{`${formatDateLabel(start)}, ${start.toLocaleTimeString(timeLocale, { hour: '2-digit', minute: '2-digit' })}`}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={s.dateRow} onPress={() => setPicking('time')}>
             <Icons.clock size={16} color={colors.textSecondary} strokeWidth={iconStrokeWidth} />

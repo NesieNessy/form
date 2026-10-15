@@ -1,3 +1,4 @@
+import { locale } from '../strings';
 import { formatMetricValue, type ExternalActivity, type MetricKey } from './model';
 
 export function formatDuration(seconds: number): string {
@@ -14,7 +15,7 @@ export function formatDistance(meters: number): string {
 }
 
 export function formatActivityDate(ms: number): string {
-  return new Date(ms).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+  return new Date(ms).toLocaleString(locale, { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 }
 
 const SPORT_NAME: Record<string, string> = {

@@ -39,6 +39,13 @@ const accountItems: MenuItem[] = [
     route: '/sharing',
   },
   {
+    icon: Icons.layoutGrid,
+    color: colors.blue,
+    title: strings.settingsTitle,
+    subtitle: strings.settingsMenuSubtitle,
+    route: '/settings',
+  },
+  {
     icon: Icons.heartPulse,
     color: colors.red,
     title: strings.healthTitle,

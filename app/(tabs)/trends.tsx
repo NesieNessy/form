@@ -16,7 +16,7 @@ import {
   trendsOverview,
 } from '@/lib/mockData';
 import { useContentWidth } from '@/lib/useContentWidth';
-import { strings } from '@/lib/strings';
+import { strings, locale } from '@/lib/strings';
 import { useTrainingStats } from '@/lib/useTrainingStats';
 import {
   enduranceSeries,
@@ -183,7 +183,7 @@ function BodyDataTab({ chartWidth }: { chartWidth: number }) {
           <View>
             <Text style={styles.chartLabel}>{BODY_METRIC_TABS.find((t) => t.key === metric)?.label}</Text>
             <Text style={styles.chartValue}>
-              {current.toLocaleString('en-US', { maximumFractionDigits: 1 })} {config.unit}
+              {current.toLocaleString(locale, { maximumFractionDigits: 1 })} {config.unit}
             </Text>
           </View>
           <View style={[styles.deltaPill, { backgroundColor: `${config.color}22` }]}>
@@ -194,7 +194,7 @@ function BodyDataTab({ chartWidth }: { chartWidth: number }) {
           </View>
         </View>
         <Text style={styles.sinceLabel}>
-          {(current - start).toLocaleString('en-US', { maximumFractionDigits: 1, signDisplay: 'always' })} {config.unit} since Jul 1, 2026
+          {(current - start).toLocaleString(locale, { maximumFractionDigits: 1, signDisplay: 'always' })} {config.unit} since Jul 1, 2026
         </Text>
         <View style={{ height: spacing.md }} />
         <LineChart points={config.points} color={config.color} width={chartWidth} />

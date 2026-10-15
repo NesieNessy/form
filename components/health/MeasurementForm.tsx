@@ -1,3 +1,4 @@
+import { tr } from '@/lib/i18n/tr';
 import React, { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
@@ -40,7 +41,7 @@ export function MeasurementForm({ onSave, onCancel }: Props) {
     const now = new Date();
     const observedAt = isSameDay(date, now) ? now.getTime() : new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12).getTime();
     const input: ObservationInput = { metric, value: resolved, unit: meta.unit, observedAt, ...(meta.methods ? { method } : {}) };
-    const issues = Number.isNaN(resolved) ? [{ message: `Enter a value for ${meta.label.toLowerCase()}.` }] : validateObservation(input, Date.now());
+    const issues = Number.isNaN(resolved) ? [{ message: tr(`Enter a value for ${meta.label.toLowerCase()}.`, `Gib einen Wert für ${meta.label} ein.`) }] : validateObservation(input, Date.now());
     if (issues.length) {
       setErrors(issues.map((i) => i.message));
       return;

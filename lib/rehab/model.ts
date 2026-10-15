@@ -1,3 +1,4 @@
+import { tr } from '../i18n/tr';
 import type { WorkoutContent } from '../workout/model';
 
 /**
@@ -31,21 +32,21 @@ export type ActivityTag =
   | 'core_flexion';
 
 export const TAG_LABEL: Record<ActivityTag, string> = {
-  running: 'Running',
-  jumping: 'Jumping and landing',
-  squatting: 'Squatting',
-  lunging: 'Lunging',
-  hinging: 'Hip hinging',
-  overhead: 'Arms overhead',
-  pressing: 'Pressing',
-  pulling: 'Pulling',
-  hanging: 'Hanging',
-  inverted: 'Upside down',
-  loaded_spine: 'Heavy load on the spine',
-  cycling: 'Cycling',
-  rowing: 'Rowing',
-  swimming: 'Swimming',
-  core_flexion: 'Sit-ups and crunches',
+  running: tr('Running', 'Laufen'),
+  jumping: tr('Jumping and landing', 'Springen und Landen'),
+  squatting: tr('Squatting', 'Kniebeugen'),
+  lunging: tr('Lunging', 'Ausfallschritte'),
+  hinging: tr('Hip hinging', 'Hüftbeugen (Hinge)'),
+  overhead: tr('Arms overhead', 'Arme über Kopf'),
+  pressing: tr('Pressing', 'Drücken'),
+  pulling: tr('Pulling', 'Ziehen'),
+  hanging: tr('Hanging', 'Hängen'),
+  inverted: tr('Upside down', 'Kopfüber'),
+  loaded_spine: tr('Heavy load on the spine', 'Schwere Last auf der Wirbelsäule'),
+  cycling: tr('Cycling', 'Radfahren'),
+  rowing: tr('Rowing', 'Rudern'),
+  swimming: tr('Swimming', 'Schwimmen'),
+  core_flexion: tr('Sit-ups and crunches', 'Sit-ups und Crunches'),
 };
 
 export const TAG_ORDER = Object.keys(TAG_LABEL) as ActivityTag[];
@@ -119,19 +120,19 @@ export const ACTIVITY_TAGS: Record<string, ActivityTag[]> = {
 export const BODY_REGIONS = ['head_neck', 'shoulder', 'elbow', 'wrist_hand', 'upper_back', 'lower_back', 'hip', 'thigh', 'knee', 'lower_leg', 'ankle_foot', 'chest', 'other'] as const;
 export type BodyRegion = (typeof BODY_REGIONS)[number];
 export const BODY_REGION_LABEL: Record<BodyRegion, string> = {
-  head_neck: 'Head or neck',
-  shoulder: 'Shoulder',
-  elbow: 'Elbow',
-  wrist_hand: 'Wrist or hand',
-  upper_back: 'Upper back',
-  lower_back: 'Lower back',
-  hip: 'Hip',
-  thigh: 'Thigh',
-  knee: 'Knee',
-  lower_leg: 'Lower leg',
-  ankle_foot: 'Ankle or foot',
-  chest: 'Chest',
-  other: 'Somewhere else',
+  head_neck: tr('Head or neck', 'Kopf oder Nacken'),
+  shoulder: tr('Shoulder', 'Schulter'),
+  elbow: tr('Elbow', 'Ellbogen'),
+  wrist_hand: tr('Wrist or hand', 'Handgelenk oder Hand'),
+  upper_back: tr('Upper back', 'Oberer Rücken'),
+  lower_back: tr('Lower back', 'Unterer Rücken'),
+  hip: tr('Hip', 'Hüfte'),
+  thigh: tr('Thigh', 'Oberschenkel'),
+  knee: tr('Knee', 'Knie'),
+  lower_leg: tr('Lower leg', 'Unterschenkel'),
+  ankle_foot: tr('Ankle or foot', 'Sprunggelenk oder Fuß'),
+  chest: tr('Chest', 'Brust'),
+  other: tr('Somewhere else', 'Woanders'),
 };
 
 export type Laterality = 'left' | 'right' | 'both' | 'none';
@@ -139,11 +140,11 @@ export type Laterality = 'left' | 'right' | 'both' | 'none';
 /** The athlete's own tracking status. Return-to-sport stages are separate and only a clinician records them. */
 export type EpisodeStatus = 'reported' | 'under_assessment' | 'rehabilitating' | 'paused' | 'resolved';
 export const EPISODE_STATUS_LABEL: Record<EpisodeStatus, string> = {
-  reported: 'Noted',
-  under_assessment: 'Being assessed',
-  rehabilitating: 'In rehab',
-  paused: 'Paused',
-  resolved: 'Resolved',
+  reported: tr('Noted', 'Notiert'),
+  under_assessment: tr('Being assessed', 'Wird abgeklärt'),
+  rehabilitating: tr('In rehab', 'In der Reha'),
+  paused: tr('Paused', 'Pausiert'),
+  resolved: tr('Resolved', 'Abgeschlossen'),
 };
 
 export type InjuryEpisode = {
@@ -165,10 +166,10 @@ export type InjuryEpisode = {
 
 /** Things that call for prompt professional assessment. Placeholder list pending clinician review. */
 export const RED_FLAGS = {
-  cannot_bear_weight: 'I cannot put weight on it',
-  numbness: 'Numbness, tingling or weakness that is new',
-  deformity: 'It looks deformed or very swollen',
-  fever: 'Fever or feeling very ill along with the pain',
+  cannot_bear_weight: tr('I cannot put weight on it', 'Ich kann es nicht belasten'),
+  numbness: tr('Numbness, tingling or weakness that is new', 'Neue Taubheit, Kribbeln oder Schwäche'),
+  deformity: tr('It looks deformed or very swollen', 'Es sieht verformt oder stark geschwollen aus'),
+  fever: tr('Fever or feeling very ill along with the pain', 'Fieber oder starkes Krankheitsgefühl zusammen mit den Schmerzen'),
 } as const;
 export type RedFlag = keyof typeof RED_FLAGS;
 
@@ -194,9 +195,9 @@ export type SymptomLog = {
 
 export type RestrictionRule = 'avoid' | 'review_required' | 'limit';
 export const RULE_LABEL: Record<RestrictionRule, string> = {
-  avoid: 'Avoid',
-  review_required: 'Ask before doing',
-  limit: 'Limited',
+  avoid: tr('Avoid', 'Vermeiden'),
+  review_required: tr('Ask before doing', 'Vorher fragen'),
+  limit: tr('Limited', 'Eingeschränkt'),
 };
 
 export type Issuer = { id: string; name: string | null; role: string; verified: boolean };
@@ -231,9 +232,9 @@ export type RehabPlan = {
 
 export type RtsStage = 'participation' | 'sport' | 'performance';
 export const RTS_LABEL: Record<RtsStage, string> = {
-  participation: 'Return to participation',
-  sport: 'Return to sport',
-  performance: 'Return to performance',
+  participation: tr('Return to participation', 'Rückkehr ins Training'),
+  sport: tr('Return to sport', 'Rückkehr zum Sport'),
+  performance: tr('Return to performance', 'Rückkehr zur Leistung'),
 };
 
 export type RtsDecision = { id: string; episodeId: string; stage: RtsStage; criteria: string; clinician: Issuer; decidedAt: number };

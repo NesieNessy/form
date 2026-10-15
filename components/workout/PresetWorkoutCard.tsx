@@ -77,7 +77,6 @@ export function PresetWorkoutCard({ preset, favorited, onToggleFavorite, onPrevi
       <View style={styles.divider} />
       <GradientButton
         label={strings.startWorkout}
-        colorsOverride={[accent, accent]}
         onPress={onStart}
       />
 

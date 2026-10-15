@@ -1,3 +1,4 @@
+import { tr } from '../i18n/tr';
 import { supabase } from '../supabase';
 import { parseClinical, type ClinicalJson } from '../sync/mappers';
 import type { WorkoutContent } from '../workout/model';
@@ -12,23 +13,23 @@ import type { ActivityTag, ClinicalRecords, EpisodeStatus, InjuryEpisode, Restri
 export type Result<T> = { ok: true; data: T } | { ok: false; error: string };
 
 const MESSAGES: Record<string, string> = {
-  NOT_AUTHENTICATED: 'You need to be signed in.',
-  FORBIDDEN: 'You do not have access to this case.',
-  EPISODE_NOT_FOUND: 'This case is not on the server yet. Wait a moment for it to sync, then try again.',
-  ONLY_PHYSIOTHERAPISTS: 'Cases can be shared only with a physiotherapist.',
-  CLINICIAN_NOT_VERIFIED: 'Return-to-sport decisions need a verified clinician. Your registration has not been verified yet.',
-  CRITERIA_REQUIRED: 'Write down the criteria the decision is based on.',
-  PLAN_INVALID: 'A plan needs a title and at least one exercise.',
-  DATE_IN_PAST: 'The end date cannot be in the past.',
+  NOT_AUTHENTICATED: tr('You need to be signed in.', 'Du musst angemeldet sein.'),
+  FORBIDDEN: tr('You do not have access to this case.', 'Auf diesen Fall hast du keinen Zugriff.'),
+  EPISODE_NOT_FOUND: tr('This case is not on the server yet. Wait a moment for it to sync, then try again.', 'Dieser Fall ist noch nicht auf dem Server. Warte kurz auf die Synchronisierung und versuche es dann erneut.'),
+  ONLY_PHYSIOTHERAPISTS: tr('Cases can be shared only with a physiotherapist.', 'Fälle können nur mit einer Physiotherapie geteilt werden.'),
+  CLINICIAN_NOT_VERIFIED: tr('Return-to-sport decisions need a verified clinician. Your registration has not been verified yet.', 'Entscheidungen zur Rückkehr zum Sport brauchen eine verifizierte Fachperson. Deine Zulassung ist noch nicht verifiziert.'),
+  CRITERIA_REQUIRED: tr('Write down the criteria the decision is based on.', 'Schreib die Kriterien auf, auf denen die Entscheidung beruht.'),
+  PLAN_INVALID: tr('A plan needs a title and at least one exercise.', 'Ein Plan braucht einen Titel und mindestens eine Übung.'),
+  DATE_IN_PAST: tr('The end date cannot be in the past.', 'Das Enddatum kann nicht in der Vergangenheit liegen.'),
 };
 
 function friendly(message: string | undefined): string {
-  if (!message) return 'Something went wrong. Try again.';
+  if (!message) return tr('Something went wrong. Try again.', 'Etwas ist schiefgegangen. Versuche es erneut.');
   const code = Object.keys(MESSAGES).find((k) => message.includes(k));
   if (code) return MESSAGES[code];
-  if (/check constraint/i.test(message)) return 'Some of that is not valid. Check the entries.';
-  if (/fetch|network/i.test(message)) return 'No connection. This needs to be online.';
-  return 'Something went wrong. Try again.';
+  if (/check constraint/i.test(message)) return tr('Some of that is not valid. Check the entries.', 'Einiges davon ist ungültig. Prüfe die Eingaben.');
+  if (/fetch|network/i.test(message)) return tr('No connection. This needs to be online.', 'Keine Verbindung. Dafür musst du online sein.');
+  return tr('Something went wrong. Try again.', 'Etwas ist schiefgegangen. Versuche es erneut.');
 }
 
 async function call<T>(fn: string, args?: Record<string, unknown>): Promise<Result<T>> {

@@ -12,7 +12,7 @@ import { formatDateLabel } from '@/lib/date';
 import { formatGoalValue, type Goal, type GoalRevision } from '@/lib/goals/model';
 import { goalProgress } from '@/lib/goals/progress';
 import { goalReviews, type GoalReview } from '@/lib/sharing/api';
-import { strings } from '@/lib/strings';
+import { strings, locale } from '@/lib/strings';
 import { getWorkoutData, progressInputsOf, useWorkoutsStore } from '@/lib/workoutsStore';
 import { colors, fontFamily, iconStrokeWidth, radius, spacing } from '@/theme/colors';
 import { Icons } from '@/theme/icons';
@@ -22,7 +22,7 @@ const fromIso = (s: string) => {
   const [y, m, d] = s.split('-').map(Number);
   return new Date(y, m - 1, d);
 };
-const day = (ms: number) => new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+const day = (ms: number) => new Date(ms).toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' });
 const usesClock = (g: Goal) => g.metric.kind === 'distance_time' || (g.metric.kind === 'benchmark' && g.metric.benchmark !== 'ftp');
 const isHabit = (g: Goal) => g.metric.kind === 'sessions_per_week' || g.metric.kind === 'nutrition_logging';
 
@@ -167,7 +167,7 @@ export default function GoalScreen() {
         </Card>
 
         {goal.metric.kind === 'event' && goal.status === 'active' && !goal.completedOn ? (
-          <GradientButton label={strings.goalFinished} icon={<Icons.trophy size={16} color="#fff" strokeWidth={iconStrokeWidth} />} onPress={() => setPicking('finished')} />
+          <GradientButton label={strings.goalFinished} icon={<Icons.trophy size={16} color={colors.onAction} strokeWidth={iconStrokeWidth} />} onPress={() => setPicking('finished')} />
         ) : null}
 
         {revising ? (

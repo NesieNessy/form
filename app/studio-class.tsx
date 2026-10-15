@@ -9,7 +9,7 @@ import { Toast } from '@/components/ui/Toast';
 import { WorkoutSummaryView } from '@/components/workout/WorkoutSummaryView';
 import { bookClass, cancelBooking, cancelClass, classRoster, classWorkout, listClasses, markAttendance } from '@/lib/studio/api';
 import { bookingAction, type RosterRow, type StudioClass } from '@/lib/studio/model';
-import { strings } from '@/lib/strings';
+import { locale, strings, timeLocale } from '@/lib/strings';
 import type { WorkoutVersion } from '@/lib/workout/model';
 import { useWorkoutsStore } from '@/lib/workoutsStore';
 import { colors, spacing } from '@/theme/colors';
@@ -74,7 +74,7 @@ export default function StudioClassScreen() {
     <View style={styles.screen}>
       <DetailHeader
         title={klass.title}
-        subtitle={`${start.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}, ${start.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}–${new Date(klass.ends_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`}
+        subtitle={`${start.toLocaleDateString(locale, { weekday: 'long', month: 'short', day: 'numeric' })}, ${start.toLocaleTimeString(timeLocale, { hour: '2-digit', minute: '2-digit' })}–${new Date(klass.ends_at).toLocaleTimeString(timeLocale, { hour: '2-digit', minute: '2-digit' })}`}
       />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Card style={s.card}>

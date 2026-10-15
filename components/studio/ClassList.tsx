@@ -5,15 +5,15 @@ import { Card } from '@/components/ui/Card';
 import { GradientButton } from '@/components/ui/GradientButton';
 import { bookClass, cancelBooking, listClasses } from '@/lib/studio/api';
 import { bookingAction, byDay, teaches, type Organization, type StudioClass } from '@/lib/studio/model';
-import { strings } from '@/lib/strings';
+import { locale, strings, timeLocale } from '@/lib/strings';
 import { ScheduleClassForm } from './ScheduleClassForm';
 import { s } from './styles';
 
 const DAY = 86_400_000;
-const time = (iso: string) => new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+const time = (iso: string) => new Date(iso).toLocaleTimeString(timeLocale, { hour: '2-digit', minute: '2-digit' });
 const dayLabel = (ymd: string) => {
   const [y, m, d] = ymd.split('-').map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+  return new Date(y, m - 1, d).toLocaleDateString(locale, { weekday: 'long', month: 'short', day: 'numeric' });
 };
 
 /** The next four weeks of a studio's timetable, with booking for members and scheduling for staff who teach. */

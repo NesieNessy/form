@@ -1,4 +1,4 @@
-import { strings } from '../strings';
+import { strings, locale } from '../strings';
 import type { NutrientTotal } from './engine';
 import { formatNutrient, type FoodLogEntry, type NutrientKey, type Quantity, type Range } from './model';
 
@@ -36,5 +36,5 @@ export function fluidText(ml: number): string {
 
 export function formatDayLabel(date: string, today: string): string {
   if (date === today) return strings.today;
-  return new Date(`${date}T12:00:00`).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  return new Date(`${date}T12:00:00`).toLocaleDateString(locale, { weekday: 'short', month: 'short', day: 'numeric' });
 }

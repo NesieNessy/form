@@ -1,3 +1,4 @@
+import { tr } from '../i18n/tr';
 import { strings } from '../strings';
 import type { Block, BlockConfig, BlockType, Prescription, Score, Step } from './model';
 
@@ -24,7 +25,7 @@ export function formatKg(kg: number): string {
 
 const INTENSITY_LABEL: Record<NonNullable<Prescription['intensity']>['type'], (v: number) => string> = {
   rpe: (v) => `RPE ${v}`,
-  hr_zone: (v) => `Zone ${v}`,
+  hr_zone: (v) => tr(`Zone ${v}`, `Zone ${v}`),
   pace_sec_per_km: (v) => `${formatClock(v)} /km`,
   ftp_percent: (v) => `${v}% FTP`,
   power_w: (v) => `${v} W`,
@@ -47,7 +48,7 @@ export function formatPrescription(rx: Prescription): string {
   }
   if (rx.intensity) parts.push(INTENSITY_LABEL[rx.intensity.type](rx.intensity.value));
   if (rx.side && rx.side !== 'both') parts.push(rx.side);
-  if (rx.restSeconds) parts.push(`rest ${formatClock(rx.restSeconds)}`);
+  if (rx.restSeconds) parts.push(tr(`rest ${formatClock(rx.restSeconds)}`, `Pause ${formatClock(rx.restSeconds)}`));
   if (rx.note) parts.push(rx.note);
   return parts.join(' · ');
 }
@@ -130,7 +131,7 @@ function formatConfigDetail(config: BlockConfig): string | undefined {
     case 'sets_reps': {
       const parts: string[] = [];
       if (config.sets) parts.push(`${config.sets} ${config.sets === 1 ? strings.setLower : strings.setsLower}`);
-      if (config.restSeconds) parts.push(`rest ${formatClock(config.restSeconds)}`);
+      if (config.restSeconds) parts.push(tr(`rest ${formatClock(config.restSeconds)}`, `Pause ${formatClock(config.restSeconds)}`));
       return parts.join(' · ') || undefined;
     }
     case 'continuous': {

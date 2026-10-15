@@ -153,7 +153,7 @@ export default function ActivityScreen() {
               <GradientButton label={strings.cancel} variant="secondary" style={{ flex: 1 }} onPress={() => setConfirmingDelete(false)} />
               <GradientButton
                 label={strings.deleteWorkout}
-                colorsOverride={[colors.red, colors.red]}
+                variant="danger"
                 style={{ flex: 1 }}
                 onPress={() => {
                   removeActivity(live.id);

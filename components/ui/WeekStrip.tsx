@@ -42,10 +42,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.cardAlt,
   },
   dotDone: {
-    backgroundColor: 'rgba(61,220,132,0.16)',
+    backgroundColor: `${colors.green}29`,
   },
   dotToday: {
-    backgroundColor: colors.blue,
+    backgroundColor: colors.action,
   },
   dateLabel: {
     color: colors.textSecondary,
@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     fontFamily: fontFamily.semibold,
   },
   dateLabelToday: {
-    color: '#fff',
+    color: colors.onAction,
     fontFamily: fontFamily.bold,
   },
 });

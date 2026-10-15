@@ -1,3 +1,4 @@
+import { tr } from '../i18n/tr';
 import { newUuid } from '../id';
 import { mark, type WorkoutData } from '../workout/state';
 import { BODY_REGIONS, RED_FLAGS, TAG_ORDER, type InjuryEpisode, type RedFlag, type SymptomLog } from './model';
@@ -17,11 +18,11 @@ const localDateOf = (ms: number) => {
 export type EpisodeInput = Pick<InjuryEpisode, 'bodyRegion' | 'laterality' | 'onsetType' | 'reportedProblem' | 'affectedActivities'> & { onsetDate?: string };
 
 function checkEpisode(input: Partial<EpisodeInput>): string | undefined {
-  if (input.reportedProblem !== undefined && !input.reportedProblem.trim()) return 'Describe what is going on, in your own words.';
-  if (input.reportedProblem !== undefined && input.reportedProblem.length > 500) return 'Keep the description under 500 characters.';
-  if (input.bodyRegion !== undefined && !BODY_REGIONS.includes(input.bodyRegion)) return 'Choose where it is.';
-  if (input.affectedActivities?.some((t) => !TAG_ORDER.includes(t))) return 'Unknown activity.';
-  if (input.onsetDate && !/^\d{4}-\d{2}-\d{2}$/.test(input.onsetDate)) return 'The date is not valid.';
+  if (input.reportedProblem !== undefined && !input.reportedProblem.trim()) return tr('Describe what is going on, in your own words.', 'Beschreib in eigenen Worten, was los ist.');
+  if (input.reportedProblem !== undefined && input.reportedProblem.length > 500) return tr('Keep the description under 500 characters.', 'Halte die Beschreibung unter 500 Zeichen.');
+  if (input.bodyRegion !== undefined && !BODY_REGIONS.includes(input.bodyRegion)) return tr('Choose where it is.', 'Wähle, wo es ist.');
+  if (input.affectedActivities?.some((t) => !TAG_ORDER.includes(t))) return tr('Unknown activity.', 'Unbekannte Aktivität.');
+  if (input.onsetDate && !/^\d{4}-\d{2}-\d{2}$/.test(input.onsetDate)) return tr('The date is not valid.', 'Das Datum ist ungültig.');
   return undefined;
 }
 
@@ -36,7 +37,7 @@ export function addEpisode(data: WorkoutData, input: EpisodeInput, nowMs: number
 
 export function updateEpisode(data: WorkoutData, episodeId: string, patch: Partial<EpisodeInput & Pick<InjuryEpisode, 'status'>>, nowMs: number): Result<object> {
   const episode = data.episodes[episodeId];
-  if (!episode || episode.deletedAt) return { ok: false, error: 'This case no longer exists.' };
+  if (!episode || episode.deletedAt) return { ok: false, error: tr('This case no longer exists.', 'Diesen Fall gibt es nicht mehr.') };
   const error = checkEpisode(patch);
   if (error) return { ok: false, error };
   const next = { ...episode, ...patch, updatedAt: nowMs };
@@ -52,12 +53,12 @@ export function removeEpisode(data: WorkoutData, episodeId: string, nowMs: numbe
 export type SymptomInput = { intensity: number; function?: number; context?: string; redFlags?: RedFlag[]; note?: string; loggedAt?: number };
 
 export function addSymptomLog(data: WorkoutData, episodeId: string, input: SymptomInput, nowMs: number): Result<{ logId: string }> {
-  if (!data.episodes[episodeId] || data.episodes[episodeId].deletedAt) return { ok: false, error: 'This case no longer exists.' };
+  if (!data.episodes[episodeId] || data.episodes[episodeId].deletedAt) return { ok: false, error: tr('This case no longer exists.', 'Diesen Fall gibt es nicht mehr.') };
   const inRange = (v: number | undefined) => v === undefined || (Number.isInteger(v) && v >= 0 && v <= 10);
-  if (!inRange(input.intensity) || !inRange(input.function)) return { ok: false, error: 'Use a whole number from 0 to 10.' };
+  if (!inRange(input.intensity) || !inRange(input.function)) return { ok: false, error: tr('Use a whole number from 0 to 10.', 'Verwende eine ganze Zahl von 0 bis 10.') };
   const redFlags = (input.redFlags ?? []).filter((f) => f in RED_FLAGS);
   const at = input.loggedAt ?? nowMs;
-  if (at > nowMs + 60_000) return { ok: false, error: 'The time cannot be in the future.' };
+  if (at > nowMs + 60_000) return { ok: false, error: tr('The time cannot be in the future.', 'Die Zeit kann nicht in der Zukunft liegen.') };
   const logId = newUuid();
   const log: SymptomLog = {
     id: logId,

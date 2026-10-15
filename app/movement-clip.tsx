@@ -16,7 +16,7 @@ import { movementName, viewTitle } from '@/lib/movement/model';
 import { extractPose, poseSupported } from '@/lib/movement/pose';
 import { checkAnalysis } from '@/lib/movement/validate';
 import { listRelationships, type Relationship } from '@/lib/sharing/api';
-import { strings } from '@/lib/strings';
+import { strings, locale } from '@/lib/strings';
 import { colors, fontFamily, spacing } from '@/theme/colors';
 
 export default function ClipScreen() {
@@ -92,7 +92,7 @@ export default function ClipScreen() {
     <View style={styles.screen}>
       <DetailHeader
         title={movementName(clip.movement_id)}
-        subtitle={`${viewTitle(clip.movement_id, clip.camera_view)} · ${new Date(clip.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`}
+        subtitle={`${viewTitle(clip.movement_id, clip.camera_view)} · ${new Date(clip.created_at).toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' })}`}
       />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <ClipPlayer ref={player} uri={link} />

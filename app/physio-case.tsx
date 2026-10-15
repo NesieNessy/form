@@ -17,12 +17,12 @@ import { addCaseNote, addRestriction, liftRestriction, listCases, publishRehabPl
 import { BODY_REGION_LABEL, EPISODE_STATUS_LABEL, RED_FLAGS, RTS_LABEL, RULE_LABEL, TAG_LABEL, TAG_ORDER, type ActivityTag, type RedFlag, type RestrictionRule, type RtsStage } from '@/lib/rehab/model';
 import { resolveActivity } from '@/lib/workout/catalog';
 import type { WorkoutContent } from '@/lib/workout/model';
-import { strings } from '@/lib/strings';
+import { strings, locale } from '@/lib/strings';
 import { colors, fontFamily, spacing } from '@/theme/colors';
 
 const RULES = (Object.keys(RULE_LABEL) as RestrictionRule[]).map((k) => ({ key: k, label: RULE_LABEL[k] }));
 const STAGES = (Object.keys(RTS_LABEL) as RtsStage[]).map((k) => ({ key: k, label: RTS_LABEL[k] }));
-const day = (ms: number) => new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+const day = (ms: number) => new Date(ms).toLocaleDateString(locale, { month: 'short', day: 'numeric' });
 const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
 type Row = { key: string; name: string; sets?: number; reps?: number; hold?: number };

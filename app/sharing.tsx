@@ -26,7 +26,7 @@ import {
   type RelationshipType,
 } from '@/lib/sharing/api';
 import { buildExport, deliverExport } from '@/lib/sharing/exportFile';
-import { strings } from '@/lib/strings';
+import { strings, locale } from '@/lib/strings';
 import { useWorkoutsStore } from '@/lib/workoutsStore';
 import { colors, fontFamily, iconStrokeWidth, spacing } from '@/theme/colors';
 import { Icons } from '@/theme/icons';
@@ -57,7 +57,7 @@ function describe(entry: AccessLogEntry, categories: DataCategory[]): string {
 }
 
 function when(iso: string): string {
-  return new Date(iso).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+  return new Date(iso).toLocaleString(locale, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 }
 
 export default function SharingScreen() {
@@ -300,7 +300,8 @@ export default function SharingScreen() {
                 />
                 <GradientButton
                   label={strings.deleteForever}
-                  colorsOverride={deleteText.trim().toUpperCase() === DELETE_WORD ? [colors.red, colors.red] : [colors.border, colors.border]}
+                  variant="danger"
+                  disabled={deleteText.trim().toUpperCase() !== DELETE_WORD}
                   style={{ flex: 1 }}
                   onPress={() => void deleteEverything()}
                 />

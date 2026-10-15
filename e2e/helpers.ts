@@ -12,7 +12,8 @@ export const readFixture = (name: string) => JSON.parse(readFileSync(fixture(nam
  * screens stay mounted on the web, so every lookup is limited to visible text.
  */
 export async function openApp(browser: Browser, seed?: unknown) {
-  const context = await browser.newContext({ viewport: { width: 420, height: 900 } });
+  // English, whatever the machine's language: the tests read the English text.
+  const context = await browser.newContext({ viewport: { width: 420, height: 900 }, locale: 'en-US' });
   if (seed) {
     await context.addInitScript((value) => {
       if (!localStorage.getItem('seeded')) {

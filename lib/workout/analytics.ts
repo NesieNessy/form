@@ -1,3 +1,6 @@
+import { WEEKDAYS_SHORT } from '../i18n/tr';
+import { tr } from '../i18n/tr';
+import { locale } from '../strings';
 import { getActivity, normalizeActivityName } from './catalog';
 import { formatClock, formatDistance, formatKg } from './format';
 import { exerciseSteps, type ScheduledWorkout, type Session } from './model';
@@ -25,7 +28,7 @@ export function completedSessions(sessions: Session[]): Session[] {
 }
 
 function shortDate(ms: number): string {
-  return new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  return new Date(ms).toLocaleDateString(locale, { month: 'short', day: 'numeric' });
 }
 
 function startOfDay(ms: number): number {
@@ -37,7 +40,7 @@ function startOfDay(ms: number): number {
 
 export type WeekDay = { day: string; date: number; atMs: number; done: boolean; planned: boolean; today: boolean };
 
-const WEEKDAY_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const WEEKDAY_SHORT = WEEKDAYS_SHORT;
 
 /** The current Monday-to-Sunday week. */
 export function weekSummary(sessions: Session[], scheduled: ScheduledWorkout[], nowMs: number): { days: WeekDay[]; completedCount: number } {
@@ -289,8 +292,8 @@ export function buildInsights(sessions: Session[], scheduled: ScheduledWorkout[]
     out.push({
       id: 'week',
       kind: 'week',
-      title: 'This Week',
-      body: `You completed ${week.completedCount} ${week.completedCount === 1 ? 'session' : 'sessions'} so far this week.`,
+      title: tr('This Week', 'Diese Woche'),
+      body: tr(`You completed ${week.completedCount} ${week.completedCount === 1 ? 'session' : 'sessions'} so far this week.`, `Du hast diese Woche bisher ${week.completedCount} ${week.completedCount === 1 ? 'Einheit' : 'Einheiten'} abgeschlossen.`),
     });
   }
 
@@ -300,8 +303,8 @@ export function buildInsights(sessions: Session[], scheduled: ScheduledWorkout[]
     out.push({
       id: 'record',
       kind: 'record',
-      title: 'New Personal Best',
-      body: `${latest.name}: ${formatKg(latest.kg)} on ${shortDate(latest.atMs)}, up from ${formatKg(latest.previousKg)}.`,
+      title: tr('New Personal Best', 'Neue Bestleistung'),
+      body: tr(`${latest.name}: ${formatKg(latest.kg)} on ${shortDate(latest.atMs)}, up from ${formatKg(latest.previousKg)}.`, `${latest.name}: ${formatKg(latest.kg)} am ${shortDate(latest.atMs)}, vorher ${formatKg(latest.previousKg)}.`),
     });
   }
 
@@ -311,8 +314,8 @@ export function buildInsights(sessions: Session[], scheduled: ScheduledWorkout[]
     out.push({
       id: 'strength',
       kind: 'strength',
-      title: 'Strength Trend',
-      body: `${lift.name} is ${direction} ${formatKg(Math.abs(lift.deltaFromStart))} across ${lift.points.length} sessions since ${lift.points[0].label}.`,
+      title: tr('Strength Trend', 'Krafttrend'),
+      body: tr(`${lift.name} is ${direction} ${formatKg(Math.abs(lift.deltaFromStart))} across ${lift.points.length} sessions since ${lift.points[0].label}.`, `${lift.name} ist seit ${lift.points[0].label} über ${lift.points.length} Einheiten um ${formatKg(Math.abs(lift.deltaFromStart))} ${direction === 'up' ? 'gestiegen' : 'gesunken'}.`),
     });
   }
 
@@ -325,8 +328,8 @@ export function buildInsights(sessions: Session[], scheduled: ScheduledWorkout[]
       out.push({
         id: 'endurance',
         kind: 'endurance',
-        title: 'Endurance Trend',
-        body: `Your ${formatDistance(BUCKET_METERS[bucket])} went from ${first} to ${last} across ${series.points.length} efforts. Route and conditions are not accounted for.`,
+        title: tr('Endurance Trend', 'Ausdauertrend'),
+        body: tr(`Your ${formatDistance(BUCKET_METERS[bucket])} went from ${first} to ${last} across ${series.points.length} efforts. Route and conditions are not accounted for.`, `Deine Zeit über ${formatDistance(BUCKET_METERS[bucket])} ging über ${series.points.length} Einheiten von ${first} auf ${last}. Strecke und Bedingungen sind nicht berücksichtigt.`),
       });
       break;
     }
@@ -337,8 +340,8 @@ export function buildInsights(sessions: Session[], scheduled: ScheduledWorkout[]
     out.push({
       id: 'consistency',
       kind: 'consistency',
-      title: 'Planned vs. Done',
-      body: `You completed ${perf.plannedCompletedCount} of ${perf.plannedCount} planned sessions in the last four weeks.`,
+      title: tr('Planned vs. Done', 'Geplant und erledigt'),
+      body: tr(`You completed ${perf.plannedCompletedCount} of ${perf.plannedCount} planned sessions in the last four weeks.`, `Du hast in den letzten vier Wochen ${perf.plannedCompletedCount} von ${perf.plannedCount} geplanten Einheiten abgeschlossen.`),
     });
   }
 

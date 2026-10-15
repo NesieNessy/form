@@ -1,3 +1,4 @@
+import { tr } from '../i18n/tr';
 import { Decoder, Stream } from '@garmin/fitsdk';
 import { XMLParser } from 'fast-xml-parser';
 import type { Sport } from '../workout/model';
@@ -164,11 +165,11 @@ function finish(base: {
   const s = summarise(base.points);
   const t = base.totals ?? {};
   const startedAt = t.startedAt ?? s.startedAt;
-  if (startedAt === undefined) return { ok: false, code: 'NO_ACTIVITY', message: 'The file has no timestamps, so there is no activity to import.' };
+  if (startedAt === undefined) return { ok: false, code: 'NO_ACTIVITY', message: tr('The file has no timestamps, so there is no activity to import.', 'Die Datei hat keine Zeitstempel, daher gibt es keine Aktivität zum Importieren.') };
 
   const elapsedFromPoints = s.endedAt !== undefined ? Math.round((s.endedAt - startedAt) / 1000) : undefined;
   const elapsed = t.elapsed !== undefined ? Math.round(t.elapsed) : elapsedFromPoints;
-  if (!elapsed || elapsed <= 0) return { ok: false, code: 'NO_ACTIVITY', message: 'The file has no recorded duration, so there is no activity to import.' };
+  if (!elapsed || elapsed <= 0) return { ok: false, code: 'NO_ACTIVITY', message: tr('The file has no recorded duration, so there is no activity to import.', 'Die Datei hat keine aufgezeichnete Dauer, daher gibt es keine Aktivität zum Importieren.') };
 
   const quality = new Set<QualityFlag>([...s.flags, ...(base.extraFlags ?? [])]);
   const avgHr = t.avgHr ?? s.avgHr;
@@ -220,7 +221,7 @@ type Node = any;
 function parseGpx(text: string, hash: string, fileName?: string): ParseResult {
   const doc: Node = xml.parse(text);
   const gpx = doc?.gpx;
-  if (!gpx) return { ok: false, code: 'CORRUPT_FILE', message: 'That file does not look like a GPX file.' };
+  if (!gpx) return { ok: false, code: 'CORRUPT_FILE', message: tr('That file does not look like a GPX file.', 'Diese Datei sieht nicht wie eine GPX-Datei aus.') };
   const tracks = list<Node>(gpx.trk);
   const points: Point[] = [];
   for (const trk of tracks) {
@@ -239,7 +240,7 @@ function parseGpx(text: string, hash: string, fileName?: string): ParseResult {
       }
     }
   }
-  if (points.length === 0) return { ok: false, code: 'NO_ACTIVITY', message: 'The file has no recorded track, so there is no activity to import.' };
+  if (points.length === 0) return { ok: false, code: 'NO_ACTIVITY', message: tr('The file has no recorded track, so there is no activity to import.', 'Die Datei hat keinen aufgezeichneten Track, daher gibt es keine Aktivität zum Importieren.') };
   const first = tracks[0] ?? {};
   return finish({
     format: 'gpx',
@@ -255,7 +256,7 @@ function parseGpx(text: string, hash: string, fileName?: string): ParseResult {
 function parseTcx(text: string, hash: string, fileName?: string): ParseResult {
   const doc: Node = xml.parse(text);
   const activity = list<Node>(doc?.TrainingCenterDatabase?.Activities?.Activity)[0];
-  if (!activity) return { ok: false, code: 'NO_ACTIVITY', message: 'The file has no activity in it.' };
+  if (!activity) return { ok: false, code: 'NO_ACTIVITY', message: tr('The file has no activity in it.', 'Die Datei enthält keine Aktivität.') };
   const laps = list<Node>(activity.Lap);
   const points: Point[] = [];
   for (const lap of laps) {
@@ -302,14 +303,14 @@ function parseTcx(text: string, hash: string, fileName?: string): ParseResult {
 
 function parseFit(bytes: Uint8Array, hash: string, fileName?: string): ParseResult {
   const stream = Stream.fromByteArray(bytes);
-  if (!Decoder.isFIT(stream)) return { ok: false, code: 'CORRUPT_FILE', message: 'That file does not look like a FIT file.' };
+  if (!Decoder.isFIT(stream)) return { ok: false, code: 'CORRUPT_FILE', message: tr('That file does not look like a FIT file.', 'Diese Datei sieht nicht wie eine FIT-Datei aus.') };
   const decoder = new Decoder(stream);
   const intact = decoder.checkIntegrity();
   const { messages, errors } = decoder.read({ convertTypesToStrings: true, convertDateTimesToDates: true, applyScaleAndOffset: true, mergeHeartRates: true });
   const m = messages as Node;
   const records: Node[] = m.recordMesgs ?? [];
   const session: Node = (m.sessionMesgs ?? [])[0];
-  if (!session && records.length === 0) return { ok: false, code: 'NO_ACTIVITY', message: 'The file has no activity in it.' };
+  if (!session && records.length === 0) return { ok: false, code: 'NO_ACTIVITY', message: tr('The file has no activity in it.', 'Die Datei enthält keine Aktivität.') };
 
   const semicircles = 180 / 2 ** 31;
   const points: Point[] = records.map((r) => ({
@@ -376,15 +377,15 @@ export function detectFormat(bytes: Uint8Array, fileName?: string): 'gpx' | 'tcx
 }
 
 export function parseActivityFile(bytes: Uint8Array, fileName?: string): ParseResult {
-  if (bytes.length > MAX_FILE_BYTES) return { ok: false, code: 'TOO_LARGE', message: 'That file is larger than 25 MB.' };
+  if (bytes.length > MAX_FILE_BYTES) return { ok: false, code: 'TOO_LARGE', message: tr('That file is larger than 25 MB.', 'Diese Datei ist größer als 25 MB.') };
   const format = detectFormat(bytes, fileName);
-  if (!format) return { ok: false, code: 'UNSUPPORTED_FORMAT', message: 'Use a GPX, TCX or FIT file, as exported by Garmin, Strava, Apple Health exporters and most watches.' };
+  if (!format) return { ok: false, code: 'UNSUPPORTED_FORMAT', message: tr('Use a GPX, TCX or FIT file, as exported by Garmin, Strava, Apple Health exporters and most watches.', 'Verwende eine GPX-, TCX- oder FIT-Datei, wie sie Garmin, Strava, Apple-Health-Exporte und die meisten Uhren erzeugen.') };
   const hash = contentHash(bytes);
   try {
     if (format === 'fit') return parseFit(bytes, hash, fileName);
     const text = decodeUtf8(bytes);
     return format === 'gpx' ? parseGpx(text, hash, fileName) : parseTcx(text, hash, fileName);
   } catch {
-    return { ok: false, code: 'CORRUPT_FILE', message: `That ${format.toUpperCase()} file could not be read. It may be damaged or incomplete.` };
+    return { ok: false, code: 'CORRUPT_FILE', message: tr(`That ${format.toUpperCase()} file could not be read. It may be damaged or incomplete.`, `Diese ${format.toUpperCase()}-Datei konnte nicht gelesen werden. Sie ist vielleicht beschädigt oder unvollständig.`) };
   }
 }

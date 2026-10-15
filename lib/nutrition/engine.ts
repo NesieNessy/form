@@ -1,3 +1,4 @@
+import { tr } from '../i18n/tr';
 import { KJ_PER_KCAL, NUTRIENTS, NUTRIENT_ORDER, type Food, type FoodLogEntry, type FoodSnapshot, type NutrientKey, type Nutrients, type Quantity } from './model';
 
 /**
@@ -152,23 +153,23 @@ export type Issue = { field: string; message: string; severity: 'error' | 'warni
 /** Checks a food the athlete enters from a label. Values are per the stated basis. */
 export function validateFood(food: Pick<Food, 'name' | 'basis' | 'nutrients' | 'servings'>): Issue[] {
   const issues: Issue[] = [];
-  if (!food.name.trim()) issues.push({ field: 'name', message: 'Give the food a name.', severity: 'error' });
+  if (!food.name.trim()) issues.push({ field: 'name', message: tr('Give the food a name.', 'Gib dem Lebensmittel einen Namen.'), severity: 'error' });
   if (food.basis === 'per_serving' && !food.servings[0]?.label.trim()) {
-    issues.push({ field: 'servings', message: 'Describe the serving the values refer to, e.g. "1 bar (40 g)".', severity: 'error' });
+    issues.push({ field: 'servings', message: tr('Describe the serving the values refer to, e.g. "1 bar (40 g)".', 'Beschreib die Portion, auf die sich die Werte beziehen, z. B. „1 Riegel (40 g)“.'), severity: 'error' });
   }
   const known = NUTRIENT_ORDER.filter((k) => typeof food.nutrients[k] === 'number');
-  if (known.length === 0) issues.push({ field: 'nutrients', message: 'Enter at least one value from the label.', severity: 'error' });
+  if (known.length === 0) issues.push({ field: 'nutrients', message: tr('Enter at least one value from the label.', 'Gib mindestens einen Wert vom Etikett ein.'), severity: 'error' });
   for (const key of known) {
     const v = food.nutrients[key] as number;
-    if (v < 0) issues.push({ field: key, message: `${NUTRIENTS[key].label} cannot be negative.`, severity: 'error' });
+    if (v < 0) issues.push({ field: key, message: tr(`${NUTRIENTS[key].label} cannot be negative.`, `${NUTRIENTS[key].label} kann nicht negativ sein.`), severity: 'error' });
     else if (food.basis !== 'per_serving' && v > NUTRIENTS[key].maxPer100) {
-      issues.push({ field: key, message: `${NUTRIENTS[key].label} of ${v} ${NUTRIENTS[key].unit} per 100 is not possible. Check the unit.`, severity: 'error' });
+      issues.push({ field: key, message: tr(`${NUTRIENTS[key].label} of ${v} ${NUTRIENTS[key].unit} per 100 is not possible. Check the unit.`, `${NUTRIENTS[key].label} von ${v} ${NUTRIENTS[key].unit} pro 100 ist nicht möglich. Prüfe die Einheit.`), severity: 'error' });
     }
   }
   if (food.basis !== 'per_serving') {
     // Fiber is left out: many labels count it inside carbohydrate.
     const mass = (['protein_g', 'carbohydrate_g', 'fat_g'] as const).reduce((s, k) => s + (food.nutrients[k] ?? 0), 0);
-    if (mass > 105) issues.push({ field: 'nutrients', message: 'Protein, carbohydrate and fat add up to more than 100 g per 100. Check the values.', severity: 'error' });
+    if (mass > 105) issues.push({ field: 'nutrients', message: tr('Protein, carbohydrate and fat add up to more than 100 g per 100. Check the values.', 'Eiweiß, Kohlenhydrate und Fett ergeben mehr als 100 g pro 100. Prüfe die Werte.'), severity: 'error' });
   }
   const energy = food.nutrients.energy_kcal;
   const p = food.nutrients.protein_g;
@@ -179,7 +180,7 @@ export function validateFood(food: Pick<Food, 'name' | 'basis' | 'nutrients' | '
     if (Math.abs(fromMacros - energy) > Math.max(40, energy * 0.25)) {
       issues.push({
         field: 'energy_kcal',
-        message: `The macros suggest about ${Math.round(fromMacros)} kcal, the label says ${Math.round(energy)} kcal. Check whether the energy is in kJ.`,
+        message: tr(`The macros suggest about ${Math.round(fromMacros)} kcal, the label says ${Math.round(energy)} kcal. Check whether the energy is in kJ.`, `Die Makronährstoffe ergeben etwa ${Math.round(fromMacros)} kcal, das Etikett nennt ${Math.round(energy)} kcal. Prüfe, ob die Energie in kJ angegeben ist.`),
         severity: 'warning',
       });
     }
@@ -188,21 +189,21 @@ export function validateFood(food: Pick<Food, 'name' | 'basis' | 'nutrients' | '
 }
 
 export function validateQuantity(food: FoodLike, q: Quantity): Issue[] {
-  if (!(q.value > 0)) return [{ field: 'quantity', message: 'Enter an amount above zero.', severity: 'error' }];
+  if (!(q.value > 0)) return [{ field: 'quantity', message: tr('Enter an amount above zero.', 'Gib eine Menge über null ein.'), severity: 'error' }];
   const amount = resolveAmount(food, q);
   if ((amount.grams ?? 0) > 5000 || (amount.ml ?? 0) > 5000 || (q.unit === 'serving' && q.value > 50)) {
-    return [{ field: 'quantity', message: 'That is more than anyone eats or drinks at once. Check the amount and unit.', severity: 'error' }];
+    return [{ field: 'quantity', message: tr('That is more than anyone eats or drinks at once. Check the amount and unit.', 'Das ist mehr, als jemand auf einmal isst oder trinkt. Prüfe Menge und Einheit.'), severity: 'error' }];
   }
-  if (basisFactor(food, q) === undefined) return [{ field: 'quantity', message: 'This food cannot be measured in that unit. Choose another.', severity: 'error' }];
+  if (basisFactor(food, q) === undefined) return [{ field: 'quantity', message: tr('This food cannot be measured in that unit. Choose another.', 'Dieses Lebensmittel lässt sich in dieser Einheit nicht messen. Wähle eine andere.'), severity: 'error' }];
   return [];
 }
 
 export function validateQuickAdd(nutrients: Nutrients, fluidMl?: number): Issue[] {
   const known = NUTRIENT_ORDER.filter((k) => typeof nutrients[k] === 'number');
-  if (known.length === 0 && !(fluidMl && fluidMl > 0)) return [{ field: 'nutrients', message: 'Enter at least one value.', severity: 'error' }];
+  if (known.length === 0 && !(fluidMl && fluidMl > 0)) return [{ field: 'nutrients', message: tr('Enter at least one value.', 'Gib mindestens einen Wert ein.'), severity: 'error' }];
   const issues: Issue[] = [];
-  for (const key of known) if ((nutrients[key] as number) < 0) issues.push({ field: key, message: `${NUTRIENTS[key].label} cannot be negative.`, severity: 'error' });
-  if ((nutrients.energy_kcal ?? 0) > 6000) issues.push({ field: 'energy_kcal', message: 'More than 6000 kcal in one entry. Check the number.', severity: 'error' });
-  if ((fluidMl ?? 0) > 5000) issues.push({ field: 'fluidMl', message: 'More than 5 litres in one entry. Check the number.', severity: 'error' });
+  for (const key of known) if ((nutrients[key] as number) < 0) issues.push({ field: key, message: tr(`${NUTRIENTS[key].label} cannot be negative.`, `${NUTRIENTS[key].label} kann nicht negativ sein.`), severity: 'error' });
+  if ((nutrients.energy_kcal ?? 0) > 6000) issues.push({ field: 'energy_kcal', message: tr('More than 6000 kcal in one entry. Check the number.', 'Mehr als 6000 kcal in einem Eintrag. Prüfe die Zahl.'), severity: 'error' });
+  if ((fluidMl ?? 0) > 5000) issues.push({ field: 'fluidMl', message: tr('More than 5 litres in one entry. Check the number.', 'Mehr als 5 Liter in einem Eintrag. Prüfe die Zahl.'), severity: 'error' });
   return issues;
 }

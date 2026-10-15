@@ -11,7 +11,7 @@ import { useAuthStore } from '@/lib/auth';
 import { formatDateLabel } from '@/lib/date';
 import { scheduleClasses, studioPeople } from '@/lib/studio/api';
 import { isAdmin, isStaff, seriesStarts, type Organization } from '@/lib/studio/model';
-import { strings } from '@/lib/strings';
+import { locale, strings, timeLocale } from '@/lib/strings';
 import { syncNow } from '@/lib/sync';
 import { useWorkoutsStore } from '@/lib/workoutsStore';
 import { colors, iconStrokeWidth } from '@/theme/colors';
@@ -58,7 +58,7 @@ export function ScheduleClassForm({ org, onDone, onToast }: { org: Organization;
         .slice(0, 20),
     [workouts, versions]
   );
-  const dates = seriesStarts(start, weeks ?? 1).map((d) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+  const dates = seriesStarts(start, weeks ?? 1).map((d) => d.toLocaleDateString(locale, { month: 'short', day: 'numeric' }));
 
   const save = async () => {
     if (busy || !title.trim()) return;
@@ -94,7 +94,7 @@ export function ScheduleClassForm({ org, onDone, onToast }: { org: Organization;
       <TouchableOpacity style={s.dateRow} onPress={() => setPicking('time')}>
         <Icons.clock size={16} color={colors.textSecondary} strokeWidth={iconStrokeWidth} />
         <Text style={s.label}>{strings.time}</Text>
-        <Text style={s.dateValue}>{start.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</Text>
+        <Text style={s.dateValue}>{start.toLocaleTimeString(timeLocale, { hour: '2-digit', minute: '2-digit' })}</Text>
       </TouchableOpacity>
       <DatePickerModal
         visible={picking === 'date'}

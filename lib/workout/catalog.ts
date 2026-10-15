@@ -1,3 +1,5 @@
+import { ACTIVITY_NAMES_DE } from '../i18n/catalogNames';
+import { language } from '../strings';
 import type { Sport } from './model';
 
 export type DefaultTarget =
@@ -42,7 +44,7 @@ function a(
  * and display. supabase/migrations/0002_workout_core.sql seeds the same rows
  * (scripts/gen-activity-seed.ts regenerates that block).
  */
-export const ACTIVITIES: Activity[] = [
+const BASE_ACTIVITIES: Activity[] = [
   // Barbell / loaded strength
   a('back_squat', 'Back Squat', reps(5), ['strength', 'crossfit'], ['barbell', 'rack'], true, ['squat', 'bs']),
   a('front_squat', 'Front Squat', reps(5), ['strength', 'crossfit'], ['barbell', 'rack'], true, ['fs']),
@@ -121,6 +123,12 @@ export const ACTIVITIES: Activity[] = [
   a('pranayama', 'Pranayama', dur(300), ['yoga'], [], false, ['breathwork', 'breathing']),
   a('meditation', 'Meditation', dur(600), ['yoga', 'other'], [], false),
 ];
+
+/** In German the display name is German and the English one stays a search synonym. */
+export const ACTIVITIES: Activity[] =
+  language === 'de'
+    ? BASE_ACTIVITIES.map((act) => (ACTIVITY_NAMES_DE[act.id] ? { ...act, name: ACTIVITY_NAMES_DE[act.id], synonyms: [act.name, ...act.synonyms] } : act))
+    : BASE_ACTIVITIES;
 
 const BY_ID = new Map(ACTIVITIES.map((act) => [act.id, act]));
 

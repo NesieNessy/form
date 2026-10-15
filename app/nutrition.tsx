@@ -82,7 +82,7 @@ export default function NutritionScreen() {
           {day.estimated ? <Text style={styles.hint}>{strings.estimatedHint(day.estimated)}</Text> : null}
         </Card>
 
-        <GradientButton label={strings.addFood} icon={<Icons.plus size={16} color="#fff" strokeWidth={iconStrokeWidth} />} onPress={() => add()} />
+        <GradientButton label={strings.addFood} icon={<Icons.plus size={16} color={colors.onAction} strokeWidth={iconStrokeWidth} />} onPress={() => add()} />
         {message ? <Text style={styles.message}>{message}</Text> : null}
 
         {entries.length === 0 ? <Text style={styles.empty}>{strings.nothingLogged}</Text> : null}

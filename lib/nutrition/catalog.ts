@@ -1,3 +1,5 @@
+import { FOOD_NAMES_DE } from '../i18n/catalogNames';
+import { language } from '../strings';
 import type { Food, Nutrients, ServingDefinition } from './model';
 
 /**
@@ -89,7 +91,7 @@ function toFood([id, name, kcal, protein, carbs, fat, fiber, sugar, sodium, serv
   if (extra?.caffeine !== undefined) nutrients.caffeine_mg = extra.caffeine;
   return {
     id: `catalog:${id}`,
-    name,
+    name: language === 'de' ? (FOOD_NAMES_DE[id] ?? name) : name,
     basis: extra?.basis ?? 'per_100g',
     nutrients,
     servings,

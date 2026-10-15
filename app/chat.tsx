@@ -18,7 +18,7 @@ import {
   type Memory,
 } from '@/lib/ai/client';
 import { useAuthStore } from '@/lib/auth';
-import { strings } from '@/lib/strings';
+import { strings, locale } from '@/lib/strings';
 import { useWorkoutsStore } from '@/lib/workoutsStore';
 import { colors, fontFamily, radius, spacing } from '@/theme/colors';
 
@@ -107,7 +107,7 @@ export default function ChatScreen() {
                   <Text style={styles.rowTitle} numberOfLines={1}>
                     {c.title}
                   </Text>
-                  <Text style={styles.hint}>{new Date(c.updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</Text>
+                  <Text style={styles.hint}>{new Date(c.updated_at).toLocaleDateString(locale, { month: 'short', day: 'numeric' })}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={async () => {

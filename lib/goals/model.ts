@@ -1,3 +1,4 @@
+import { tr } from '../i18n/tr';
 import type { RtsStage } from '../rehab/model';
 
 /**
@@ -83,9 +84,9 @@ export function unitOf(metric: GoalMetric): string {
     case 'distance_time':
       return '';
     case 'sessions_per_week':
-      return 'sessions a week';
+      return tr('sessions a week', 'Einheiten pro Woche');
     case 'nutrition_logging':
-      return 'days a week';
+      return tr('days a week', 'Tage pro Woche');
     default:
       return '';
   }

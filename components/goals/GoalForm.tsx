@@ -1,3 +1,4 @@
+import { tr } from '@/lib/i18n/tr';
 import React, { useMemo, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
@@ -21,8 +22,8 @@ const DISTANCES: Record<'running' | 'cycling' | 'swimming', { key: string; label
   running: [
     { key: '5000', label: '5 km', meters: 5000 },
     { key: '10000', label: '10 km', meters: 10000 },
-    { key: '21097', label: 'Half marathon', meters: 21097 },
-    { key: '42195', label: 'Marathon', meters: 42195 },
+    { key: '21097', label: tr('Half marathon', 'Halbmarathon'), meters: 21097 },
+    { key: '42195', label: tr('Marathon', 'Marathon'), meters: 42195 },
   ],
   cycling: [
     { key: '20000', label: '20 km', meters: 20000 },
@@ -92,20 +93,20 @@ export function GoalForm({ evidence, episodes, onSave, onCancel }: Props) {
   const baseline = ['one_rep_max', 'benchmark', 'distance_time'].includes(kind) ? suggestBaseline(metric, evidence) : undefined;
   const suggestedTitle =
     kind === 'one_rep_max'
-      ? `${LOADABLE_ACTIVITIES.find((a) => a.id === lift)?.name ?? 'Lift'}${target ? ` ${target} kg` : ''}`
+      ? `${LOADABLE_ACTIVITIES.find((a) => a.id === lift)?.name ?? tr('Lift', 'Übung')}${target ? ` ${target} kg` : ''}`
       : kind === 'distance_time'
-        ? `${DISTANCES[sport].find((d) => d.meters === meters)?.label ?? ''}${target ? ` in ${formatGoalValue(metric, target)}` : ''}`
+        ? `${DISTANCES[sport].find((d) => d.meters === meters)?.label ?? ''}${target ? ` ${tr('in', 'in')} ${formatGoalValue(metric, target)}` : ''}`
         : kind === 'event'
-          ? `Finish ${eventName}`
+          ? tr(`Finish ${eventName}`, `${eventName} beenden`)
           : kind === 'sessions_per_week'
-            ? `${value ?? 3} sessions a week`
+            ? tr(`${value ?? 3} sessions a week`, `${value ?? 3} Einheiten pro Woche`)
             : kind === 'nutrition_logging'
-              ? `Log food ${value ?? 5} days a week`
+              ? tr(`Log food ${value ?? 5} days a week`, `An ${value ?? 5} Tagen pro Woche Essen erfassen`)
               : kind === 'rehab_stage'
                 ? RTS_LABEL[stage]
                 : bench === 'ftp'
                   ? `FTP ${target ?? ''} W`
-                  : `${bench === 'threshold_pace' ? 'Threshold' : 'CSS'} pace ${target ? formatGoalValue(metric, target) : ''}`;
+                  : tr(`${bench === 'threshold_pace' ? 'Threshold' : 'CSS'} pace ${target ? formatGoalValue(metric, target) : ''}`, `${bench === 'threshold_pace' ? 'Schwellenpace' : 'CSS-Pace'} ${target ? formatGoalValue(metric, target) : ''}`);
 
   return (
     <Card style={styles.card}>
@@ -114,11 +115,11 @@ export function GoalForm({ evidence, episodes, onSave, onCancel }: Props) {
 
       {kind === 'one_rep_max' ? <SegmentedTabs options={LOADABLE_ACTIVITIES.map((a) => ({ key: a.id, label: a.name }))} value={lift} onChange={setLift} scrollable size="sm" /> : null}
       {kind === 'benchmark' ? (
-        <SegmentedTabs options={[{ key: 'ftp', label: 'FTP' }, { key: 'threshold_pace', label: 'Threshold pace' }, { key: 'css_pace', label: 'CSS pace' }]} value={bench} onChange={(k) => setBench(k as typeof bench)} size="sm" />
+        <SegmentedTabs options={[{ key: 'ftp', label: 'FTP' }, { key: 'threshold_pace', label: tr('Threshold pace', 'Schwellenpace') }, { key: 'css_pace', label: tr('CSS pace', 'CSS-Pace') }]} value={bench} onChange={(k) => setBench(k as typeof bench)} size="sm" />
       ) : null}
       {kind === 'distance_time' ? (
         <>
-          <SegmentedTabs options={[{ key: 'running', label: 'Run' }, { key: 'cycling', label: 'Ride' }, { key: 'swimming', label: 'Swim' }]} value={sport} onChange={(k) => (setSport(k as typeof sport), setMeters(DISTANCES[k as typeof sport][0].meters))} size="sm" />
+          <SegmentedTabs options={[{ key: 'running', label: tr('Run', 'Laufen') }, { key: 'cycling', label: tr('Ride', 'Rad') }, { key: 'swimming', label: tr('Swim', 'Schwimmen') }]} value={sport} onChange={(k) => (setSport(k as typeof sport), setMeters(DISTANCES[k as typeof sport][0].meters))} size="sm" />
           <SegmentedTabs options={DISTANCES[sport].map((d) => ({ key: d.key, label: d.label }))} value={String(meters)} onChange={(k) => setMeters(Number(k))} scrollable size="sm" />
         </>
       ) : null}

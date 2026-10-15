@@ -1,3 +1,4 @@
+import { tr } from '../i18n/tr';
 import type { HealthObservation } from '../health/model';
 import type { Block, ScheduledWorkout, WorkoutContent, WorkoutVersion } from '../workout/model';
 import { exerciseSteps } from '../workout/model';
@@ -31,10 +32,10 @@ export const TARGET_RULES = {
 } as const;
 
 export const DAY_TYPE_LABEL: Record<DayType, string> = {
-  rest_or_light: 'Rest or light day',
-  moderate: 'Moderate training day',
-  high: 'Hard training day',
-  very_high: 'Very long training day',
+  rest_or_light: tr('Rest or light day', 'Ruhetag oder leichter Tag'),
+  moderate: tr('Moderate training day', 'Mittlerer Trainingstag'),
+  high: tr('Hard training day', 'Harter Trainingstag'),
+  very_high: tr('Very long training day', 'Sehr langer Trainingstag'),
 };
 
 export function dayTypeFor(plannedMinutes: number): DayType {
@@ -152,8 +153,8 @@ export function checkTargets(t: Omit<NutritionTargets, 'source' | 'approvedAt'>)
   for (const key of ['energy_kcal', 'protein_g', 'carbohydrate_g', 'fat_g', 'fluid_ml'] as const) {
     const r = t[key];
     if (!r) continue;
-    if ((r.min !== undefined && r.min < 0) || (r.max !== undefined && r.max < 0)) issues.push({ field: key, message: 'Targets cannot be negative.', severity: 'error' });
-    if (r.min !== undefined && r.max !== undefined && r.min > r.max) issues.push({ field: key, message: 'The lower end is above the upper end.', severity: 'error' });
+    if ((r.min !== undefined && r.min < 0) || (r.max !== undefined && r.max < 0)) issues.push({ field: key, message: tr('Targets cannot be negative.', 'Ziele können nicht negativ sein.'), severity: 'error' });
+    if (r.min !== undefined && r.max !== undefined && r.min > r.max) issues.push({ field: key, message: tr('The lower end is above the upper end.', 'Der untere Wert liegt über dem oberen.'), severity: 'error' });
   }
   const energy = t.energy_kcal;
   const lowest = energy?.max ?? energy?.min;
@@ -161,7 +162,7 @@ export function checkTargets(t: Omit<NutritionTargets, 'source' | 'approvedAt'>)
     issues.push({
       field: 'energy_kcal',
       message:
-        'This is a very low energy target for someone who trains. Eating too little for your training can harm your health and performance. If you want to lose weight or have a medical reason, please work out targets with a doctor or registered dietitian.',
+        tr('This is a very low energy target for someone who trains. Eating too little for your training can harm your health and performance. If you want to lose weight or have a medical reason, please work out targets with a doctor or registered dietitian.', 'Das ist ein sehr niedriges Energieziel für jemanden, der trainiert. Zu wenig zu essen kann deiner Gesundheit und Leistung schaden. Wenn du abnehmen möchtest oder einen medizinischen Grund hast, lege Ziele bitte mit einer Ärztin, einem Arzt oder einer Ernährungsfachkraft fest.'),
       severity: 'warning',
     });
   }

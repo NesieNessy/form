@@ -1,3 +1,4 @@
+import { tr } from '@/lib/i18n/tr';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
@@ -13,11 +14,11 @@ import { colors, fontFamily, spacing } from '@/theme/colors';
 
 type Key = 'energy_kcal' | 'protein_g' | 'carbohydrate_g' | 'fat_g' | 'fluid_ml';
 const ROWS: { key: Key; label: string; unit: string }[] = [
-  { key: 'energy_kcal', label: 'Energy', unit: 'kcal' },
-  { key: 'protein_g', label: 'Protein', unit: 'g' },
-  { key: 'carbohydrate_g', label: 'Carbohydrate', unit: 'g' },
-  { key: 'fat_g', label: 'Fat', unit: 'g' },
-  { key: 'fluid_ml', label: 'Fluid', unit: 'ml' },
+  { key: 'energy_kcal', label: tr('Energy', 'Energie'), unit: 'kcal' },
+  { key: 'protein_g', label: tr('Protein', 'Eiweiß'), unit: 'g' },
+  { key: 'carbohydrate_g', label: tr('Carbohydrate', 'Kohlenhydrate'), unit: 'g' },
+  { key: 'fat_g', label: tr('Fat', 'Fett'), unit: 'g' },
+  { key: 'fluid_ml', label: tr('Fluid', 'Flüssigkeit'), unit: 'ml' },
 ];
 const DAY_TYPES = Object.keys(DAY_TYPE_LABEL) as DayType[];
 

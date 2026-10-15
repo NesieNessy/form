@@ -1,3 +1,4 @@
+import { tr } from '../i18n/tr';
 /**
  * Studio beta (docs/concepts/02-multi-role-access-and-business-model.md).
  * Everything a studio holds is operational: classes, bookings, attendance,
@@ -11,16 +12,16 @@ export type BillingStatus = 'paid' | 'due' | 'overdue' | 'none';
 export type MembershipStatus = 'active' | 'paused' | 'ended';
 
 export const ROLE_LABEL: Record<OrgRole, string> = {
-  owner: 'Owner',
-  manager: 'Manager',
+  owner: tr('Owner', 'Inhaber:in'),
+  manager: tr('Manager', 'Leitung'),
   coach: 'Coach',
-  physiotherapist: 'Physiotherapist',
-  instructor: 'Instructor',
-  member: 'Member',
+  physiotherapist: tr('Physiotherapist', 'Physiotherapie'),
+  instructor: tr('Instructor', 'Trainer:in'),
+  member: tr('Member', 'Mitglied'),
 };
-export const PLAN_KIND_LABEL: Record<PlanKind, string> = { monthly: 'Monthly', class_pack: 'Class pack', drop_in: 'Drop-in' };
-export const BILLING_LABEL: Record<BillingStatus, string> = { paid: 'Paid', due: 'Due', overdue: 'Overdue', none: 'Free' };
-export const MEMBERSHIP_STATUS_LABEL: Record<MembershipStatus, string> = { active: 'Active', paused: 'Paused', ended: 'Ended' };
+export const PLAN_KIND_LABEL: Record<PlanKind, string> = { monthly: tr('Monthly', 'Monatlich'), class_pack: tr('Class pack', 'Kurspaket'), drop_in: tr('Drop-in', 'Einzelbesuch') };
+export const BILLING_LABEL: Record<BillingStatus, string> = { paid: tr('Paid', 'Bezahlt'), due: tr('Due', 'Fällig'), overdue: tr('Overdue', 'Überfällig'), none: tr('Free', 'Kostenlos') };
+export const MEMBERSHIP_STATUS_LABEL: Record<MembershipStatus, string> = { active: tr('Active', 'Aktiv'), paused: tr('Paused', 'Pausiert'), ended: tr('Ended', 'Beendet') };
 
 export const isAdmin = (role: OrgRole) => role === 'owner' || role === 'manager';
 export const isStaff = (role: OrgRole) => role !== 'member';
@@ -129,7 +130,7 @@ export function formatPrice(cents: number, currency: string): string {
 
 /** A report number, or the reason it is hidden. */
 export function reportCell(value: number | null, suppressed: boolean, minGroup: number): string {
-  if (suppressed || value === null) return `fewer than ${minGroup}`;
+  if (suppressed || value === null) return tr(`fewer than ${minGroup}`, `weniger als ${minGroup}`);
   return String(value);
 }
 

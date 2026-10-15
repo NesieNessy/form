@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
 import { clipLink, listSharedClips, type Clip } from '@/lib/movement/api';
 import { movementName, viewTitle } from '@/lib/movement/model';
-import { strings } from '@/lib/strings';
+import { strings, locale } from '@/lib/strings';
 import { colors, fontFamily, spacing } from '@/theme/colors';
 import { AnalysisView } from './AnalysisView';
 import { ClipNotes } from './ClipNotes';
@@ -45,7 +45,7 @@ function SharedClip({ clip, reload, onError }: { clip: Clip; reload: () => Promi
     <View style={{ gap: spacing.sm }}>
       <Card style={{ gap: spacing.sm }}>
         <Text style={styles.title}>{`${movementName(clip.movement_id)} · ${viewTitle(clip.movement_id, clip.camera_view).toLowerCase()}`}</Text>
-        <Text style={styles.meta}>{new Date(clip.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</Text>
+        <Text style={styles.meta}>{new Date(clip.created_at).toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' })}</Text>
         {open?.note ? <Text style={styles.body}>{`“${open.note}”`}</Text> : null}
         <ClipPlayer ref={player} uri={link} />
       </Card>

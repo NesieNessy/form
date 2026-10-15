@@ -14,7 +14,7 @@ import { Platform, StyleSheet, Text, useWindowDimensions, View } from 'react-nat
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { SignInScreen } from '@/components/auth/SignInScreen';
 import { initAuth, useAuthStore } from '@/lib/auth';
-import { colors, fontFamily, layout } from '@/theme/colors';
+import { colors, fontFamily, layout, themeMode } from '@/theme/colors';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -51,7 +51,7 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <StatusBar style="light" />
+      <StatusBar style={themeMode === 'dark' ? 'light' : 'dark'} />
       <View style={[styles.backdrop, isDesktopWeb && styles.desktopBackdrop]}>
         <View style={[styles.appContainer, isDesktopWeb && styles.desktopContainer]}>
           {/* Signed out, no route is mounted at all, so no screen can show the previous account's data. */}
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg,
   },
   desktopBackdrop: {
-    backgroundColor: '#000000',
+    backgroundColor: colors.bgElevated,
     alignItems: 'center',
   },
   appContainer: {
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.6,
+    shadowOpacity: themeMode === 'dark' ? 0.6 : 0.12,
     shadowRadius: 48,
   },
 });

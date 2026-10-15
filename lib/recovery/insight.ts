@@ -1,3 +1,4 @@
+import { tr } from '../i18n/tr';
 import { personalBaseline } from '../health/logic';
 import type { HealthObservation, MetricKey } from '../health/model';
 import type { ScheduledWorkout, Session } from '../workout/model';
@@ -54,15 +55,15 @@ function todays(observations: HealthObservation[], metric: MetricKey, today: str
 }
 
 function measured(observations: HealthObservation[], metric: 'resting_hr_bpm' | 'hrv_ms' | 'sleep_duration_min', today: string, missing: string[]): Signal | undefined {
-  const label = { resting_hr_bpm: 'resting heart rate', hrv_ms: 'HRV', sleep_duration_min: 'sleep' }[metric];
+  const label = { resting_hr_bpm: tr('resting heart rate', 'Ruhepuls'), hrv_ms: 'HRV', sleep_duration_min: tr('sleep', 'Schlaf') }[metric];
   const value = todays(observations, metric, today);
   if (!value) {
-    missing.push(`no ${label} today`);
+    missing.push(tr(`no ${label} today`, `heute kein Wert für ${label}`));
     return undefined;
   }
   const baseline = personalBaseline(observations, metric, today, value.method);
   if (baseline.status !== 'ready') {
-    missing.push(`${label}: your normal is not known yet`);
+    missing.push(tr(`${label}: your normal is not known yet`, `${label}: dein Normalwert ist noch nicht bekannt`));
     return undefined;
   }
   const diff = value.value - baseline.median;
@@ -71,7 +72,7 @@ function measured(observations: HealthObservation[], metric: 'resting_hr_bpm' | 
   const adverse = metric === 'resting_hr_bpm' ? diff : -diff;
   const margin = metric === 'resting_hr_bpm' ? Math.max(2 * baseline.spread, 3) : metric === 'hrv_ms' ? Math.max(2 * baseline.spread, baseline.median * 0.05) : Math.max(2 * baseline.spread, 45);
   const fmt = (v: number) => (metric === 'sleep_duration_min' ? `${Math.floor(v / 60)} h ${String(Math.round(v % 60)).padStart(2, '0')} min` : `${Math.round(v)} ${metric === 'hrv_ms' ? 'ms' : 'bpm'}`);
-  const detail = `${fmt(value.value)}, your normal ${fmt(baseline.median)}`;
+  const detail = tr(`${fmt(value.value)}, your normal ${fmt(baseline.median)}`, `${fmt(value.value)}, dein Normalwert ${fmt(baseline.median)}`);
   if (adverse > margin) return { key, direction: 'worse', strength: adverse > 3 * margin ? 'strong' : 'mild', source: 'measurement', detail };
   if (-adverse > margin) return { key, direction: 'better', strength: 'mild', source: 'measurement', detail };
   return { key, direction: 'usual', strength: 'mild', source: 'measurement', detail };
@@ -83,7 +84,7 @@ function checkInSignal(observations: HealthObservation[], metric: 'subjective_fa
   const key = ({ subjective_fatigue: 'fatigue', subjective_soreness: 'soreness', subjective_stress: 'stress', subjective_energy: 'energy' } as const)[metric];
   // Energy runs the other way: low is worse.
   const v = metric === 'subjective_energy' ? 10 - o.value : o.value;
-  const detail = `${o.value} of 10`;
+  const detail = tr(`${o.value} of 10`, `${o.value} von 10`);
   if (v >= 7) return { key, direction: 'worse', strength: v >= 9 ? 'strong' : 'mild', source: 'check_in', detail };
   if (v <= 3) return { key, direction: 'better', strength: 'mild', source: 'check_in', detail };
   return { key, direction: 'usual', strength: 'mild', source: 'check_in', detail };
@@ -99,7 +100,7 @@ function loadSignal(sessions: Session[], nowMs: number): Signal | undefined {
   const last7 = minutes(nowMs - 7 * DAY, nowMs);
   const weekly = minutes(nowMs - 28 * DAY, nowMs - 7 * DAY) / 3;
   if (weekly <= 0) return undefined;
-  const detail = `${Math.round(last7)} min in 7 days, usually about ${Math.round(weekly)}`;
+  const detail = tr(`${Math.round(last7)} min in 7 days, usually about ${Math.round(weekly)}`, `${Math.round(last7)} min in 7 Tagen, üblich sind etwa ${Math.round(weekly)}`);
   if (last7 > 1.5 * weekly && last7 >= 120) return { key: 'load', direction: 'worse', strength: last7 > 2 * weekly ? 'strong' : 'mild', source: 'training_log', detail };
   return { key: 'load', direction: 'usual', strength: 'mild', source: 'training_log', detail };
 }
@@ -108,7 +109,7 @@ export function recoveryInsight({ today, nowMs, observations, sessions, schedule
   const missing: string[] = [];
   const objective = (['resting_hr_bpm', 'hrv_ms', 'sleep_duration_min'] as const).map((m) => measured(observations, m, today, missing)).filter((s): s is Signal => !!s);
   const checkIn = (['subjective_fatigue', 'subjective_soreness', 'subjective_stress', 'subjective_energy'] as const).map((m) => checkInSignal(observations, m, today)).filter((s): s is Signal => !!s);
-  if (checkIn.length === 0) missing.push('no check-in today');
+  if (checkIn.length === 0) missing.push(tr('no check-in today', 'heute kein Check-in'));
   const load = loadSignal(sessions, nowMs);
   const signals = [...checkIn, ...objective, ...(load ? [load] : [])];
 

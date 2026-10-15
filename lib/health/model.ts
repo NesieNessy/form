@@ -1,3 +1,4 @@
+import { tr } from '../i18n/tr';
 import type { Sport } from '../workout/model';
 
 /**
@@ -42,16 +43,16 @@ export type MetricMeta = {
 };
 
 export const METRICS: Record<MetricKey, MetricMeta> = {
-  resting_hr_bpm: { label: 'Resting heart rate', unit: 'bpm', min: 25, max: 130, decimals: 0 },
-  hrv_ms: { label: 'Heart rate variability', unit: 'ms', min: 3, max: 300, decimals: 0, methods: ['rmssd', 'sdnn'] },
-  sleep_duration_min: { label: 'Sleep', unit: 'min', min: 30, max: 1200, decimals: 0 },
-  weight_kg: { label: 'Weight', unit: 'kg', min: 25, max: 350, decimals: 1 },
-  body_fat_pct: { label: 'Body fat', unit: '%', min: 2, max: 70, decimals: 1 },
-  subjective_fatigue: { label: 'Fatigue', unit: '', min: 0, max: 10, decimals: 0, scale: '0 to 10' },
-  subjective_soreness: { label: 'Soreness', unit: '', min: 0, max: 10, decimals: 0, scale: '0 to 10' },
-  subjective_stress: { label: 'Stress', unit: '', min: 0, max: 10, decimals: 0, scale: '0 to 10' },
-  subjective_energy: { label: 'Energy', unit: '', min: 0, max: 10, decimals: 0, scale: '0 to 10' },
-  unwell: { label: 'Feeling unwell', unit: '', min: 0, max: 1, decimals: 0, scale: 'yes or no' },
+  resting_hr_bpm: { label: tr('Resting heart rate', 'Ruhepuls'), unit: 'bpm', min: 25, max: 130, decimals: 0 },
+  hrv_ms: { label: tr('Heart rate variability', 'Herzfrequenzvariabilität'), unit: 'ms', min: 3, max: 300, decimals: 0, methods: ['rmssd', 'sdnn'] },
+  sleep_duration_min: { label: tr('Sleep', 'Schlaf'), unit: 'min', min: 30, max: 1200, decimals: 0 },
+  weight_kg: { label: tr('Weight', 'Gewicht'), unit: 'kg', min: 25, max: 350, decimals: 1 },
+  body_fat_pct: { label: tr('Body fat', 'Körperfett'), unit: '%', min: 2, max: 70, decimals: 1 },
+  subjective_fatigue: { label: tr('Fatigue', 'Müdigkeit'), unit: '', min: 0, max: 10, decimals: 0, scale: tr('0 to 10', '0 bis 10') },
+  subjective_soreness: { label: tr('Soreness', 'Muskelkater'), unit: '', min: 0, max: 10, decimals: 0, scale: tr('0 to 10', '0 bis 10') },
+  subjective_stress: { label: tr('Stress', 'Stress'), unit: '', min: 0, max: 10, decimals: 0, scale: tr('0 to 10', '0 bis 10') },
+  subjective_energy: { label: tr('Energy', 'Energie'), unit: '', min: 0, max: 10, decimals: 0, scale: tr('0 to 10', '0 bis 10') },
+  unwell: { label: tr('Feeling unwell', 'Unwohlsein'), unit: '', min: 0, max: 1, decimals: 0, scale: tr('yes or no', 'ja oder nein') },
 };
 
 /** Metrics listed on the health screen and in the measurement form. unwell is only part of the daily check-in. */
@@ -155,14 +156,14 @@ export type ObservationIssue = { field: 'value' | 'method' | 'observedAt'; messa
 export function validateObservation(o: Pick<HealthObservation, 'metric' | 'value' | 'observedAt' | 'method'>, nowMs: number): ObservationIssue[] {
   const issues: ObservationIssue[] = [];
   const meta = METRICS[o.metric];
-  if (!meta) return [{ field: 'value', message: 'Unknown measurement.' }];
-  if (!(typeof o.value === 'number' && Number.isFinite(o.value))) issues.push({ field: 'value', message: 'Enter a number.' });
+  if (!meta) return [{ field: 'value', message: tr('Unknown measurement.', 'Unbekannter Messwert.') }];
+  if (!(typeof o.value === 'number' && Number.isFinite(o.value))) issues.push({ field: 'value', message: tr('Enter a number.', 'Gib eine Zahl ein.') });
   else if (o.value < meta.min || o.value > meta.max) {
-    issues.push({ field: 'value', message: `That is outside the plausible range for ${meta.label.toLowerCase()} (${meta.min} to ${meta.max}${meta.unit ? ` ${meta.unit}` : ''}). Check the number and unit.` });
+    issues.push({ field: 'value', message: tr(`That is outside the plausible range for ${meta.label.toLowerCase()} (${meta.min} to ${meta.max}${meta.unit ? ` ${meta.unit}` : ''}). Check the number and unit.`, `Das liegt außerhalb des plausiblen Bereichs für ${meta.label} (${meta.min} bis ${meta.max}${meta.unit ? ` ${meta.unit}` : ''}). Prüfe Zahl und Einheit.`) });
   }
   if (meta.methods && !meta.methods.includes(o.method ?? '')) {
-    issues.push({ field: 'method', message: `Choose how it was measured (${meta.methods.join(' or ').toUpperCase()}). Values from different methods cannot be compared.` });
+    issues.push({ field: 'method', message: tr(`Choose how it was measured (${meta.methods.join(' or ').toUpperCase()}). Values from different methods cannot be compared.`, `Wähle, wie gemessen wurde (${meta.methods.join(' oder ').toUpperCase()}). Werte aus verschiedenen Methoden lassen sich nicht vergleichen.`) });
   }
-  if (o.observedAt > nowMs + 60_000) issues.push({ field: 'observedAt', message: 'The date cannot be in the future.' });
+  if (o.observedAt > nowMs + 60_000) issues.push({ field: 'observedAt', message: tr('The date cannot be in the future.', 'Das Datum kann nicht in der Zukunft liegen.') });
   return issues;
 }

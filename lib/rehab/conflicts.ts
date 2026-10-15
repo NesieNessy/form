@@ -1,3 +1,4 @@
+import { tr } from '../i18n/tr';
 import { exerciseSteps, type WorkoutContent } from '../workout/model';
 import { ACTIVITY_TAGS, RED_FLAGS, type ActivityTag, type InjuryEpisode, type RedFlag, type Restriction, type RestrictionRule, type SymptomLog } from './model';
 
@@ -97,6 +98,6 @@ export function needsPromptCare(log: Pick<SymptomLog, 'redFlags'>): boolean {
 }
 
 export const ESCALATION_MESSAGE =
-  'Please get this checked by a doctor promptly, or by emergency services if it is severe. FORM cannot assess this and will not suggest exercises for it. (Placeholder wording, pending review by a clinician.)';
+  tr('Please get this checked by a doctor promptly, or by emergency services if it is severe. FORM cannot assess this and will not suggest exercises for it. (Placeholder wording, pending review by a clinician.)', 'Bitte lass das zeitnah ärztlich abklären, bei starken Beschwerden über den Notruf. FORM kann das nicht beurteilen und schlägt dafür keine Übungen vor. (Vorläufige Formulierung, wird noch von einer Fachperson geprüft.)');
 
 export const redFlagLabel = (f: RedFlag) => RED_FLAGS[f];

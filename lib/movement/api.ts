@@ -1,3 +1,4 @@
+import { tr } from '../i18n/tr';
 import { call, type Result } from '../sharing/api';
 import { supabase } from '../supabase';
 import type { Analysis, CameraView, Confidence, Limitation, MovementId, ObservationLabel } from './model';
@@ -54,9 +55,9 @@ export async function uploadClip(input: NewClip, uri: string, durationSeconds: n
   try {
     const blob = await (await fetch(uri)).blob();
     const { error } = await supabase.storage.from(BUCKET).upload(reg.data.storage_path, blob, { contentType: input.mime, upsert: false });
-    if (error) return { ok: false, error: 'The upload did not finish. Check the connection and try again.' };
+    if (error) return { ok: false, error: tr('The upload did not finish. Check the connection and try again.', 'Der Upload wurde nicht abgeschlossen. Prüfe die Verbindung und versuche es erneut.') };
   } catch {
-    return { ok: false, error: 'The upload did not finish. Check the connection and try again.' };
+    return { ok: false, error: tr('The upload did not finish. Check the connection and try again.', 'Der Upload wurde nicht abgeschlossen. Prüfe die Verbindung und versuche es erneut.') };
   }
   const fin = await call<null>('finalize_video_asset', { p_asset: reg.data.id, p_duration: durationSeconds });
   return fin.ok ? reg : fin;
@@ -81,7 +82,7 @@ export async function clipLink(path: string): Promise<string | null> {
 /** Removes the file first (the owner can always reach their own folder), then the record and everything derived from it. */
 export async function deleteClip(clip: Pick<Clip, 'id' | 'storage_path'>): Promise<Result<null>> {
   const { error } = await supabase.storage.from(BUCKET).remove([clip.storage_path]);
-  if (error) return { ok: false, error: 'The clip could not be removed. Check the connection and try again.' };
+  if (error) return { ok: false, error: tr('The clip could not be removed. Check the connection and try again.', 'Der Clip konnte nicht entfernt werden. Prüfe die Verbindung und versuche es erneut.') };
   return call<null>('delete_video_asset', { p_asset: clip.id });
 }
 

@@ -1,3 +1,4 @@
+import { locale } from '../strings';
 /**
  * Applying what the athlete approves in the chat happens on the device, with
  * ordinary state functions; these helpers only work out what would change,
@@ -21,7 +22,7 @@ export function rescheduleTarget(fromMs: number, to: string): number | undefined
 }
 
 export function describeMove(fromMs: number, toMs: number): { from: string; to: string } {
-  const fmt = (ms: number) => new Date(ms).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+  const fmt = (ms: number) => new Date(ms).toLocaleString(locale, { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
   return { from: fmt(fromMs), to: fmt(toMs) };
 }
 

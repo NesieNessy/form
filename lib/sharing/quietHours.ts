@@ -1,3 +1,4 @@
+import { locale } from '../strings';
 /**
  * Quiet hours are a local time range in which nothing should be pushed to
  * the athlete. The range may cross midnight (22:00 to 07:00).
@@ -22,5 +23,5 @@ export function hourLabel(hhmm: string | null): string {
   const total = minutes(hhmm);
   if (total === undefined) return hhmm;
   const d = new Date(2000, 0, 1, Math.floor(total / 60), total % 60);
-  return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  return d.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit' });
 }

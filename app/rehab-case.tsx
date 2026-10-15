@@ -16,14 +16,14 @@ import { caseSharing, revokeCase, shareCase } from '@/lib/rehab/api';
 import { ESCALATION_MESSAGE, needsPromptCare } from '@/lib/rehab/conflicts';
 import { BODY_REGION_LABEL, EPISODE_STATUS_LABEL, RED_FLAGS, RTS_LABEL, RULE_LABEL, TAG_LABEL, TAG_ORDER, type EpisodeStatus, type Issuer, type RedFlag } from '@/lib/rehab/model';
 import { listRelationships, type Relationship } from '@/lib/sharing/api';
-import { strings } from '@/lib/strings';
+import { strings, locale } from '@/lib/strings';
 import { syncNow } from '@/lib/sync';
 import { useWorkoutsStore } from '@/lib/workoutsStore';
 import { colors, fontFamily, spacing } from '@/theme/colors';
 
 const SCALE = Array.from({ length: 11 }, (_, i) => ({ key: String(i), label: String(i) }));
 const STATUSES = (Object.keys(EPISODE_STATUS_LABEL) as EpisodeStatus[]).map((k) => ({ key: k, label: EPISODE_STATUS_LABEL[k] }));
-const day = (ms: number) => new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+const day = (ms: number) => new Date(ms).toLocaleDateString(locale, { month: 'short', day: 'numeric' });
 const who = (i: Issuer) => `${i.name ?? strings.someone} · ${i.role}, ${i.verified ? strings.verifiedClinician : strings.unverifiedClinician}`;
 
 export default function RehabCaseScreen() {
@@ -239,7 +239,7 @@ export default function RehabCaseScreen() {
               <GradientButton label={strings.cancel} variant="secondary" style={{ flex: 1 }} onPress={() => setConfirmingDelete(false)} />
               <GradientButton
                 label={strings.deleteCase}
-                colorsOverride={[colors.red, colors.red]}
+                variant="danger"
                 style={{ flex: 1 }}
                 onPress={() => {
                   removeEpisode(id);

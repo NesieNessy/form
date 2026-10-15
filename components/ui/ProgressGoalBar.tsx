@@ -22,7 +22,7 @@ export function ProgressGoalBar({ label, currentLabel, targetLabel, progressPct 
       </View>
       <View style={styles.track}>
         <LinearGradient
-          colors={colors.gradient}
+          colors={[colors.action, colors.action]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={[styles.fill, { width: `${Math.max(4, Math.min(100, progressPct))}%` }]}

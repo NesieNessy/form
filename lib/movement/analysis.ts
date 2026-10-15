@@ -1,3 +1,4 @@
+import { tr } from '../i18n/tr';
 import { BLOCKING, type Analysis, type CameraView, type Confidence, type Frame, type Limitation, type Observation, type Point, type PoseClip } from './model';
 
 /**
@@ -129,7 +130,7 @@ export function analyseSquat(clip: PoseClip, view: CameraView): Analysis {
     return cap === 'moderate' && c === 'high' ? 'moderate' : cap === 'low' ? 'low' : c;
   };
   const fps = clip.frames.length / clip.durationSeconds;
-  const obs: Observation[] = [{ label: 'repetitions', summary: n === 1 ? '1 repetition found.' : `${n} repetitions found.`, confidence: confidence([s.hip], 'high'), timestamps: reps.map((r) => t(r.bottom)) }];
+  const obs: Observation[] = [{ label: 'repetitions', summary: n === 1 ? tr('1 repetition found.', '1 Wiederholung gefunden.') : tr(`${n} repetitions found.`, `${n} Wiederholungen gefunden.`), confidence: confidence([s.hip], 'high'), timestamps: reps.map((r) => t(r.bottom)) }];
 
   if (view === 'side') {
     // Hip height relative to the knee at the bottom, in thigh lengths (positive = hip below knee).
@@ -139,7 +140,7 @@ export function analyseSquat(clip: PoseClip, view: CameraView): Analysis {
     const count = reached.filter(Boolean).length;
     obs.push({
       label: 'depth',
-      summary: count === n ? `Hips reached about knee height or lower in all ${n} repetitions.` : count === 0 ? `Hips stayed above knee height in all ${n} repetitions.` : `Hips reached about knee height in ${count} of ${n} repetitions.`,
+      summary: count === n ? tr(`Hips reached about knee height or lower in all ${n} repetitions.`, `Die Hüfte kam in allen ${n} Wiederholungen etwa auf Kniehöhe oder tiefer.`) : count === 0 ? tr(`Hips stayed above knee height in all ${n} repetitions.`, `Die Hüfte blieb in allen ${n} Wiederholungen über Kniehöhe.`) : tr(`Hips reached about knee height in ${count} of ${n} repetitions.`, `Die Hüfte kam in ${count} von ${n} Wiederholungen etwa auf Kniehöhe.`),
       confidence: confidence([s.hip, s.knee]),
       timestamps: shallow,
     });
@@ -147,14 +148,14 @@ export function analyseSquat(clip: PoseClip, view: CameraView): Analysis {
     const order = depth.map((d, i) => ({ d, i })).sort((a, b) => a.d - b.d);
     obs.push(
       spread > 0.35
-        ? { label: 'depth_consistency', summary: 'Depth varies across repetitions.', confidence: confidence([s.hip, s.knee]), timestamps: order.slice(0, 2).map((o) => t(reps[o.i].bottom)).sort((a, b) => a - b) }
-        : { label: 'depth_consistency', summary: 'Depth is consistent across repetitions.', confidence: confidence([s.hip, s.knee]), timestamps: [] }
+        ? { label: 'depth_consistency', summary: tr('Depth varies across repetitions.', 'Die Tiefe schwankt zwischen den Wiederholungen.'), confidence: confidence([s.hip, s.knee]), timestamps: order.slice(0, 2).map((o) => t(reps[o.i].bottom)).sort((a, b) => a - b) }
+        : { label: 'depth_consistency', summary: tr('Depth is consistent across repetitions.', 'Die Tiefe ist in allen Wiederholungen gleichmäßig.'), confidence: confidence([s.hip, s.knee]), timestamps: [] }
     );
     const lean = mean(bottoms.map((f) => (Math.atan2(Math.abs(pt(f, s.shoulder).x - pt(f, s.hip).x), pt(f, s.hip).y - pt(f, s.shoulder).y) * 180) / Math.PI));
     const rough = Math.round(lean / 5) * 5;
     obs.push({
       label: 'torso_lean',
-      summary: lean < 30 ? `The torso stays fairly upright at the bottom (roughly ${rough}° from vertical).` : lean <= 50 ? `Moderate forward lean at the bottom (roughly ${rough}° from vertical).` : `Pronounced forward lean at the bottom (roughly ${rough}° from vertical).`,
+      summary: lean < 30 ? tr(`The torso stays fairly upright at the bottom (roughly ${rough}° from vertical).`, `Der Oberkörper bleibt unten recht aufrecht (etwa ${rough}° aus der Senkrechten).`) : lean <= 50 ? tr(`Moderate forward lean at the bottom (roughly ${rough}° from vertical).`, `Mäßige Vorlage unten (etwa ${rough}° aus der Senkrechten).`) : tr(`Pronounced forward lean at the bottom (roughly ${rough}° from vertical).`, `Deutliche Vorlage unten (etwa ${rough}° aus der Senkrechten).`),
       confidence: confidence([s.shoulder, s.hip], 'moderate'),
       timestamps: [],
     });
@@ -165,8 +166,8 @@ export function analyseSquat(clip: PoseClip, view: CameraView): Analysis {
       const lifted = reps.filter((r) => (heelStand - frames[r.bottom].points![s.heel].y) / legLen > 0.04).map((r) => t(r.bottom));
       obs.push(
         lifted.length * 2 >= n
-          ? { label: 'heel_lift', summary: `Heels may lift at the bottom in ${lifted.length} of ${n} repetitions.`, confidence: confidence([s.heel], 'moderate'), timestamps: lifted }
-          : { label: 'heel_lift', summary: 'Heels appear to stay down.', confidence: confidence([s.heel], 'moderate'), timestamps: [] }
+          ? { label: 'heel_lift', summary: tr(`Heels may lift at the bottom in ${lifted.length} of ${n} repetitions.`, `Die Fersen heben sich unten möglicherweise in ${lifted.length} von ${n} Wiederholungen.`), confidence: confidence([s.heel], 'moderate'), timestamps: lifted }
+          : { label: 'heel_lift', summary: tr('Heels appear to stay down.', 'Die Fersen scheinen am Boden zu bleiben.'), confidence: confidence([s.heel], 'moderate'), timestamps: [] }
       );
     }
   } else {
@@ -179,14 +180,14 @@ export function analyseSquat(clip: PoseClip, view: CameraView): Analysis {
     });
     obs.push(
       inward.length * 2 >= n
-        ? { label: 'knee_tracking', summary: `Knees move inward at the bottom in ${inward.length} of ${n} repetitions.`, confidence: confidence([P.lKnee, P.rKnee, P.lAnkle, P.rAnkle]), timestamps: inward.map((r) => t(r.bottom)) }
-        : { label: 'knee_tracking', summary: 'Knees stay roughly in line with the feet.', confidence: confidence([P.lKnee, P.rKnee, P.lAnkle, P.rAnkle]), timestamps: [] }
+        ? { label: 'knee_tracking', summary: tr(`Knees move inward at the bottom in ${inward.length} of ${n} repetitions.`, `Die Knie wandern unten in ${inward.length} von ${n} Wiederholungen nach innen.`), confidence: confidence([P.lKnee, P.rKnee, P.lAnkle, P.rAnkle]), timestamps: inward.map((r) => t(r.bottom)) }
+        : { label: 'knee_tracking', summary: tr('Knees stay roughly in line with the feet.', 'Die Knie bleiben ungefähr in Linie mit den Füßen.'), confidence: confidence([P.lKnee, P.rKnee, P.lAnkle, P.rAnkle]), timestamps: [] }
     );
     const tilt = bottoms.map((f) => (pt(f, P.lHip).y - pt(f, P.rHip).y) / (Math.abs(pt(f, P.lHip).x - pt(f, P.rHip).x) || 1));
     const lower: Side | null = tilt.filter((x) => x > 0.15).length * 2 > n ? 'left' : tilt.filter((x) => x < -0.15).length * 2 > n ? 'right' : null;
     obs.push({
       label: 'hip_symmetry',
-      summary: lower ? `The ${lower} hip sits lower than the ${lower === 'left' ? 'right' : 'left'} at the bottom in most repetitions.` : 'Hips stay about level at the bottom.',
+      summary: lower ? tr(`The ${lower} hip sits lower than the ${lower === 'left' ? 'right' : 'left'} at the bottom in most repetitions.`, `Die ${lower === 'left' ? 'linke' : 'rechte'} Hüfte sitzt unten in den meisten Wiederholungen tiefer als die ${lower === 'left' ? 'rechte' : 'linke'}.`) : tr('Hips stay about level at the bottom.', 'Die Hüfte bleibt unten etwa waagerecht.'),
       confidence: confidence([P.lHip, P.rHip], 'moderate'),
       timestamps: [],
     });
@@ -195,7 +196,7 @@ export function analyseSquat(clip: PoseClip, view: CameraView): Analysis {
     const order = excursion.map((d, i) => ({ d, i })).sort((a, b) => a.d - b.d);
     obs.push({
       label: 'depth_consistency',
-      summary: varies ? 'Depth varies across repetitions.' : 'Depth is consistent across repetitions.',
+      summary: varies ? tr('Depth varies across repetitions.', 'Die Tiefe schwankt zwischen den Wiederholungen.') : tr('Depth is consistent across repetitions.', 'Die Tiefe ist in allen Wiederholungen gleichmäßig.'),
       confidence: confidence([P.lHip, P.rHip]),
       timestamps: varies ? order.slice(0, 2).map((o) => t(reps[o.i].bottom)).sort((a, b) => a - b) : [],
     });
@@ -215,7 +216,7 @@ export function analyseSquat(clip: PoseClip, view: CameraView): Analysis {
   };
   const down = mean(reps.map((r) => frames[r.bottom].t - frames[from(r)].t));
   const up = mean(reps.map((r) => frames[to(r)].t - frames[r.bottom].t));
-  obs.push({ label: 'tempo', summary: `About ${round1(down)} s down and ${round1(up)} s up per repetition.`, confidence: fps >= 15 ? confidence([s.hip]) : 'low', timestamps: [] });
+  obs.push({ label: 'tempo', summary: tr(`About ${round1(down)} s down and ${round1(up)} s up per repetition.`, `Etwa ${round1(down)} s abwärts und ${round1(up)} s aufwärts pro Wiederholung.`), confidence: fps >= 15 ? confidence([s.hip]) : 'low', timestamps: [] });
 
   return result(true, n, obs);
 }

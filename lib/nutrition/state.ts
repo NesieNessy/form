@@ -1,3 +1,4 @@
+import { tr } from '../i18n/tr';
 import { newUuid } from '../id';
 import { mark, type WorkoutData } from '../workout/state';
 import { nutrientsFor, snapshotOf, validateFood, validateQuantity, validateQuickAdd, type Issue } from './engine';
@@ -54,7 +55,7 @@ function put(data: WorkoutData, entry: FoodLogEntry): WorkoutData {
 /** Logs an amount of a food. The food is copied into the entry, so later edits to it do not rewrite this entry. */
 export function logFood(data: WorkoutData, food: Food | FoodSnapshot, quantity: Quantity, ctx: LogContext, nowMs: number): Result<{ entryId: string }> {
   const issues = errorsOnly(validateQuantity(food, quantity));
-  if (ctx.consumedAt > nowMs + 3_600_000) issues.push({ field: 'consumedAt', message: 'The time cannot be in the future.', severity: 'error' });
+  if (ctx.consumedAt > nowMs + 3_600_000) issues.push({ field: 'consumedAt', message: tr('The time cannot be in the future.', 'Die Zeit kann nicht in der Zukunft liegen.'), severity: 'error' });
   const computed = nutrientsFor(food, quantity);
   if (issues.length || !computed) return { ok: false, issues };
   const snapshot = 'createdAt' in food ? snapshotOf(food as Food) : (JSON.parse(JSON.stringify(food)) as FoodSnapshot);
@@ -113,7 +114,7 @@ export function updateEntry(
   nowMs: number
 ): Result<object> {
   const entry = data.foodLog[entryId];
-  if (!entry || entry.deletedAt) return { ok: false, issues: [{ field: 'entry', message: 'This entry no longer exists.', severity: 'error' }] };
+  if (!entry || entry.deletedAt) return { ok: false, issues: [{ field: 'entry', message: tr('This entry no longer exists.', 'Diesen Eintrag gibt es nicht mehr.'), severity: 'error' }] };
   let next: FoodLogEntry = { ...entry, ...patch, revision: entry.revision + 1, updatedAt: nowMs };
   if (patch.consumedAt !== undefined) next.localDate = localDateOf(patch.consumedAt);
   if (entry.food && patch.quantity) {
@@ -144,8 +145,8 @@ export function saveMeal(data: WorkoutData, name: string, entryIds: string[], no
     .map((id) => data.foodLog[id])
     .filter((e): e is FoodLogEntry => !!e && !e.deletedAt && !!e.food && !!e.quantity)
     .map((e) => ({ food: e.food as FoodSnapshot, quantity: e.quantity as Quantity }));
-  if (!name.trim()) return { ok: false, issues: [{ field: 'name', message: 'Give the meal a name.', severity: 'error' }] };
-  if (!items.length) return { ok: false, issues: [{ field: 'items', message: 'A saved meal needs at least one food.', severity: 'error' }] };
+  if (!name.trim()) return { ok: false, issues: [{ field: 'name', message: tr('Give the meal a name.', 'Gib der Mahlzeit einen Namen.'), severity: 'error' }] };
+  if (!items.length) return { ok: false, issues: [{ field: 'items', message: tr('A saved meal needs at least one food.', 'Eine gespeicherte Mahlzeit braucht mindestens ein Lebensmittel.'), severity: 'error' }] };
   const mealId = newUuid();
   const meal: SavedMeal = { id: mealId, name: name.trim(), items, createdAt: nowMs, updatedAt: nowMs };
   return { ok: true, mealId, data: { ...data, savedMeals: { ...data.savedMeals, [mealId]: meal }, dirty: mark(data.dirty, { savedMeals: [mealId] }) } };
@@ -154,7 +155,7 @@ export function saveMeal(data: WorkoutData, name: string, entryIds: string[], no
 /** Logs every item of a saved meal as its own entry, so each portion can still be corrected. */
 export function logSavedMeal(data: WorkoutData, mealId: string, ctx: LogContext, nowMs: number): Result<{ entryIds: string[] }> {
   const meal = data.savedMeals[mealId];
-  if (!meal || meal.deletedAt) return { ok: false, issues: [{ field: 'meal', message: 'This saved meal no longer exists.', severity: 'error' }] };
+  if (!meal || meal.deletedAt) return { ok: false, issues: [{ field: 'meal', message: tr('This saved meal no longer exists.', 'Diese gespeicherte Mahlzeit gibt es nicht mehr.'), severity: 'error' }] };
   let next = data;
   const entryIds: string[] = [];
   for (const item of meal.items) {

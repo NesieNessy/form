@@ -4,7 +4,9 @@
 // its cache; restart a dev server with `npx expo start --clear` afterwards.
 const { spawnSync } = require('child_process');
 
-const res = spawnSync('npx', ['expo', 'export', '--clear', '--platform', 'web', '--output-dir', 'dist-e2e'], {
+// E2E_MAX_WORKERS limits Metro's workers on machines short of memory.
+const workers = process.env.E2E_MAX_WORKERS ? ['--max-workers', process.env.E2E_MAX_WORKERS] : [];
+const res = spawnSync('npx', ['expo', 'export', '--clear', '--platform', 'web', '--output-dir', 'dist-e2e', ...workers], {
   stdio: 'inherit',
   shell: true,
   env: { ...process.env, EXPO_NO_DOTENV: '1', EXPO_PUBLIC_SUPABASE_URL: '', EXPO_PUBLIC_SUPABASE_ANON_KEY: '' },

@@ -12,7 +12,7 @@ import { metricOverview, metricSeries, type MetricToday } from '@/lib/health/log
 import { METRICS, localDateOf, type ExternalActivity, type HealthObservation, type Provider } from '@/lib/health/model';
 import { MAX_FILE_BYTES, parseActivityFile } from '@/lib/health/parse';
 import { readPickedFile } from '@/lib/health/readFile';
-import { strings } from '@/lib/strings';
+import { strings, locale } from '@/lib/strings';
 import { useContentWidth } from '@/lib/useContentWidth';
 import { useWorkoutsStore } from '@/lib/workoutsStore';
 import { colors, fontFamily, iconStrokeWidth, radius, spacing } from '@/theme/colors';
@@ -86,7 +86,7 @@ export default function HealthScreen() {
           <Text style={styles.hint}>{strings.activityFilesHint}</Text>
           <GradientButton
             label={busy ? strings.reading : strings.importActivityFile}
-            icon={<Icons.upload size={16} color="#fff" strokeWidth={iconStrokeWidth} />}
+            icon={<Icons.upload size={16} color={colors.onAction} strokeWidth={iconStrokeWidth} />}
             onPress={busy ? undefined : pickFile}
           />
           {message ? (
@@ -159,7 +159,7 @@ export default function HealthScreen() {
                     <GradientButton label={strings.cancel} variant="secondary" style={{ flex: 1 }} onPress={() => setConfirming(null)} />
                     <GradientButton
                       label={strings.deleteSourceData}
-                      colorsOverride={[colors.red, colors.red]}
+                      variant="danger"
                       style={{ flex: 1 }}
                       onPress={() => {
                         removeSource(source.provider);
@@ -204,7 +204,7 @@ function MetricCard({ item, observations }: { item: MetricToday; observations: H
   const history = open
     ? observations.filter((o) => o.metric === item.metric).sort((a, b) => b.observedAt - a.observedAt).slice(0, 14)
     : [];
-  const shortDay = (date: string) => new Date(`${date}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const shortDay = (date: string) => new Date(`${date}T12:00:00`).toLocaleDateString(locale, { month: 'short', day: 'numeric' });
 
   return (
     <Card style={styles.card}>

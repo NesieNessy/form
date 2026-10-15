@@ -1,4 +1,4 @@
-import { strings } from '../strings';
+import { strings, locale } from '../strings';
 import type { BlockResult, ScheduledWorkout, Sport, WorkoutContent, WorkoutVersion } from '../workout/model';
 import { localDateOf, METRIC_ORDER, METRICS, type ExternalActivity, type HealthObservation, type MetricKey } from './model';
 
@@ -125,7 +125,7 @@ const SPORT_STEP: Partial<Record<Sport, { name: string; activityId: string }>> =
  */
 export function workoutForActivity(activity: ExternalActivity, newId: () => string): WorkoutContent {
   const step = SPORT_STEP[activity.sport] ?? { name: activity.name?.trim() || strings.activityFallbackName, activityId: null };
-  const title = activity.name?.trim() || `${step.name} · ${new Date(activity.startedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+  const title = activity.name?.trim() || `${step.name} · ${new Date(activity.startedAt).toLocaleDateString(locale, { month: 'short', day: 'numeric' })}`;
   return {
     title,
     sport: activity.sport,

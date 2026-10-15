@@ -1,3 +1,4 @@
+import { tr } from '../i18n/tr';
 import { EMPTY_PROFILE, oneRepMaxByActivity, type Benchmark, type Profile } from '../athlete/model';
 import type { ExternalActivity, HealthObservation } from '../health/model';
 import { newUuid } from '../id';
@@ -558,7 +559,7 @@ export function migrateLegacy(old: LegacyState, nowMs: number): WorkoutData {
   for (const w of old.workouts ?? []) {
     const extras = [
       w.durationLabel ? `Duration: ${w.durationLabel}` : undefined,
-      w.totalVolumeLabel ? `Total volume: ${w.totalVolumeLabel}` : undefined,
+      w.totalVolumeLabel ? tr(`Total volume: ${w.totalVolumeLabel}`, `Gesamtvolumen: ${w.totalVolumeLabel}`) : undefined,
     ].filter(Boolean);
     const notes = [w.notes, ...extras].filter(Boolean).join('\n') || undefined;
     const content = wizardToContent({ title: w.title, category: w.category, notes, sections: w.sections ?? [] });

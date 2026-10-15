@@ -13,7 +13,7 @@ import { metricSeries } from '@/lib/health/logic';
 import { METRICS, type MetricKey } from '@/lib/health/model';
 import { useWorkoutsStore } from '@/lib/workoutsStore';
 import { bodyCompositionMonths, bodyCompositionSeries, bodyDevelopment, timeRanges } from '@/lib/mockData';
-import { strings } from '@/lib/strings';
+import { strings, locale } from '@/lib/strings';
 import { useContentWidth } from '@/lib/useContentWidth';
 import { colors, fontFamily, radius, spacing } from '@/theme/colors';
 import { Icons } from '@/theme/icons';
@@ -89,7 +89,7 @@ export default function BodyDevelopmentScreen() {
         </Card>
 
         <View style={{ height: spacing.lg }} />
-        <GradientButton label={strings.shareProgress} icon={<Icons.share size={16} color="#fff" />} />
+        <GradientButton label={strings.shareProgress} icon={<Icons.share size={16} color={colors.onAction} />} />
       </ScrollView>
     </View>
   );
@@ -98,7 +98,7 @@ export default function BodyDevelopmentScreen() {
 const BODY_METRICS: MetricKey[] = ['weight_kg', 'body_fat_pct'];
 
 function shortDay(date: string): string {
-  return new Date(`${date}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  return new Date(`${date}T12:00:00`).toLocaleDateString(locale, { month: 'short', day: 'numeric' });
 }
 
 function BodyColumn({

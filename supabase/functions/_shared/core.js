@@ -342,33 +342,1095 @@ async function runChat(input, callModel, execute) {
   return fail2("MODEL_FAILED", "The assistant took too many steps. Try a simpler question.");
 }
 
-// lib/nutrition/model.ts
-var NUTRIENT_ORDER = ["energy_kcal", "protein_g", "carbohydrate_g", "fat_g", "fiber_g", "sugar_g", "sodium_mg", "caffeine_mg"];
+// lib/i18n/de/part1.ts
+var part1 = {
+  continue: "Weiter",
+  newWorkout: "Neues Workout",
+  startWorkout: "Workout starten",
+  saveWorkout: "Workout speichern",
+  shareProgress: "Fortschritt teilen",
+  addExercise: "Übung hinzufügen",
+  done: "Fertig",
+  save: "Speichern",
+  back: "Zurück",
+  current: "Aktuell",
+  target: "Ziel",
+  start: "Start",
+  notes: "Notizen",
+  date: "Datum",
+  workouts: "Workouts",
+  optional: "Optional",
+  required: "Pflichtfeld",
+  home: "Start",
+  trends: "Trends",
+  more: "Mehr",
+  weeklyGoal: "Wochenziel",
+  yourProgress: "Dein Fortschritt",
+  yourTrends: "Deine Trends",
+  overview: "Übersicht",
+  bodyData: "Körperdaten",
+  strength: "Kraft",
+  endurance: "Ausdauer",
+  weight: "Gewicht",
+  bodyFat: "Körperfett",
+  muscleMass: "Muskelmasse",
+  bmi: "BMI",
+  distance400m: "400 m",
+  distance1km: "1 km",
+  distance5km: "5 km",
+  all: "Alle",
+  howIsThisMeasured: "Wie wird das gemessen?",
+  tip: "Tipp",
+  tipBody: (metricLabel) => `Dein Wert für ${metricLabel} sinkt stetig. Starker Fortschritt!`,
+  yourStrengthProgress: "Dein Kraftfortschritt",
+  overallProgress: "Gesamtfortschritt",
+  endurancePerformance: "Ausdauerleistung",
+  moreEnduranceStats: "Weitere Ausdauerwerte",
+  avgHeartRate: "Ø Herzfrequenz",
+  vo2max: "VO2max",
+  avgPace: "Ø Pace",
+  totalDistance: "Gesamtstrecke",
+  sessions: "Einheiten",
+  yourInsights: "Deine Einblicke",
+  bodyComposition: "Körperzusammensetzung",
+  before: "Vorher",
+  now: "Jetzt",
+  weightKgLabel: "Gewicht (kg)",
+  bodyFatPctLabel: "Körperfett (%)",
+  strengthIndexLabel: "Kraft (Index)",
+  yourGoals: "Deine Ziele",
+  forecast: "Prognose",
+  noWorkoutsPlannedYet: "Noch keine Workouts geplant",
+  workoutsEmptyBody: "Deine Trainingspläne erscheinen hier, sobald du sie anlegst.",
+  workoutsListSubtitle: "Alle deine Trainingspläne an einem Ort.",
+  workoutFallbackTitle: "Workout",
+  workoutNotFound: "Dieses Workout wurde nicht gefunden.",
+  untitledWorkout: "Workout ohne Titel",
+  exerciseNumbered: (n) => `Übung ${n}`,
+  exercise: "Übung",
+  exercisePlural: "Übungen",
+  yourForm: "DEINE FORM",
+  bodyDevelopmentTitle: "Körperentwicklung",
+  bodyDevelopmentSubtitle: "Sieh, wie sich dein Körper verändert.",
+  performanceOverviewTitle: "Leistungsübersicht",
+  performanceOverviewSubtitle: "Alle wichtigen Werte.",
+  comparisonTitle: "Vergleich",
+  comparisonSubtitle: "Vergleiche dich mit deinem früheren Ich.",
+  goalsForecastsTitle: "Ziele",
+  goalsForecastsSubtitle: "Ziele, Meilensteine und Fortschritt aus deinen eigenen Ergebnissen.",
+  insightsTipsTitle: "Einblicke & Tipps",
+  insightsTipsSubtitle: "Persönliche Empfehlungen.",
+  longTermProgressTitle: "Langfristiger Fortschritt",
+  longTermProgressSubtitle: "Deine Entwicklung in einem Diagramm.",
+  targetedWorkoutsTitle: "Gezielte Workouts",
+  targetedWorkoutsSubtitle: "Vorlagen nach Schwerpunkt durchsuchen.",
+  moreSubtitle: "Tiefere Einblicke in deinen Fortschritt.",
+  videos: "Videos",
+  edit: "Bearbeiten",
+  next: "Weiter",
+  basicInfoTitle: "Neues Workout",
+  basicInfoSubtitle: "Halte dein Training fest. Kurz und einfach oder mit allen Details.",
+  titleOptional: "Titel des Workouts (optional)",
+  titlePlaceholder: "z. B. CrossFit-Kurs, Open Workout 24.1",
+  startTime: "Startzeit",
+  category: "Art",
+  categoryCrossfit: "CrossFit",
+  categoryStrength: "Kraft",
+  categoryEndurance: "Ausdauer",
+  categoryOther: "Sonstiges",
+  notesOptional: "Notizen (optional)",
+  notesPlaceholder: "z. B. Ort, Coach, wie hat es sich angefühlt?",
+  workoutStructureTitle: "Aufbau des Workouts",
+  workoutStructureSubtitle: "Füge die Teile deines Workouts hinzu. Du kannst Abschnitte hinzufügen, entfernen oder umsortieren.",
+  addSection: "Abschnitt hinzufügen",
+  warmup: "Aufwärmen",
+  skill: "Technik",
+  accessory: "Ergänzung",
+  coolDown: "Cool-down",
+  workoutOfTheDay: "Workout des Tages",
+  configureSectionTitle: "Abschnitt einrichten",
+  sectionProgress: (current, total, label) => `Abschnitt ${current} von ${total} · ${label}`,
+  workoutType: "Workout-Art",
+  workoutTypeEmom: "EMOM",
+  workoutTypeAmrap: "AMRAP",
+  workoutTypeForTime: "For Time",
+  workoutTypeTabata: "Tabata",
+  workoutTypePartnerWod: "Partner-WOD",
+  workoutTypeCustom: "Eigenes / Mix",
+  roundsStructure: "Runden / Aufbau",
+  structureFixedRounds: "Feste Runden",
+  structureRepScheme: "Wiederholungsschema (z. B. 21-15-9)",
+  structureTimeBased: "Zeitbasiert (z. B. 10 min)",
+  structureCustom: "Eigenes",
+  roundsSchemeTitle: "Runden / Schema",
+  roundsSchemeSubtitle: "Lege fest, wie das Workout aufgebaut ist.",
+  fixedRoundsLabel: "Feste Anzahl Runden",
+  repSchemeLabel: "Wiederholungsschema (z. B. 21-15-9)",
+  repSchemeHint: "Zahlen mit Bindestrichen getrennt eingeben",
+  repSchemePlaceholder: "21-15-9",
+  timeBasedLabel: "Zeitbasiert",
+  totalTime: "Gesamtzeit",
+  customStructureLabel: "Eigenes / Mix",
+  customStructurePlaceholder: "z. B. 3 Runden auf Zeit, dann 3 min Pause, dann AMRAP 7",
+  min: "min",
+  sec: "s",
+  addExercisesTitle: "Übungen hinzufügen",
+  addExercisesSubtitle: "Füge die Übungen für diesen Abschnitt hinzu.",
+  exerciseLibrary: "Übungsbibliothek",
+  searchExercisesPlaceholder: "Übungen suchen…",
+  exerciseDetailsTitle: "Übungsdetails",
+  exerciseDetailsSubtitle: "Lege Vorgabe und Einheit für diese Übung fest.",
+  exerciseName: "Name der Übung",
+  exerciseNamePlaceholder: "Name der Übung",
+  targetReps: "Wiederholungen",
+  targetWeight: "Gewicht",
+  targetTime: "Zeit",
+  targetDistance: "Strecke",
+  targetCalories: "Kalorien",
+  targetRounds: "Runden",
+  targetCustom: "Eigenes",
+  repetitions: "Wiederholungen",
+  weightOptional: "Gewicht (optional)",
+  eachArm: "Pro Arm",
+  total: "Gesamt",
+  saveExercise: "Übung speichern",
+  workoutPreviewTitle: "Vorschau",
+  workoutPreviewSubtitle: "Prüfe dein Workout vor dem Speichern.",
+  workoutSavedTitle: "Workout gespeichert!",
+  workoutSavedSubtitle: "Starke Arbeit. Bleib dran.",
+  saveAsTemplate: "Als Vorlage speichern",
+  share: "Teilen",
+  comingSoon: "Kommt bald",
+  logResults: "Ergebnisse eintragen",
+  startNow: "Jetzt starten",
+  savedAsTemplate: "Als Vorlage gespeichert",
+  removedFromTemplates: "Aus den Vorlagen entfernt",
+  removeFromTemplates: "Aus Vorlagen entfernen",
+  conditioning: "Kondition",
+  intervals: "Intervalle",
+  mobility: "Mobilität",
+  recovery: "Erholung",
+  transition: "Wechsel",
+  setsAndReps: "Sätze & Wiederholungen",
+  continuous: "Durchgehend",
+  sequence: "Abfolge",
+  rest: "Pause",
+  work: "Belastung",
+  group: "Gruppe",
+  cap: "Zeitlimit",
+  alternating: "abwechselnd",
+  maxReps: "Max. Wiederholungen",
+  roundsLower: "Runden",
+  setLower: "Satz",
+  setsLower: "Sätze",
+  completed: "Abgeschlossen",
+  fixBeforeSaving: "Vor dem Speichern beheben",
+  worthASecondLook: "Lohnt einen zweiten Blick",
+  cannotSaveYet: "Geh zurück und behebe die markierten Probleme, um das Workout zu speichern.",
+  list: "Liste",
+  calendar: "Kalender",
+  templates: "Vorlagen",
+  planned: "Geplant",
+  needsFixing: "Muss korrigiert werden",
+  inProgress: "Läuft",
+  nothingPlannedThisDay: "An diesem Tag ist nichts geplant.",
+  planWorkoutThisDay: "Workout planen",
+  noTemplatesYet: "Noch keine Vorlagen",
+  noTemplatesBody: "Speichere ein Workout als Vorlage, um es an einem anderen Tag wiederzuverwenden.",
+  scheduleTemplate: "Einplanen",
+  scheduled: "Eingeplant"
+};
 
-// lib/nutrition/engine.ts
-function totals(entries) {
-  const live = entries.filter((e) => !e.deletedAt);
-  const nutrients = {};
-  for (const key2 of NUTRIENT_ORDER) {
-    let value = 0;
-    let missing = 0;
-    for (const e of live) {
-      const v = e.nutrients[key2];
-      if (typeof v === "number") value += v;
-      else missing++;
-    }
-    nutrients[key2] = { value, missing };
-  }
-  return {
-    nutrients,
-    fluidMl: live.reduce((sum, e) => sum + (e.fluidMl ?? 0), 0),
-    entries: live.length,
-    estimated: live.filter((e) => e.estimated).length
-  };
-}
+// lib/i18n/de/part2.ts
+var part2 = {
+  resumeWorkout: "Workout fortsetzen",
+  results: "Ergebnisse",
+  deleteWorkout: "Löschen",
+  confirmDelete: "Dieses Workout und seine Ergebnisse löschen?",
+  cancel: "Abbrechen",
+  draftCannotStart: "Dieses Workout hat Fehler und kann nicht gestartet werden.",
+  effortRpe: "Anstrengung (RPE)",
+  volume: "Volumen",
+  startTimer: "Start",
+  pause: "Pause",
+  resume: "Fortsetzen",
+  finishBlock: "Abschnitt beenden",
+  nextBlock: "Nächster Abschnitt",
+  finishWorkout: "Workout beenden",
+  skipBlock: "Überspringen",
+  roundsDone: "Geschaffte Runden",
+  blockOf: (current, total) => `Abschnitt ${current} von ${total}`,
+  roundOf: (current, total) => `Runde ${current} von ${total}`,
+  timeUp: "Zeit ist um",
+  yourResult: "Dein Ergebnis",
+  timeLabel: "Zeit",
+  minutesShort: "min",
+  secondsShort: "s",
+  extraReps: "Zusätzliche Wiederholungen",
+  distanceMeters: "Strecke (m)",
+  setNumber: (n) => `Satz ${n}`,
+  reps: "Wdh.",
+  kg: "kg",
+  leaveWorkout: "Workout verlassen",
+  leaveWorkoutBody: "Dein Fortschritt bleibt erhalten, damit du später weitermachen kannst. Oder du verwirfst diese Einheit.",
+  keepForLater: "Für später behalten",
+  discardSession: "Einheit verwerfen",
+  howDidItFeel: "Wie hat es sich angefühlt?",
+  sessionNotesPlaceholder: "Gibt es etwas, das du dir zu dieser Einheit merken willst?",
+  saveResults: "Ergebnisse speichern",
+  sessionMissing: "Diese Einheit wurde nicht gefunden.",
+  didNotDo: "Ausgelassen",
+  markSkipped: "Als ausgelassen markieren",
+  markDone: "Als erledigt markieren",
+  account: "Konto",
+  signIn: "Anmelden",
+  signUp: "Konto erstellen",
+  signOut: "Abmelden",
+  email: "E-Mail",
+  password: "Passwort",
+  signInTitle: "Willkommen zurück",
+  signInSubtitle: "Melde dich an, um dein Training auf allen Geräten zu synchronisieren.",
+  signUpTitle: "Konto erstellen",
+  signUpSubtitle: "Dein Training gehört dir. Du entscheidest, wer es sieht.",
+  noAccountYet: "Noch kein Konto? Jetzt erstellen",
+  haveAccountAlready: "Schon ein Konto? Anmelden",
+  checkYourEmail: "Bestätige dein Konto über die E-Mail, die wir dir geschickt haben, und melde dich dann an.",
+  emailAndPasswordRequired: "Gib deine E-Mail-Adresse und ein Passwort mit mindestens 6 Zeichen ein.",
+  localMode: "Nur auf diesem Gerät",
+  localModeBody: "Es ist kein Konto verbunden. Dein Training wird nur auf diesem Gerät gespeichert und nicht gesichert.",
+  signedInAs: (email) => `Angemeldet als ${email}`,
+  syncNow: "Jetzt synchronisieren",
+  syncing: "Synchronisiere…",
+  syncedJustNow: "Alles ist synchronisiert.",
+  syncPending: (n) => `${n} ${n === 1 ? "Änderung wartet" : "Änderungen warten"} auf die Synchronisierung.`,
+  syncFailed: "Synchronisierung fehlgeschlagen. Deine Änderungen sind auf diesem Gerät sicher und werden erneut gesendet.",
+  goodMorning: "Guten Morgen!",
+  goodAfternoon: "Guten Tag!",
+  goodEvening: "Guten Abend!",
+  paceVsStart: "Pace ggü. Start",
+  sampleData: "Beispieldaten",
+  sampleDataBody: "Wird angezeigt, bis du genug eigene Daten erfasst hast.",
+  noDataYet: "Noch nicht genug Daten",
+  vsStart: "(ggü. Start)",
+  logStrengthToSee: "Trage Sätze mit Gewicht ein, um hier deinen Kraftfortschritt zu sehen.",
+  logEnduranceToSee: "Trage einen Lauf, eine Radfahrt oder ein Schwimmtraining mit Strecke und Zeit ein, um es hier zu sehen.",
+  notAvailable: "—",
+  needsWearable: "braucht ein Wearable",
+  trainingVolume: "Trainingsvolumen",
+  volumeSub: "Gewicht × Wiederholungen ggü. Vorperiode",
+  workoutsPerWeek: "Workouts",
+  perWeek: "pro Woche",
+  personalRecords: "Persönliche Bestleistungen",
+  newPrs: "neue Bestleistungen",
+  trainingConsistency: "Trainingskonstanz",
+  ofPlannedWorkouts: "der geplanten Workouts",
+  noInsightsYet: "Schließe ein paar Workouts ab, dann erscheinen hier deine Einblicke.",
+  profileTitle: "Profil",
+  profileSubtitle: "Deine Sportarten, Ausrüstung und Referenzwerte.",
+  displayName: "Name",
+  displayNamePlaceholder: "Wie sollen dich Personen sehen, mit denen du teilst?",
+  yourSports: "Sportarten",
+  trainingRhythm: "Trainingsrhythmus",
+  sessionsPerWeek: "Einheiten pro Woche",
+  usualSessionLength: "Übliche Dauer einer Einheit",
+  usualTrainingDays: "Übliche Trainingstage",
+  yourEquipment: "Ausrüstung",
+  notSet: "nicht festgelegt",
+  benchmarks: "Referenzwerte",
+  benchmarksHint: "Referenzwerte wie ein One-Rep-Max. Gibt ein Workout einen Prozentsatz deines Maximums vor, wird der neueste Wert für den Lastvorschlag genutzt.",
+  noBenchmarksYet: "Noch keine Referenzwerte erfasst.",
+  addBenchmark: "Referenzwert hinzufügen",
+  benchmarkLift: "Übung",
+  benchmarkValue: "Wert",
+  pacePerKm: "Pace pro km",
+  pacePer100m: "Pace pro 100 m",
+  measuredOn: "Gemessen am",
+  sharingTitle: "Teilen & Datenschutz",
+  sharingSubtitle: "Wer deine Daten sehen kann und was angesehen wurde.",
+  peopleYouShareWith: "Personen, mit denen du teilst",
+  sharingWithNoOne: "Du teilst mit niemandem. Niemand sonst kann deine Daten sehen.",
+  invitationPending: "Einladung ausstehend",
+  connected: "Verbunden",
+  inviteCode: "Einladungscode",
+  inviteCodeHint: (email, expires) => `Gib diesen Code an ${email} weiter. Er funktioniert nur für ein Konto mit dieser E-Mail-Adresse${expires ? ` und läuft am ${expires} ab` : ""}.`,
+  shareCode: "Code teilen",
+  inviteShareMessage: (code) => `Ich möchte mein Training auf FORM mit dir teilen. Melde dich mit dieser E-Mail-Adresse an und gib unter Mehr > Teilen & Datenschutz den Einladungscode ${code} ein.`,
+  whatTheyCanSee: "Was diese Person sehen kann",
+  consentV1: (purpose) => `Wenn du etwas einschaltest, darf diese Person es für ${purpose} lesen. Du kannst es jederzeit ausschalten. Das beendet den Zugriff ab diesem Moment; bereits Gesehenes lässt sich nicht zurücknehmen.`,
+  newSharingLasts: "Was du jetzt einschaltest, gilt",
+  noEndDate: "Ohne Enddatum",
+  threeMonths: "3 Monate",
+  oneYear: "1 Jahr",
+  sharedUntil: (date) => `Geteilt bis ${date}`,
+  sharedNoEnd: "Geteilt, ohne Enddatum",
+  endConnection: "Verbindung beenden",
+  cancelInvitation: "Einladung zurückziehen",
+  confirmEndConnection: "Damit endet sofort jedes Teilen mit dieser Person.",
+  inviteProfessional: "Fachperson einladen",
+  inviteProfessionalBody: "Die Person bekommt von dir einen Einladungscode. Bis du etwas einschaltest, sieht sie nichts.",
+  theirEmail: "Ihre E-Mail-Adresse",
+  createInvitation: "Einladung erstellen",
+  invitationCreated: "Einladung erstellt. Gib den Code weiter.",
+  sharedWithYou: "Mit dir geteilt",
+  nobodySharesWithYou: "Niemand teilt Daten mit dir.",
+  youAreTheir: (role) => `Du bist hier: ${role}`,
+  categoriesShared: (n) => `${n} ${n === 1 ? "Bereich" : "Bereiche"} geteilt`,
+  haveInviteCode: "Einladungscode erhalten?",
+  haveInviteCodeBody: "Wenn dich eine Athletin, ein Athlet oder ein Coach eingeladen hat, gib den Code ein. Du musst mit der eingeladenen E-Mail-Adresse angemeldet sein.",
+  acceptInvitation: "Einladung annehmen",
+  invitationAccepted: "Verbunden. Du siehst, was diese Person mit dir teilt.",
+  accessLogTitle: "Wer auf deine Daten zugegriffen hat",
+  accessLogBody: "Jeder Zugriff auf das, was du teilst, wird hier festgehalten – zusammen mit deinen eigenen Freigaben.",
+  accessLogEmpty: "Noch nichts erfasst.",
+  you: "Du",
+  someone: "Eine frühere Verbindung",
+  logRead: (who, what) => `${who} hat deine Daten angesehen: ${what}.`,
+  logGrantCreated: (what) => `Du teilst jetzt: ${what}.`,
+  logGrantRevoked: (who, what) => `${who} hat das Teilen beendet: ${what}.`,
+  logInvited: "Du hast eine Fachperson eingeladen.",
+  logAccepted: (who) => `${who} hat deine Einladung angenommen.`,
+  logEnded: (who) => `${who} hat eine Verbindung beendet.`,
+  logExported: "Du hast deine Daten exportiert.",
+  sharingNeedsAccount: "Teilen braucht ein Konto",
+  sharingNeedsAccountBody: "Deine Daten liegen nur auf diesem Gerät. Niemand sonst kann sie sehen, und es gibt noch nichts zu teilen.",
+  yourData: "Deine Daten",
+  exportMyData: "Meine Daten exportieren",
+  exportMyDataBody: "Eine Datei mit allem, was FORM über dich speichert: Workouts, Ergebnisse, Profil, Freigaben und das Zugriffsprotokoll.",
+  exportReady: "Dein Export ist fertig.",
+  exportDeviceOnly: "Exportiert wurde, was auf diesem Gerät liegt. Die Kontodaten waren nicht erreichbar.",
+  exportFailed: "Der Export konnte nicht erstellt werden. Versuche es erneut.",
+  deleteAccount: "Konto löschen",
+  deleteAccountBody: "Entfernt dein Konto und alle deine Daten aus FORM und von diesem Gerät und beendet jede Verbindung. Das lässt sich nicht rückgängig machen.",
+  deleteDeviceData: "Daten auf diesem Gerät löschen",
+  deleteDeviceDataBody: "Entfernt alle Workouts, Ergebnisse und Einstellungen auf diesem Gerät. Das lässt sich nicht rückgängig machen.",
+  typeDeleteToConfirm: (word) => `Gib zur Bestätigung ${word} ein.`,
+  deleteForever: "Endgültig löschen",
+  sharedDataTitle: "Geteilte Daten",
+  loading: "Lädt…",
+  nothingSharedYet: "Diese Person hat noch nichts mit dir geteilt.",
+  sharedViewNotice: "Du siehst nur, was diese Person freigegeben hat. Jedes Öffnen dieser Seite wird in ihrem Zugriffsprotokoll festgehalten.",
+  last28Days: "Letzte 28 Tage",
+  plannedVsDone: "Geplant erledigt",
+  lastSession: "Letzte Einheit",
+  completedSessions: "Abgeschlossene Einheiten",
+  plannedWorkouts: "Kalender",
+  notificationsTitle: "Benachrichtigungen",
+  notificationsSubtitle: "Was passiert ist und wann du davon hören willst.",
+  notificationsNeedAccount: "Benachrichtigungen betreffen Freigaben und Verbindungen und brauchen deshalb ein Konto.",
+  noNotifications: "Nichts Neues.",
+  whatToNotify: "Benachrichtige mich über",
+  notifySharing: "Freigaben und Verbindungen",
+  notifyTraining: "Training",
+  notifyAccount: "Konto",
+  quietHours: "Ruhezeiten",
+  quietHoursOff: "Aus",
+  quietHoursRange: (from, until) => `${from} bis ${until}`,
+  quietFrom: "Von",
+  quietUntil: "Bis",
+  quietHoursNote: "In den Ruhezeiten wird nichts an dein Telefon gesendet. Benachrichtigungen erscheinen trotzdem in dieser Liste.",
+  profileMenuSubtitle: "Sportarten, Ausrüstung und Referenzwerte.",
+  sharingMenuSubtitle: "Wer deine Daten sieht. Exportieren und löschen.",
+  notificationsMenuSubtitle: "Posteingang und Ruhezeiten.",
+  assistantNeedsAccount: "Der Assistent läuft auf dem Server und braucht deshalb ein Konto. Deine Daten bleiben auf diesem Gerät, bis du dich anmeldest.",
+  assistantFootnote: "Der Assistent schreibt einen Entwurf. Du siehst alles, was er vorschlägt, und entscheidest, ob es gespeichert wird.",
+  importWithAi: "Aus Text oder Foto importieren",
+  importTitle: "Workout importieren",
+  importSubtitle: "Einfügen oder fotografieren. Du prüfst den Entwurf, bevor er gespeichert wird.",
+  importPasteLabel: "Text des Workouts",
+  importPlaceholder: "z. B.\nAlle 2 min für 10 min:\n5 Kreuzheben @ 100 kg\n10 Box Jumps",
+  importAddPhoto: "Stattdessen ein Foto hinzufügen",
+  importPhotoAttached: "Foto angehängt",
+  importPhotoTooLarge: "Das Foto ist zu groß. Versuche ein kleineres oder einen Screenshot.",
+  importNothingYet: "Füge ein Workout ein oder ein Foto davon.",
+  importWorking: "Dein Workout wird gelesen…",
+  importCreateDraft: "Entwurf erstellen",
+  remove: "Entfernen",
+  adaptWithAi: "Dieses Workout anpassen",
+  adaptTitle: "Workout anpassen",
+  adaptSubtitle: "Passe es an deine Ausrüstung, Zeit oder Energie an.",
+  adaptEquipment: "Nur Ausrüstung verwenden, die ich habe",
+  adaptEquipmentBody: "Übungen, die etwas anderes brauchen, werden ersetzt.",
+  adaptTime: "Verfügbare Zeit",
+  noLimit: "keine Grenze",
+  adaptDifficulty: "Schwierigkeit",
+  adaptVolume: "Umfang",
+  keepAsIs: "Beibehalten",
+  easier: "Leichter",
+  harder: "Schwerer",
+  lessVolume: "Weniger",
+  moreVolume: "Mehr",
+  adaptNote: "Sonst noch etwas?",
+  adaptNotePlaceholder: "z. B. heute keine Sprünge, die Nachbarn schlafen",
+  adaptChooseSomething: "Wähle mindestens eine Sache, die sich ändern soll."
+};
 
-// lib/strings.ts
-var strings = {
+// lib/i18n/de/part3.ts
+var part3 = {
+  adaptWorking: "Wird bearbeitet…",
+  adaptCreateDraft: "Zeig mir die Änderungen",
+  proposalTitle: "Entwurf",
+  proposalImportTitle: "Importierter Entwurf",
+  proposalAdaptTitle: "Vorgeschlagene Änderungen",
+  proposalSubtitle: "Nichts wird gespeichert, bis du es bestätigst.",
+  proposalMissing: "Dieser Entwurf wurde nicht gefunden.",
+  proposalAlreadySaved: "Dieser Entwurf wurde bereits gespeichert.",
+  proposalExpired: "Dieser Entwurf ist abgelaufen. Frag den Assistenten erneut.",
+  proposalClosed: "Dieser Entwurf wurde verworfen oder durch einen neueren ersetzt.",
+  proposalStale: "Das Workout hat sich seit dem Entwurf geändert, daher lassen sich die Änderungen nicht mehr anwenden. Frag den Assistenten erneut.",
+  proposalUnsure: "Der Assistent war sich unsicher bei",
+  proposalWhatChanges: "Was sich ändert",
+  proposalWhy: "Warum",
+  proposalOriginal: "Originaltext",
+  proposalAskChange: "Möchtest du etwas anders?",
+  proposalAskImportPlaceholder: "z. B. der AMRAP dauert 12 Minuten",
+  proposalAskAdaptPlaceholder: "z. B. die Klimmzüge beibehalten",
+  proposalUpdateDraft: "Entwurf aktualisieren",
+  proposalScheduleFor: "Einplanen für",
+  proposalSave: "In den Kalender speichern",
+  proposalApply: "Änderungen übernehmen",
+  proposalDiscard: "Entwurf verwerfen",
+  proposalCannotSave: "Kläre die offenen Punkte oben über „Möchtest du etwas anders?“, dann kann der Entwurf gespeichert werden.",
+  saving: "Speichere…",
+  draftsWaiting: "Entwürfe warten auf dich",
+  draftImport: "Importiertes Workout",
+  draftAdaptation: "Vorgeschlagene Änderungen",
+  matchSameDay: "Gleicher Tag",
+  matchWithinHour: "innerhalb einer Stunde",
+  matchHoursApart: (h) => `${h} h auseinander`,
+  matchDifferentSport: "andere Sportart",
+  activityFallbackName: "Aktivität",
+  healthTitle: "Gesundheit & Aktivitäten",
+  healthSubtitle: "Aufgezeichnete Aktivitäten und Körpermesswerte.",
+  healthMenuSubtitle: "Aktivitäten importieren, Messwerte erfassen, Quellen verwalten.",
+  activityFiles: "Aktivitätsdateien",
+  activityFilesHint: "GPX-, TCX- oder FIT-Dateien von Uhr, Radcomputer oder App. Dieselbe Datei wird nie doppelt importiert.",
+  importActivityFile: "Aktivitätsdatei importieren",
+  reading: "Lese…",
+  importAlreadyThere: "Diese Datei ist bereits importiert.",
+  importFailed: "Diese Datei konnte nicht gelesen werden.",
+  toReview: "Zu prüfen",
+  toReviewHint: "Erfasse jede als geplantes Workout, als eigenes Workout oder ignoriere sie.",
+  recentActivities: "Letzte Aktivitäten",
+  noActivitiesYet: "Noch keine Aktivitäten.",
+  measurements: "Messwerte",
+  measurementsHint: "Dein Normalwert ist der Median von bis zu 28 Tagen. Er erscheint nach 7 Tagen mit einem Wert.",
+  noMeasurementsYet: "Noch keine Messwerte.",
+  addMeasurement: "Messwert hinzufügen",
+  measurementValue: "Wert",
+  measurementMethod: "Methode",
+  measuredAt: "Gemessen",
+  yourNormal: (value, days) => `Dein Normalwert ${value} · ${days} Tage`,
+  baselineAfter: (days) => `Dein Normalwert erscheint nach ${days} weiteren ${days === 1 ? "Tag" : "Tagen"} mit einem Wert.`,
+  outsideUsualRange: "Außerhalb deines üblichen Bereichs",
+  sources: "Quellen",
+  sourceFiles: "Importierte Dateien",
+  sourceManual: "Von dir eingegeben",
+  sourceAppleHealth: "Apple Health",
+  sourceGarmin: "Garmin",
+  sourceAppleHealthStatus: "Braucht die iOS-App. Nicht verbunden.",
+  sourceGarminStatus: "Wartet auf die Freigabe des Garmin-Entwicklerprogramms. Nicht verbunden.",
+  sourceCount: (activities, measurements) => [activities ? `${activities} ${activities === 1 ? "Aktivität" : "Aktivitäten"}` : "", measurements ? `${measurements} ${measurements === 1 ? "Messwert" : "Messwerte"}` : ""].filter(Boolean).join(" · ") || "Keine Daten",
+  deleteSourceData: "Daten löschen",
+  confirmDeleteSource: (source) => `Alles aus „${source}“ löschen? Bereits daraus erfasste Workout-Ergebnisse bleiben erhalten.`,
+  activityNotFound: "Diese Aktivität wurde nicht gefunden.",
+  activityDuration: "Dauer",
+  activityMoving: "In Bewegung",
+  activityDistance: "Strecke",
+  activityClimb: "Anstieg",
+  activityAvgHr: "Ø HF",
+  activityMaxHr: "Max. HF",
+  activityPower: "Ø Leistung",
+  activityCalories: "Kalorien (geschätzt)",
+  activitySource: (format, device) => [format.toUpperCase(), device].filter(Boolean).join(" · "),
+  qualityNotes: "Zu dieser Aufzeichnung",
+  quality: {
+    no_heart_rate: "Keine Herzfrequenz in dieser Aufzeichnung.",
+    no_distance: "Keine Strecke in dieser Aufzeichnung.",
+    no_timestamps: "Einige Punkte haben keine Zeit.",
+    gps_gaps: "Die Aufzeichnung hat Lücken; pausierte Zeit zählt nicht als Bewegung.",
+    implausible_speed: "Einige GPS-Punkte springen unplausibel weit; die Strecke kann abweichen.",
+    short_recording: "Kürzer als zwei Minuten.",
+    file_errors: "Die Datei hatte Fehler; nur der lesbare Teil wurde verwendet."
+  },
+  statusLinked: "Als geplantes Workout erfasst",
+  statusStandalone: "Als eigenes Workout erfasst",
+  statusDuplicate: "Als dieselbe Einheit wie eine andere Aufzeichnung markiert",
+  statusIgnored: "Ignoriert",
+  openWorkout: "Workout öffnen",
+  maybeSameEffort: "Möglicherweise dieselbe Einheit",
+  maybeSameEffortHint: "Eine andere Aufzeichnung sieht ähnlich aus. Markiere sie, damit sie nicht doppelt zählt.",
+  markAsDuplicate: "Dieselbe Einheit, die andere behalten",
+  plannedThatDay: "Geplante Workouts in der Nähe",
+  recordAsResult: "Als Ergebnis erfassen",
+  likelyMatch: "Wahrscheinlicher Treffer",
+  logAsWorkout: "Als eigenes Workout erfassen",
+  ignoreActivity: "Ignorieren",
+  undoDecision: "Rückgängig",
+  deleteActivity: "Aktivität löschen",
+  confirmDeleteActivity: "Diese Aktivität löschen? Ein daraus erfasstes Workout-Ergebnis bleibt erhalten.",
+  viewRecording: "Aufzeichnung ansehen",
+  nutritionTitle: "Ernährung",
+  nutritionSubtitle: "Was du isst und trinkst, rund um dein Training.",
+  nutritionMenuSubtitle: "Mahlzeiten, Getränke und Trainingsverpflegung erfassen.",
+  today: "Heute",
+  previousDay: "Vorheriger Tag",
+  nextDay: "Nächster Tag",
+  energy: "Energie",
+  fluid: "Flüssigkeit",
+  atLeast: (value) => `mindestens ${value}`,
+  incompleteHint: (n) => `${n} ${n === 1 ? "Eintrag nennt" : "Einträge nennen"} nicht jeden Wert, daher können mit „mindestens“ markierte Summen höher sein.`,
+  estimatedHint: (n) => `${n} ${n === 1 ? "Eintrag ist eine Schätzung" : "Einträge sind Schätzungen"}.`,
+  nothingLogged: "Für diesen Tag ist nichts erfasst.",
+  addFood: "Essen oder Getränk hinzufügen",
+  addToMeal: "Hinzufügen",
+  thisWeek: "Letzte 7 Tage",
+  daysLogged: (logged, days) => `${logged} von ${days} Tagen erfasst`,
+  weekAverageHint: "Durchschnitte beziehen sich auf die erfassten Tage. Tage ohne Einträge sind unbekannt, nicht null.",
+  perDayAverage: "Durchschnitt pro erfasstem Tag",
+  targetsTitle: "Ziele & Einstellungen",
+  targetsMenu: "Ziele & Einstellungen",
+  targetRange: (min, max) => min && max ? `${min}–${max}` : min ? `ab ${min}` : max ? `bis ${max}` : "",
+  dayTypeLine: (label, minutes, estimated) => `${label} · ${minutes} min geplant${estimated ? " (geschätzt)" : ""}`,
+  saveMealAs: "Als Mahlzeit speichern",
+  mealNamePlaceholder: "z. B. Übliches Frühstück",
+  mealSaved: "Mahlzeit gespeichert",
+  addFoodTitle: "Essen oder Getränk hinzufügen",
+  editEntryTitle: "Eintrag bearbeiten",
+  entryNotFound: "Dieser Eintrag wurde nicht gefunden.",
+  tabSearch: "Suchen",
+  tabQuickAdd: "Schnell erfassen",
+  tabSaved: "Gespeicherte Mahlzeiten",
+  tabNewFood: "Neues Lebensmittel",
+  searchFoodsPlaceholder: "Lebensmittel suchen…",
+  noFoodsFound: "Nichts gefunden. Lege es mit den Angaben vom Etikett unter „Neues Lebensmittel“ an oder nutze „Schnell erfassen“.",
+  catalogNote: "Allgemeine Werte sind Näherungen. Bei verpackten Lebensmitteln trage die Etikettwerte als eigenes Lebensmittel ein.",
+  ownFood: "Dein Lebensmittel",
+  amount: "Menge",
+  unitGrams: "g",
+  unitMl: "ml",
+  meal: "Mahlzeit",
+  time: "Uhrzeit",
+  estimateToggle: "Das ist eine Schätzung",
+  noteOptional: "Notiz (optional)",
+  notePlaceholder: "z. B. wie es beim Training bekommen ist",
+  logIt: "Erfassen",
+  saveChanges: "Änderungen speichern",
+  deleteEntry: "Eintrag löschen",
+  quickAddLabel: "Was war es? (optional)",
+  quickAddLabelPlaceholder: "z. B. Abendessen im Restaurant",
+  quickAddHint: "Gib ein, was du weißt. Leere Felder bleiben unbekannt und zählen nicht als null.",
+  noSavedMeals: "Noch keine gespeicherten Mahlzeiten. Erfasse eine Mahlzeit und nutze dann „Als Mahlzeit speichern“ in der Tagesansicht.",
+  logSavedMeal: "Diese Mahlzeit erfassen",
+  items: (n) => `${n} ${n === 1 ? "Eintrag" : "Einträge"}`,
+  newFoodName: "Name",
+  newFoodBrand: "Marke (optional)",
+  valuesPer: "Werte pro",
+  per100g: "100 g",
+  per100ml: "100 ml",
+  perServing: "Portion",
+  servingDescription: "Portionsbeschreibung",
+  servingDescriptionPlaceholder: "z. B. 1 Riegel",
+  servingGrams: "Portionsgewicht (g, optional)",
+  energyUnit: "Energie in",
+  isDrink: "Es ist ein Getränk",
+  saveFood: "Lebensmittel speichern",
+  labelHint: "Übernimm die Werte vom Etikett. Lass ein Feld leer, wenn das Etikett ihn nicht nennt.",
+  hideEnergy: "Energie (Kalorien) ausblenden",
+  hideEnergyHint: "Energie wird weiter erfasst, aber in der Ernährung nirgends angezeigt.",
+  yourTargets: "Deine Ziele",
+  noTargets: "Keine Ziele festgelegt. Das Erfassen funktioniert auch ohne.",
+  targetsSourceManual: "Von dir festgelegt",
+  targetsSourceSuggested: (version, kg) => `Regeln von FORM (${version}) für ${kg} kg, von dir bestätigt`,
+  setTargets: "Ziele festlegen",
+  editTargets: "Ziele bearbeiten",
+  removeTargets: "Ziele entfernen",
+  minimum: "Von",
+  maximum: "Bis",
+  suggestTargets: "Aus meinem Training vorschlagen",
+  suggestionTitle: "Vorgeschlagene Ziele",
+  suggestionBody: (kg) => `Auf Basis deines letzten Gewichts (${kg} kg) und veröffentlichter Bereiche für gesunde, trainierende Erwachsene. Die Kohlenhydrate richten sich nach dem geplanten Training des Tages. FORM schlägt kein Energieziel vor.`,
+  suggestionNotAdvice: "Allgemeine Orientierung, keine individuelle Beratung. Wenn du eine Erkrankung hast, schwanger bist oder abnehmen möchtest, sprich bitte mit einer Ärztin, einem Arzt oder einer Ernährungsfachkraft.",
+  suggestionNeedsWeight: "Erfasse zuerst dein Gewicht unter Gesundheit & Aktivitäten. Vorschläge brauchen ein Gewicht aus den letzten 60 Tagen.",
+  approveTargets: "Diese Ziele verwenden",
+  discard: "Verwerfen",
+  carbsByDay: "Kohlenhydrate nach Trainingstag",
+  tabDescribe: "Beschreiben",
+  describeLabel: "Was hast du gegessen oder getrunken?",
+  describePlaceholder: "z. B. 80 g Haferflocken mit einer Banane und einem Glas Milch",
+  describeHint: "Der Assistent erkennt nur Lebensmittel und Mengen. FORM berechnet die Nährwerte aus seinen Lebensmitteldaten, und nichts wird erfasst, bis du jeden Eintrag geprüft hast.",
+  makeDraft: "Auslesen",
+  draftItemsTitle: "Prüfe jeden Eintrag",
+  notMatched: "Kein passendes Lebensmittel. Wähle eines oder lass diesen Eintrag weg.",
+  chooseFood: "Lebensmittel wählen",
+  changeFood: "Ändern",
+  include: "Übernehmen",
+  needsAmount: "Gib die Menge ein.",
+  logItems: (n) => `${n} ${n === 1 ? "Eintrag" : "Einträge"} erfassen`,
+  draftIncomplete: "Bei einigen übernommenen Einträgen fehlen noch Lebensmittel oder Menge.",
+  draftNothingIncluded: "Übernimm mindestens einen Eintrag.",
+  coachingTitle: "Coaching",
+  coachingSubtitle: "Deine Athletinnen und Athleten, was du ihnen geschickt hast und wie es lief.",
+  coachingMenuSubtitle: "Liste, Zuweisungen und Kommentare für deine Athletinnen und Athleten.",
+  coachingNeedsAccount: "Coaching braucht ein Konto, damit sich Athletinnen und Athleten mit dir verbinden können.",
+  rosterTitle: "Deine Athletinnen und Athleten",
+  rosterEmpty: "Noch niemand. Lade unten jemanden ein oder nimm eine Einladung unter Teilen & Datenschutz an.",
+  rosterSummaryNote: "Hinweise beruhen auf dem, was jede Person teilt. Das Öffnen einer Person wird in ihrem Zugriffsprotokoll festgehalten.",
+  inviteAthlete: "Athletin oder Athleten einladen",
+  inviteAthleteBody: "Die Person bekommt einen Code von dir und nimmt ihn mit einem Konto unter dieser E-Mail-Adresse an. Sie entscheidet, was sie teilt; bis dahin siehst du nichts.",
+  athleteEmail: "Ihre E-Mail-Adresse",
+  inviteCodeFor: (email, code) => `Gib ${email} diesen Code: ${code}. Er gilt 14 Tage.`,
+  openInvitations: "Offene Einladungen",
+  sendWorkout: "Workout senden",
+  sendWorkoutBody: "Gesendet wird genau die Version, die du wählst. Spätere Änderungen bei dir ändern sie nicht. Die Person entscheidet, ob sie es in ihren Kalender übernimmt.",
+  chooseWorkout: "Workout",
+  noWorkoutsToSend: "Erstelle zuerst ein Workout; Vorlagen und geplante Workouts können gesendet werden."
+};
+
+// lib/i18n/de/part4.ts
+var part4 = {
+  sendOn: "Vorgeschlagenes Datum",
+  messageOptional: "Nachricht (optional)",
+  messagePlaceholder: "z. B. Halte die Stange nah am Körper.",
+  send: "Senden",
+  sent: "Gesendet. Die Person wurde benachrichtigt.",
+  sentWorkouts: "Gesendete Workouts",
+  template: "Vorlage",
+  noneSent: "Noch nichts gesendet.",
+  statusPending: "Wartet auf Antwort",
+  statusAccepted: "Im Kalender",
+  statusDeclined: "Abgelehnt",
+  statusCancelled: "Zurückgezogen",
+  withdraw: "Zurückziehen",
+  outcomeNotShared: "Plan und Ergebnisse werden nicht geteilt, daher wird nur die Antwort angezeigt.",
+  outcomePlanned: "Geplant",
+  outcomeDone: "Erledigt",
+  outcomeSkipped: "Nicht erledigt",
+  viewSharedData: "Geteilte Daten ansehen",
+  comments: "Kommentare",
+  addComment: "Kommentar hinzufügen",
+  commentPlaceholder: "Kommentar schreiben…",
+  post: "Senden",
+  fromCoachTitle: "Von deinem Coach",
+  fromCoachSubtitle: "Workouts, die dir geschickt wurden. Nichts wird übernommen, bevor du zustimmst.",
+  fromCoachMenuSubtitle: "Workouts, die dein Coach dir geschickt hat.",
+  fromCoachNeedsAccount: "Workouts vom Coach brauchen ein Konto, damit dein Coach dich erreicht. Alles andere funktioniert auch ohne.",
+  fromCoachEmpty: "Noch nichts da. Wenn dir ein Coach ein Workout schickt, erscheint es hier.",
+  sentBy: (name) => `Von ${name}`,
+  addToCalendarOn: "In meinen Kalender eintragen am",
+  acceptWorkout: "Annehmen",
+  declineWorkout: "Ablehnen",
+  accepted: "In deinen Kalender eingetragen.",
+  declined: "Abgelehnt. Dein Coach wurde informiert.",
+  earlier: "Früher",
+  checklistTitle: "Was möchtest du teilen?",
+  checklistBody: (name) => `Du bist jetzt mit ${name} verbunden. Noch wird nichts geteilt. Schalte nur ein, was gebraucht wird; du kannst das jederzeit unter Teilen & Datenschutz ändern.`,
+  checklistSensitive: "Sensibel",
+  checklistShare: (n) => n === 0 ? "Vorerst nichts teilen" : `${n} ${n === 1 ? "Bereich" : "Bereiche"} teilen`,
+  checklistDone: "Freigaben aktualisiert.",
+  recoveryTitle: "Erholung",
+  recoverySubtitle: "Wie heute im Vergleich zu deinem eigenen Normalwert aussieht.",
+  recoveryMenuSubtitle: "Täglicher Check-in und Optionen für das heutige Workout.",
+  checkInTitle: "Täglicher Check-in",
+  checkInHint: "Beantworte, was du möchtest; 0 heißt gar nicht, 10 heißt so stark wie möglich. Ausgelassene Fragen bleiben unbeantwortet.",
+  checkInFatigue: "Müdigkeit",
+  checkInSoreness: "Muskelkater",
+  checkInStress: "Stress",
+  checkInEnergy: "Energie",
+  checkInUnwell: "Ich fühle mich krank oder habe Schmerzen oder eine Verletzung",
+  saveCheckIn: "Check-in speichern",
+  checkInSaved: "Check-in gespeichert.",
+  updateCheckIn: "Check-in aktualisieren",
+  todayTitle: "Heute",
+  statusSteady: "Heute fällt nichts auf.",
+  statusAttention: "Einige Signale sprechen dafür, es heute ruhiger angehen zu lassen.",
+  statusConflicting: "Deine Messwerte und dein Gefühl zeigen in verschiedene Richtungen. Richte dich nach deinem Gefühl.",
+  statusLimited: "Heute gibt es nicht genug Daten für eine Aussage.",
+  statusUnwell: "Pass heute auf dich auf. Du musst nicht trainieren. Wenn du dich krank fühlst oder Schmerzen hast und es nicht besser wird, geh zu einer Ärztin, einem Arzt oder in die Physiotherapie.",
+  recoveryNotDiagnosis: "Das vergleicht heute mit deinen eigenen letzten Tagen. Es ist keine Diagnose und kein Punktwert.",
+  directionWorse: "schlechter als üblich",
+  directionBetter: "besser als üblich",
+  directionUsual: "wie üblich",
+  signalLabels: { resting_hr: "Ruhepuls", hrv: "HRV", sleep: "Schlaf", fatigue: "Müdigkeit", soreness: "Muskelkater", stress: "Stress", energy: "Energie", load: "Trainingsbelastung" },
+  missingTitle: "Heute nicht verwendet",
+  optionsFor: (title) => `Optionen für ${title}`,
+  optionsHint: "Nichts ändert sich, solange du nichts wählst. Dein Coach sieht deine Wahl nur, wenn du deine Erholungsübersicht teilst.",
+  optionKeep: "Wie geplant beibehalten",
+  optionShorten: "Etwa ein Drittel kürzer",
+  optionLighter: "Leichter machen",
+  optionReschedule: "Auf morgen verschieben",
+  optionRest: "Heute pausieren",
+  optionLighterBody: "Etwa 15 % weniger Last, eine Stufe geringere Anstrengung.",
+  optionShortenBody: "Weniger Sätze, Runden oder Minuten.",
+  choose: "Wählen",
+  youChose: (what) => `Deine Wahl: ${what}.`,
+  noPlannedToday: "Heute ist kein Workout geplant.",
+  rehabTitle: "Verletzungen & Reha",
+  rehabSubtitle: "Verletzungen verfolgen, dem Plan deiner Physiotherapie folgen, um Grenzen herum trainieren.",
+  rehabMenuSubtitle: "Verletzungsfälle, Symptome, Einschränkungen und Reha-Pläne.",
+  rehabNotDiagnosis: "FORM dokumentiert; es stellt keine Diagnose, behandelt nicht und gibt nichts frei. Entscheidungen zu einer Verletzung gehören zu deiner Ärztin, deinem Arzt oder deiner Physiotherapie.",
+  noEpisodes: "Keine Verletzungen notiert.",
+  noteInjury: "Verletzung notieren",
+  whereIsIt: "Wo ist es?",
+  whichSide: "Welche Seite?",
+  sideLeft: "Links",
+  sideRight: "Rechts",
+  sideBoth: "Beide",
+  sideNone: "Keine Seite",
+  howDidItStart: "Wie hat es angefangen?",
+  onsetSudden: "Plötzlich",
+  onsetGradual: "Allmählich",
+  onsetUnknown: "Unsicher",
+  inYourWords: "In deinen eigenen Worten",
+  inYourWordsPlaceholder: "z. B. Schmerz außen am Knie nach längeren Läufen",
+  whatToAvoid: "Was macht es schlimmer? (wird mit deinen Workouts abgeglichen)",
+  saveCase: "Speichern",
+  caseStatus: "Status",
+  restrictionsCount: (n) => `${n} ${n === 1 ? "Einschränkung" : "Einschränkungen"} von deiner Physiotherapie`,
+  logSymptoms: "Erfassen, wie es sich anfühlt",
+  symptomIntensity: "Schmerz oder Beschwerden (0 keine, 10 am stärksten)",
+  symptomFunction: "Wie gut kannst du tun, was dir wichtig ist? (0 gar nicht, 10 vollständig)",
+  symptomContext: "Wann ist es dir aufgefallen? (optional)",
+  symptomContextPlaceholder: "z. B. auf den letzten 2 km",
+  redFlagsTitle: "Trifft etwas davon zu?",
+  saveLog: "Speichern",
+  recentSymptoms: "Letzte Einträge",
+  fromYourPhysio: "Von deiner Physiotherapie",
+  noClinicalYet: "Noch nichts von einer Physiotherapeutin oder einem Physiotherapeuten. Teile diesen Fall unten.",
+  verifiedClinician: "verifiziert",
+  unverifiedClinician: "nicht verifiziert",
+  restrictionUntil: (date) => `bis ${date}`,
+  lifted: "aufgehoben",
+  rehabPlan: "Reha-Plan",
+  rehabPlanDoseNote: "Wo keine Dosierung angegeben wurde, ist auch keine eingetragen. Frag lieber nach, statt zu raten.",
+  rehabSessionsPerWeek: (n) => `${n} ${n === 1 ? "Einheit" : "Einheiten"} pro Woche`,
+  addSessionOn: "Einheit eintragen am",
+  addToMyCalendar: "In meinen Kalender",
+  addedToCalendar: "In deinen Kalender eingetragen.",
+  rtsTitle: "Rückkehr zum Sport",
+  reviewNotes: "Notizen zur Kontrolle",
+  careTeam: "Geteilt mit",
+  careTeamHint: "Jeder Fall wird einzeln geteilt. Angezeigt werden nur Physiotherapeutinnen und Physiotherapeuten, mit denen du verbunden bist.",
+  noPhysios: "Verbinde dich unter Teilen & Datenschutz mit einer Physiotherapie, um diesen Fall zu teilen.",
+  shareThisCase: "Teilen",
+  stopSharing: "Nicht mehr teilen",
+  refresh: "Aktualisieren",
+  deleteCase: "Fall löschen",
+  confirmDeleteCase: "Diesen Fall und seine Symptomeinträge löschen? Was deine Physiotherapie erfasst hat, bleibt dort und in deinem Export.",
+  physioTitle: "Physio-Fälle",
+  physioSubtitle: "Fälle, die mit dir geteilt wurden, jeweils einzeln.",
+  physioMenuSubtitle: "Einschränkungen, Reha-Pläne und Notizen zu geteilten Fällen.",
+  noCases: "Noch keine Fälle mit dir geteilt.",
+  verifiedBanner: "Deine Zulassung ist verifiziert. Du kannst Entscheidungen zur Rückkehr zum Sport erfassen.",
+  unverifiedBanner: "Deine Zulassung ist nicht verifiziert, daher kannst du keine Entscheidungen zur Rückkehr zum Sport erfassen. Einschränkungen, Pläne und Notizen werden als nicht verifiziert markiert.",
+  addRestriction: "Einschränkung hinzufügen",
+  restrictionTags: "Bewegungen",
+  restrictionRule: "Regel",
+  restrictionNote: "Hinweis für die Person (optional)",
+  restrictionNotePlaceholder: "z. B. nur im schmerzfreien Bereich",
+  restrictionEnds: "Endet",
+  restrictionNoEnd: "Ohne Enddatum",
+  setEndDate: "Enddatum festlegen",
+  lift: "Aufheben",
+  buildPlan: "Reha-Plan veröffentlichen",
+  planTitle: "Titel des Plans",
+  planNotes: "Hinweise für die Person (optional)",
+  planSessions: "Einheiten pro Woche (optional)",
+  planExercise: "Übung",
+  planSets: "Sätze",
+  planReps: "Wdh.",
+  planHold: "Halten (s)",
+  addExerciseRow: "Übung hinzufügen",
+  publishPlan: "Plan veröffentlichen",
+  planPublished: "Veröffentlicht. Die Person wurde benachrichtigt.",
+  planHint: "Lass eine Dosierung leer, wenn du sie nicht festlegen willst; die Person sieht dann, dass sie nicht angegeben ist.",
+  addNote: "Notiz hinzufügen",
+  notePlaceholderClinical: "Notiz zur Kontrolle für die Person",
+  recordDecision: "Entscheidung erfassen",
+  decisionCriteria: "Erfüllte Kriterien (Pflicht)",
+  decisionCriteriaPlaceholder: "z. B. schmerzfreie einbeinige Sprünge, voller Bewegungsumfang",
+  saved: "Gespeichert.",
+  conflictsTitle: "Konflikte mit deinen Trainingsgrenzen",
+  conflictAvoid: "Deine Physiotherapie hat dich gebeten, das zu vermeiden. Sprich vorher mit ihr.",
+  conflictReview: "Deine Physiotherapie möchte vorher gefragt werden.",
+  conflictLimit: "Vorsicht: Das berührt eine Grenze, die du oder deine Physiotherapie notiert habt.",
+  conflictUnchecked: (names) => `Nicht geprüft (nicht im Übungskatalog): ${names}.`,
+  removeConflicting: "Workout ohne diese Übungen zeigen",
+  removeNothingLeft: "Von diesem Workout bliebe nichts übrig. Wähle ein anderes.",
+  useThisVersion: "Diese Version verwenden",
+  chatTitle: "Frag FORM",
+  chatSubtitle: "Fragen zu deinem Training und Entwürfe, die du bestätigst.",
+  chatMenuSubtitle: "Fragen zu deinem Training; es bereitet Entwürfe vor, die du bestätigst.",
+  chatNeedsAccount: "Der Assistent braucht ein Konto. Alles andere funktioniert auch ohne.",
+  chatEmpty: "Frag nach deinen letzten Einheiten, deinem Wochenplan, wie ein Workout in weniger Zeit passt, oder sag, was du bevorzugst.",
+  chatExamples: ["Was habe ich letzte Woche gemacht?", "Pass das Workout von morgen auf 30 Minuten an", "Verschieb das Workout von Donnerstag auf Freitag"],
+  chatPlaceholder: "Frag etwas…",
+  chatSend: "Senden",
+  chatThinking: "Denke nach…",
+  chatFooter: "Der Assistent kann sich irren. Ohne deine Zustimmung ändert sich nichts.",
+  chatNew: "Neu",
+  chatEarlier: "Frühere Unterhaltungen",
+  chatDelete: "Löschen",
+  chatBasedOn: "Grundlage",
+  chatDraftTitle: (title) => `Entwurf: ${title}`,
+  chatReviewDraft: "Entwurf prüfen",
+  chatMoveTitle: (title) => `${title} verschieben`,
+  chatMoveIt: "Verschieben",
+  chatKeep: "So lassen",
+  chatMoved: "Verschoben.",
+  chatMemoryTitle: "Merken?",
+  chatRemember: "Merken",
+  chatNo: "Nein",
+  chatRemembered: "Gemerkt.",
+  chatDone: "Erledigt",
+  memoriesTitle: "Was FORM sich merkt",
+  memoriesHint: "Nur Trainingsvorlieben, die du bestätigt hast. Nie Gesundheitsinformationen. Jederzeit löschbar.",
+  memoriesEmpty: "Noch nichts.",
+  goalsTitle: "Ziele",
+  goalsSubtitle: "Worauf du hinarbeitest, gemessen an dem, was du tatsächlich getan hast.",
+  goalsMenuSubtitle: "Ziele, Meilensteine und Fortschritt aus deinen eigenen Ergebnissen.",
+  goalsHint: "Der Fortschritt kommt aus deinen erfassten Einheiten, Referenzwerten und Aufzeichnungen. Er ist keine Prognose.",
+  noGoals: "Noch keine Ziele.",
+  newGoal: "Neues Ziel",
+  goalKind: "Welche Art von Ziel?",
+  kindLift: "Übung (1RM)",
+  kindBenchmark: "FTP oder Pace",
+  kindDistance: "Zeit über eine Strecke",
+  kindSessions: "Einheiten pro Woche",
+  kindNutrition: "Ernährung erfassen",
+  kindEvent: "Ein Event beenden",
+  kindRehab: "Reha-Stufe",
+  goalName: "Name",
+  goalTarget: "Ziel",
+  goalTargetDate: "Zieldatum",
+  goalDistance: "Strecke",
+  goalSport: "Sportart",
+  goalEventName: "Event",
+  goalEventPlaceholder: "z. B. Stadt-Halbmarathon",
+  goalEpisode: "Fall",
+  goalStage: "Stufe",
+  goalPerWeek: "Pro Woche",
+  goalBaseline: "Ausgangswert"
+};
+
+// lib/i18n/de/part5.ts
+var part5 = {
+  goalBaselineFound: (value) => `Dein letztes vergleichbares Ergebnis: ${value}.`,
+  goalBaselineMissing: "Noch kein vergleichbares Ergebnis, daher gibt es keinen Ausgangswert. Der Fortschritt erscheint, sobald es einen gibt.",
+  goalMilestones: "Meilensteine (optional)",
+  goalMilestoneLabel: "Meilenstein",
+  addMilestone: "Meilenstein hinzufügen",
+  saveGoal: "Ziel speichern",
+  rehabGoalNote: "Eine Reha-Stufe zählt nur, wenn deine Physiotherapie sie als verifizierte Fachperson erfasst. Du kannst sie nicht selbst markieren.",
+  goalStatus: { active: "Aktiv", achieved: "Erreicht", paused: "Pausiert", abandoned: "Beendet" },
+  goalEvidence: "Belege",
+  goalNoEvidence: "Noch nichts Vergleichbares erfasst.",
+  goalWeeks: "Wochen",
+  goalNotes: "Gut zu wissen",
+  goalHistory: "Verlauf",
+  goalCreated: "Ziel gesetzt",
+  goalChangeTarget: "Ziel oder Datum ändern",
+  goalChangeReason: "Warum? (optional, bleibt im Verlauf)",
+  goalSaveChange: "Änderung speichern",
+  goalPause: "Pausieren",
+  goalResume: "Fortsetzen",
+  goalStop: "Ziel beenden",
+  goalFinished: "Geschafft",
+  goalFinishedOn: "Beendet am",
+  goalShare: "Meinem Coach zeigen",
+  goalShareHint: "Dein Coach braucht zusätzlich den Bereich Ziele unter Teilen & Datenschutz.",
+  goalReviews: "Kommentare vom Coach",
+  goalDelete: "Ziel löschen",
+  goalReached: "erreicht",
+  coachGoals: "Geteilte Ziele",
+  coachGoalsNone: "Es werden keine Ziele mit dir geteilt.",
+  coachGoalsNotShared: "Der Bereich Ziele wird nicht mit dir geteilt.",
+  goalReviewPlaceholder: "Ein Kommentar für die Person",
+  goalReviewAuthor: "Dein Coach",
+  studioTitle: "Studios",
+  studioSubtitle: "Kurse, Buchungen und Mitgliedschaften in deinen Studios.",
+  studioMenuSubtitle: "Kurse buchen oder ein Studio führen: Kursplan, Mitglieder, Team und Berichte.",
+  studioNeedsAccount: "Studios brauchen ein Konto, damit du Kurse buchen kannst und das Team sieht, wer kommt.",
+  studioPrivacyNote: "Mit dem Beitritt zu einem Studio teilst du nur Buchungen, Anwesenheit und Mitgliedschaft mit dem Team. Training, Gesundheit, Reha, Ernährung und Ziele bleiben privat, solange du sie nicht unter Teilen & Datenschutz mit einer Person teilst.",
+  noStudios: "Du bist noch in keinem Studio.",
+  joinStudio: "Mit Code beitreten",
+  joinStudioBody: "Gib den Code ein, den dir das Studio gegeben hat. Er funktioniert nur für die E-Mail-Adresse, an die er ging.",
+  join: "Beitreten",
+  createStudio: "Studio anlegen",
+  studioName: "Name des Studios",
+  facilityName: "Erster Standort (optional)",
+  create: "Anlegen",
+  tabClasses: "Kurse",
+  tabPeople: "Personen",
+  tabPlans: "Tarife",
+  tabStaff: "Team",
+  tabReport: "Bericht",
+  noClasses: "Keine Kurse in den nächsten vier Wochen.",
+  placesLeft: (n) => n === 1 ? "Noch 1 Platz frei" : `Noch ${n} Plätze frei`,
+  classFull: "Ausgebucht",
+  onWaitlist: (n) => n ? `Warteliste, Platz ${n}` : "Auf der Warteliste",
+  youAreBooked: "Gebucht",
+  book: "Buchen",
+  joinWaitlist: "Auf die Warteliste",
+  cancelBooking: "Buchung stornieren",
+  leaveWaitlist: "Warteliste verlassen",
+  classStarted: "Begonnen",
+  classCancelled: "Abgesagt",
+  withInstructor: (name) => `mit ${name}`,
+  scheduleClass: "Kurs planen",
+  classTitle: "Name des Kurses",
+  classDescription: "Beschreibung (optional)",
+  classMinutes: "Minuten",
+  classCapacity: "Plätze",
+  classWeeks: "Wochen",
+  classStartsOn: "Erster Termin",
+  classInstructor: "Trainer:in",
+  noInstructor: "Noch niemand",
+  classWorkout: "Workout für den Kurs (optional)",
+  noClassWorkout: "Keines",
+  classDates: (dates) => `Termine am ${dates}.`,
+  schedule: "Planen",
+  classScheduled: (n) => n === 1 ? "Kurs geplant." : `${n} Kurse geplant.`,
+  roster: "Teilnehmerliste",
+  rosterNone: "Noch niemand gebucht.",
+  rosterNote: "Nur Namen und Anwesenheit. Das Team sieht nichts weiter über Mitglieder.",
+  attended: "Da",
+  noShow: "Nicht gekommen",
+  checkIn: "Einchecken",
+  cancelClass: "Diesen Kurs absagen",
+  addClassWorkout: "Workout in meinen Plan übernehmen",
+  classWorkoutAdded: "Als eigene Kopie in deinen Plan übernommen.",
+  yourMembership: "Deine Mitgliedschaft",
+  noMembership: "Keine aktive Mitgliedschaft. Bitte das Studio, eine einzurichten.",
+  packClasses: (n) => n === 1 ? "1 Kurs" : `${n} Kurse`,
+  classesLeft: (n) => n === 1 ? "Noch 1 Kurs" : `Noch ${n} Kurse`,
+  paidUntil: (d) => `bezahlt bis ${d}`,
+  leaveStudio: "Studio verlassen",
+  leaveStudioBody: "Deine künftigen Buchungen werden storniert und deine Mitgliedschaft endet. Deine eigenen Trainingsdaten bleiben bei dir.",
+  staffSeats: (used, total) => `${used} von ${total} Teamplätzen belegt (offene Team-Einladungen zählen mit).`,
+  invitePerson: "Jemanden einladen",
+  inviteRole: "Als",
+  openInvites: "Offene Einladungen",
+  invitationFor: (email, code) => `Code für ${email}: ${code}`,
+  revoke: "Zurückziehen",
+  membershipLabel: "Mitgliedschaft",
+  startPlan: "Tarif starten",
+  markPaid: "Als bezahlt markieren",
+  markOverdue: "Als überfällig markieren",
+  pauseMembership: "Pausieren",
+  resumeMembership: "Fortsetzen",
+  endMembership: "Beenden",
+  plans: "Tarife",
+  noPlans: "Noch keine Tarife. Mitglieder brauchen einen Tarif, bevor sie buchen können.",
+  newPlan: "Neuer Tarif",
+  planName: "Name des Tarifs",
+  planKind: "Art",
+  planPrice: "Preis",
+  planCurrency: "Währung",
+  planClasses: "Kurse im Paket",
+  retirePlan: "Nicht mehr anbieten",
+  reactivatePlan: "Wieder anbieten",
+  billingNote: "Zahlungen werden hier von Hand erfasst; noch ist kein Zahlungsanbieter angebunden.",
+  shifts: "Schichten, nächste zwei Wochen",
+  noShifts: "Keine Schichten geplant.",
+  addShift: "Schicht hinzufügen",
+  shiftFor: "Wer",
+  shiftStarts: "Beginn",
+  shiftHours: "Stunden",
+  shiftNote: "Notiz (optional)",
+  reportTitle: "Letzte 8 und nächste 4 Wochen",
+  reportNote: (k) => `Nur aus Kursen, Buchungen und Mitgliedschaften berechnet. Zahlen zu weniger als ${k} Personen werden ausgeblendet, damit niemand erkennbar ist.`,
+  reportWeek: "Woche ab",
+  reportClasses: "Kurse",
+  reportBookings: "Buchungen",
+  reportAttended: "anwesend",
+  reportPeople: "Personen",
+  reportOccupancy: "belegt",
+  reportAttendance: "gekommen",
+  reportActive: "aktiv",
+  locations: "Standorte",
+  addLocation: "Standort hinzufügen",
+  locationName: "Name des Standorts",
+  locationAddress: "Adresse (optional)",
+  movementTitle: "Bewegungsclips",
+  movementSubtitle: "Filme eine Bewegung und erhalte Beobachtungen zu dem, was die Kamera sehen kann.",
+  movementMenuSubtitle: "Kniebeugen-Clips mit Analyse auf dem Gerät und Notizen von deinem Coach.",
+  movementNeedsAccount: "Clips brauchen ein Konto, damit sie privat gespeichert und auf Wunsch mit deinem Coach geteilt werden können.",
+  movementNoClips: "Noch keine Clips.",
+  newClip: "Neuer Clip",
+  movementWebOnly: "Die Analyse läuft derzeit in der Web-App. Auf diesem Gerät kannst du Clips trotzdem hochladen und teilen.",
+  chooseMovement: "Bewegung",
+  cameraView: "Kamera",
+  cameraGuide: "Aufbau",
+  consentsTitle: "Deine Entscheidungen für diesen Clip",
+  consentRecording: "Alle, die im Clip zu sehen sind, haben dem Filmen zugestimmt",
+  consentRecordingHint: "Pflicht. Am besten bist nur du im Bild.",
+  consentInference: "Auf diesem Gerät analysieren",
+  consentInferenceHint: "Das Video wird in dieser App auf deinem Gerät untersucht; es werden keine Bilder an einen KI-Dienst gesendet. Die Analyse wird mit dem Clip gespeichert.",
+  consentShare: "Fachpersonen zeigen, mit denen ich Videos teile",
+  consentShareHint: "Nur Personen, denen du unter Teilen & Datenschutz den Bereich Video freigegeben hast, und nur solange du ihn teilst.",
+  consentResearch: "Clips werden nie für Forschung oder zum Trainieren von Modellen verwendet.",
+  keepFor: "Aufbewahren für",
+  keepDays: (n) => n === 365 ? "1 Jahr" : `${n} Tage`,
+  chooseVideo: "Video auswählen",
+  recordVideo: "Video aufnehmen",
+  uploading: "Lade hoch…",
+  analysing: (pct) => `Analysiere auf diesem Gerät… ${pct} %`,
+  analysisFailed: "Die Analyse konnte auf diesem Gerät nicht laufen. Der Clip ist gespeichert; du kannst es später erneut versuchen.",
+  clipSaved: "Clip gespeichert.",
+  observations: "Was die Kamera sehen konnte",
+  cannotAssess: "Dieser Clip lässt sich nicht verlässlich beurteilen",
+  whyNot: "Warum",
+  alsoNote: "Gut zu wissen",
+  confidenceLabel: { low: "geringe Sicherheit", moderate: "mittlere Sicherheit", high: "hohe Sicherheit" },
+  analyse: "Analysieren",
+  analyseAgain: "Erneut analysieren",
+  analysisOff: "Die Analyse ist für diesen Clip ausgeschaltet.",
+  clipNotes: "Notizen",
+  noClipNotes: "Noch keine Notizen.",
+  addNoteAt: (t) => `Notiz bei ${t}`,
+  clipNotePlaceholder: "Worauf achten, oder ein Hinweis",
+  atTime: (t) => `bei ${t}`,
+  noteBy: (who, role) => `${who}, ${role}`,
+  askForReview: "Um Durchsicht bitten",
+  reviewNote: "Worauf soll die Person achten? (optional)",
+  reviewRequested: "Um Durchsicht gebeten.",
+  reviewOpen: (name) => `Wartet auf ${name}`,
+  reviewAnswered: (name) => `${name} hat geantwortet`,
+  noVideoGrants: "Niemand, mit dem du verbunden bist, hat den Bereich Video. Teile ihn zuerst unter Teilen & Datenschutz.",
+  keptUntil: (d) => `Aufbewahrt bis ${d}, dann entfernt.`,
+  deleteClip: "Clip löschen",
+  deleteClipConfirm: "Diesen Clip, seine Analyse und alle Notizen löschen? Das lässt sich nicht rückgängig machen.",
+  clipDeleted: "Clip gelöscht.",
+  playbackNative: "Die Wiedergabe auf diesem Gerät kommt mit der Telefon-Version.",
+  coachClips: "Geteilte Clips",
+  coachClipsNone: "Es werden keine Clips mit dir geteilt.",
+  coachClipsNotShared: "Der Bereich Video wird nicht mit dir geteilt.",
+  professionalRole: "Fachperson",
+  athleteRole: "Athlet:in",
+  videoTypeUnsupported: "Verwende ein MP4-, MOV- oder WebM-Video.",
+  videoTooLarge: "Das Video ist größer als 100 MB. Nimm einen kürzeren Clip auf.",
+  settingsTitle: "Darstellung & Sprache",
+  settingsSubtitle: "Hell oder dunkel, Englisch oder Deutsch.",
+  settingsMenuSubtitle: "Helle oder dunkle Darstellung und die Sprache der App.",
+  themeLabel: "Darstellung",
+  themeSystem: "Wie dieses Gerät",
+  themeLight: "Hell",
+  themeDark: "Dunkel",
+  languageLabel: "Sprache",
+  languageSystem: "Wie dieses Gerät",
+  languageEnglish: "English",
+  languageGerman: "Deutsch",
+  settingsNextLaunch: "Gespeichert. Es gilt ab dem nächsten Öffnen der App.",
+  fuelTitle: "Trainingsverpflegung",
+  logFuel: "Verpflegung erfassen",
+  noFuelYet: "Für diese Einheit ist nichts erfasst."
+};
+
+// lib/i18n/de.ts
+var de = { ...part1, ...part2, ...part3, ...part4, ...part5 };
+
+// lib/i18n/en.ts
+var en = {
   // Common actions
   continue: "Continue",
   newWorkout: "New Workout",
@@ -1473,11 +2535,85 @@ var strings = {
   athleteRole: "athlete",
   videoTypeUnsupported: "Use an MP4, MOV or WebM video.",
   videoTooLarge: "The video is larger than 100 MB. Record a shorter clip.",
+  // Appearance & language
+  settingsTitle: "Appearance & Language",
+  settingsSubtitle: "Light or dark, and English or German.",
+  settingsMenuSubtitle: "Light or dark look, and the app language.",
+  themeLabel: "Look",
+  themeSystem: "Like this device",
+  themeLight: "Light",
+  themeDark: "Dark",
+  languageLabel: "Language",
+  languageSystem: "Like this device",
+  languageEnglish: "English",
+  languageGerman: "Deutsch",
+  settingsNextLaunch: "Saved. It takes effect the next time you open the app.",
   // Workout fuel
   fuelTitle: "Training Fuel",
   logFuel: "Log Fuel",
   noFuelYet: "Nothing logged for this session."
 };
+
+// lib/preferences.ts
+function readPreference(_key) {
+  return null;
+}
+function deviceLocale() {
+  return "en-US";
+}
+
+// lib/strings.ts
+var stored = readPreference("language");
+var languagePreference = stored === "en" || stored === "de" ? stored : "system";
+var language = languagePreference === "system" ? deviceLocale().toLowerCase().startsWith("de") ? "de" : "en" : languagePreference;
+var strings = language === "de" ? de : en;
+
+// lib/i18n/tr.ts
+var tr = (en2, de2) => language === "de" ? de2 : en2;
+
+// lib/nutrition/model.ts
+var NUTRIENTS = {
+  energy_kcal: { label: tr("Energy", "Energie"), unit: "kcal", decimals: 0, maxPer100: 900 },
+  protein_g: { label: tr("Protein", "Eiweiß"), unit: "g", decimals: 1, maxPer100: 100 },
+  carbohydrate_g: { label: tr("Carbohydrate", "Kohlenhydrate"), unit: "g", decimals: 1, maxPer100: 100 },
+  fat_g: { label: tr("Fat", "Fett"), unit: "g", decimals: 1, maxPer100: 100 },
+  fiber_g: { label: tr("Fiber", "Ballaststoffe"), unit: "g", decimals: 1, maxPer100: 100 },
+  sugar_g: { label: tr("Sugar", "Zucker"), unit: "g", decimals: 1, maxPer100: 100 },
+  sodium_mg: { label: tr("Sodium", "Natrium"), unit: "mg", decimals: 0, maxPer100: 4e4 },
+  caffeine_mg: { label: tr("Caffeine", "Koffein"), unit: "mg", decimals: 0, maxPer100: 5e3 }
+};
+var NUTRIENT_ORDER = ["energy_kcal", "protein_g", "carbohydrate_g", "fat_g", "fiber_g", "sugar_g", "sodium_mg", "caffeine_mg"];
+var MEAL_TYPES = [
+  { key: "breakfast", label: tr("Breakfast", "Frühstück") },
+  { key: "lunch", label: tr("Lunch", "Mittagessen") },
+  { key: "dinner", label: tr("Dinner", "Abendessen") },
+  { key: "snack", label: tr("Snack", "Snack") },
+  { key: "pre_workout", label: tr("Before training", "Vor dem Training") },
+  { key: "during_workout", label: tr("During training", "Während des Trainings") },
+  { key: "post_workout", label: tr("After training", "Nach dem Training") }
+];
+
+// lib/nutrition/engine.ts
+function totals(entries) {
+  const live = entries.filter((e) => !e.deletedAt);
+  const nutrients = {};
+  for (const key2 of NUTRIENT_ORDER) {
+    let value = 0;
+    let missing = 0;
+    for (const e of live) {
+      const v = e.nutrients[key2];
+      if (typeof v === "number") value += v;
+      else missing++;
+    }
+    nutrients[key2] = { value, missing };
+  }
+  return {
+    nutrients,
+    fluidMl: live.reduce((sum, e) => sum + (e.fluidMl ?? 0), 0),
+    entries: live.length,
+    estimated: live.filter((e) => e.estimated).length
+  };
+}
 
 // lib/workout/format.ts
 function formatClock(totalSeconds) {
@@ -1500,7 +2636,7 @@ function formatKg(kg) {
 }
 var INTENSITY_LABEL = {
   rpe: (v) => `RPE ${v}`,
-  hr_zone: (v) => `Zone ${v}`,
+  hr_zone: (v) => tr(`Zone ${v}`, `Zone ${v}`),
   pace_sec_per_km: (v) => `${formatClock(v)} /km`,
   ftp_percent: (v) => `${v}% FTP`,
   power_w: (v) => `${v} W`
@@ -1520,7 +2656,7 @@ function formatPrescription(rx) {
   }
   if (rx.intensity) parts.push(INTENSITY_LABEL[rx.intensity.type](rx.intensity.value));
   if (rx.side && rx.side !== "both") parts.push(rx.side);
-  if (rx.restSeconds) parts.push(`rest ${formatClock(rx.restSeconds)}`);
+  if (rx.restSeconds) parts.push(tr(`rest ${formatClock(rx.restSeconds)}`, `Pause ${formatClock(rx.restSeconds)}`));
   if (rx.note) parts.push(rx.note);
   return parts.join(" · ");
 }
@@ -1598,7 +2734,7 @@ function formatConfigDetail(config) {
     case "sets_reps": {
       const parts = [];
       if (config.sets) parts.push(`${config.sets} ${config.sets === 1 ? strings.setLower : strings.setsLower}`);
-      if (config.restSeconds) parts.push(`rest ${formatClock(config.restSeconds)}`);
+      if (config.restSeconds) parts.push(tr(`rest ${formatClock(config.restSeconds)}`, `Pause ${formatClock(config.restSeconds)}`));
       return parts.join(" · ") || void 0;
     }
     case "continuous": {
@@ -1765,21 +2901,21 @@ function nutritionResult(entries, hideEnergy) {
 
 // lib/rehab/model.ts
 var TAG_LABEL = {
-  running: "Running",
-  jumping: "Jumping and landing",
-  squatting: "Squatting",
-  lunging: "Lunging",
-  hinging: "Hip hinging",
-  overhead: "Arms overhead",
-  pressing: "Pressing",
-  pulling: "Pulling",
-  hanging: "Hanging",
-  inverted: "Upside down",
-  loaded_spine: "Heavy load on the spine",
-  cycling: "Cycling",
-  rowing: "Rowing",
-  swimming: "Swimming",
-  core_flexion: "Sit-ups and crunches"
+  running: tr("Running", "Laufen"),
+  jumping: tr("Jumping and landing", "Springen und Landen"),
+  squatting: tr("Squatting", "Kniebeugen"),
+  lunging: tr("Lunging", "Ausfallschritte"),
+  hinging: tr("Hip hinging", "Hüftbeugen (Hinge)"),
+  overhead: tr("Arms overhead", "Arme über Kopf"),
+  pressing: tr("Pressing", "Drücken"),
+  pulling: tr("Pulling", "Ziehen"),
+  hanging: tr("Hanging", "Hängen"),
+  inverted: tr("Upside down", "Kopfüber"),
+  loaded_spine: tr("Heavy load on the spine", "Schwere Last auf der Wirbelsäule"),
+  cycling: tr("Cycling", "Radfahren"),
+  rowing: tr("Rowing", "Rudern"),
+  swimming: tr("Swimming", "Schwimmen"),
+  core_flexion: tr("Sit-ups and crunches", "Sit-ups und Crunches")
 };
 var TAG_ORDER = Object.keys(TAG_LABEL);
 var ACTIVITY_TAGS = {
@@ -1844,6 +2980,44 @@ var ACTIVITY_TAGS = {
   pranayama: [],
   meditation: []
 };
+var BODY_REGION_LABEL = {
+  head_neck: tr("Head or neck", "Kopf oder Nacken"),
+  shoulder: tr("Shoulder", "Schulter"),
+  elbow: tr("Elbow", "Ellbogen"),
+  wrist_hand: tr("Wrist or hand", "Handgelenk oder Hand"),
+  upper_back: tr("Upper back", "Oberer Rücken"),
+  lower_back: tr("Lower back", "Unterer Rücken"),
+  hip: tr("Hip", "Hüfte"),
+  thigh: tr("Thigh", "Oberschenkel"),
+  knee: tr("Knee", "Knie"),
+  lower_leg: tr("Lower leg", "Unterschenkel"),
+  ankle_foot: tr("Ankle or foot", "Sprunggelenk oder Fuß"),
+  chest: tr("Chest", "Brust"),
+  other: tr("Somewhere else", "Woanders")
+};
+var EPISODE_STATUS_LABEL = {
+  reported: tr("Noted", "Notiert"),
+  under_assessment: tr("Being assessed", "Wird abgeklärt"),
+  rehabilitating: tr("In rehab", "In der Reha"),
+  paused: tr("Paused", "Pausiert"),
+  resolved: tr("Resolved", "Abgeschlossen")
+};
+var RED_FLAGS = {
+  cannot_bear_weight: tr("I cannot put weight on it", "Ich kann es nicht belasten"),
+  numbness: tr("Numbness, tingling or weakness that is new", "Neue Taubheit, Kribbeln oder Schwäche"),
+  deformity: tr("It looks deformed or very swollen", "Es sieht verformt oder stark geschwollen aus"),
+  fever: tr("Fever or feeling very ill along with the pain", "Fieber oder starkes Krankheitsgefühl zusammen mit den Schmerzen")
+};
+var RULE_LABEL = {
+  avoid: tr("Avoid", "Vermeiden"),
+  review_required: tr("Ask before doing", "Vorher fragen"),
+  limit: tr("Limited", "Eingeschränkt")
+};
+var RTS_LABEL = {
+  participation: tr("Return to participation", "Rückkehr ins Training"),
+  sport: tr("Return to sport", "Rückkehr zum Sport"),
+  performance: tr("Return to performance", "Rückkehr zur Leistung")
+};
 
 // lib/rehab/conflicts.ts
 var SEVERITY = { limit: 1, review_required: 2, avoid: 3 };
@@ -1873,6 +3047,7 @@ function checkWorkout(content, limits) {
   const worst = conflicts.reduce((w, c) => !w || SEVERITY[c.limit.rule] > SEVERITY[w] ? c.limit.rule : w, void 0);
   return { conflicts, unchecked, ...worst ? { worst } : {} };
 }
+var ESCALATION_MESSAGE = tr("Please get this checked by a doctor promptly, or by emergency services if it is severe. FORM cannot assess this and will not suggest exercises for it. (Placeholder wording, pending review by a clinician.)", "Bitte lass das zeitnah ärztlich abklären, bei starken Beschwerden über den Notruf. FORM kann das nicht beurteilen und schlägt dafür keine Übungen vor. (Vorläufige Formulierung, wird noch von einer Fachperson geprüft.)");
 
 // lib/ai/diff.ts
 var line = (step) => {
@@ -1941,6 +3116,119 @@ function diffWorkouts(before, after) {
   return changes;
 }
 
+// lib/i18n/catalogNames.ts
+var ACTIVITY_NAMES_DE = {
+  back_squat: "Kniebeuge",
+  front_squat: "Frontkniebeuge",
+  overhead_squat: "Überkopfkniebeuge",
+  deadlift: "Kreuzheben",
+  bench_press: "Bankdrücken",
+  overhead_press: "Schulterdrücken",
+  push_press: "Push Press",
+  push_jerk: "Push Jerk",
+  clean: "Umsetzen (Clean)",
+  clean_and_jerk: "Stoßen (Clean & Jerk)",
+  snatch: "Reißen (Snatch)",
+  thruster: "Thruster",
+  barbell_row: "Vorgebeugtes Rudern",
+  hip_thrust: "Hip Thrust",
+  dumbbell_thruster: "Kurzhantel-Thruster",
+  dumbbell_snatch: "Kurzhantel-Reißen",
+  dumbbell_hang_clean: "Kurzhantel Hang Squat Clean",
+  goblet_squat: "Goblet Squat",
+  kettlebell_swing: "Kettlebell Swing",
+  wall_ball: "Wall Ball",
+  walking_lunge: "Ausfallschritte im Gehen",
+  pull_up: "Klimmzug",
+  chest_to_bar: "Chest-to-Bar-Klimmzug",
+  ring_row: "Rudern an den Ringen",
+  muscle_up: "Muscle Up",
+  toes_to_bar: "Toes-to-Bar",
+  push_up: "Liegestütz",
+  handstand_push_up: "Handstand-Liegestütz",
+  dip: "Dip",
+  air_squat: "Kniebeuge ohne Gewicht",
+  pistol: "Pistol Squat",
+  burpee: "Burpee",
+  box_jump: "Box Jump",
+  double_under: "Double Under",
+  single_under: "Seilspringen",
+  sit_up: "Sit-up",
+  v_up: "V-up",
+  tuck_crunch: "Tuck Crunch",
+  mountain_climber: "Mountain Climber",
+  jumping_jack: "Hampelmann",
+  plank: "Unterarmstütz",
+  side_plank: "Seitstütz",
+  hollow_hold: "Hollow Hold",
+  handstand_hold: "Handstand halten",
+  run: "Laufen",
+  row: "Rudern",
+  ski_erg: "SkiErg",
+  bike: "Rad (Ergometer)",
+  cycling: "Radfahren",
+  swim: "Schwimmen",
+  walk: "Gehen",
+  downward_dog: "Herabschauender Hund",
+  warrior_1: "Krieger I",
+  warrior_2: "Krieger II",
+  pigeon_pose: "Taube",
+  cat_cow: "Katze-Kuh",
+  couch_stretch: "Couch Stretch",
+  pranayama: "Pranayama",
+  meditation: "Meditation"
+};
+var FOOD_NAMES_DE = {
+  oats: "Haferflocken (trocken)",
+  banana: "Banane",
+  apple: "Apfel, mit Schale",
+  orange: "Orange",
+  blueberries: "Heidelbeeren",
+  strawberries: "Erdbeeren",
+  dates: "Datteln, Medjool",
+  raisins: "Rosinen",
+  avocado: "Avocado",
+  egg: "Ei, ganz",
+  chicken_breast: "Hähnchenbrust, gegart",
+  salmon: "Lachs, gegart",
+  tuna_canned: "Thunfisch in Wasser, abgetropft",
+  beef_mince: "Rinderhack, 90 % mager, gegart",
+  tofu: "Tofu, fest",
+  greek_yogurt: "Griechischer Joghurt, natur, fettfrei",
+  cottage_cheese: "Hüttenkäse, 2 % Fett",
+  cheddar: "Cheddar",
+  milk_whole: "Vollmilch",
+  milk_skim: "Magermilch",
+  rice_white: "Reis, weiß, gekocht",
+  rice_brown: "Naturreis, gekocht",
+  pasta: "Nudeln, gekocht",
+  bread_wholewheat: "Vollkornbrot",
+  bread_white: "Weißbrot",
+  potato: "Kartoffel, gebacken, mit Schale",
+  sweet_potato: "Süßkartoffel, gebacken",
+  quinoa: "Quinoa, gekocht",
+  lentils: "Linsen, gekocht",
+  chickpeas: "Kichererbsen, gekocht",
+  black_beans: "Schwarze Bohnen, gekocht",
+  hummus: "Hummus",
+  broccoli: "Brokkoli",
+  spinach: "Spinat, roh",
+  carrot: "Karotte, roh",
+  tomato: "Tomate",
+  almonds: "Mandeln",
+  walnuts: "Walnüsse",
+  peanut_butter: "Erdnussbutter",
+  olive_oil: "Olivenöl",
+  butter: "Butter",
+  honey: "Honig",
+  dark_chocolate: "Zartbitterschokolade, 70–85 %",
+  water: "Wasser",
+  coffee: "Kaffee, schwarz",
+  orange_juice: "Orangensaft",
+  sports_drink: "Sportgetränk (allgemein)",
+  energy_gel: "Energie-Gel (allgemein)"
+};
+
 // lib/workout/catalog.ts
 var reps = (n) => ({ kind: "reps", reps: n });
 var dist = (meters) => ({ kind: "distance", meters });
@@ -1949,7 +3237,7 @@ var dur = (seconds) => ({ kind: "duration", seconds });
 function a(id, name, defaultTarget, sports, equipment, loadable, synonyms = []) {
   return { id, name, synonyms, sports, equipment, defaultTarget, loadable };
 }
-var ACTIVITIES = [
+var BASE_ACTIVITIES = [
   // Barbell / loaded strength
   a("back_squat", "Back Squat", reps(5), ["strength", "crossfit"], ["barbell", "rack"], true, ["squat", "bs"]),
   a("front_squat", "Front Squat", reps(5), ["strength", "crossfit"], ["barbell", "rack"], true, ["fs"]),
@@ -2024,6 +3312,7 @@ var ACTIVITIES = [
   a("pranayama", "Pranayama", dur(300), ["yoga"], [], false, ["breathwork", "breathing"]),
   a("meditation", "Meditation", dur(600), ["yoga", "other"], [], false)
 ];
+var ACTIVITIES = language === "de" ? BASE_ACTIVITIES.map((act) => ACTIVITY_NAMES_DE[act.id] ? { ...act, name: ACTIVITY_NAMES_DE[act.id], synonyms: [act.name, ...act.synonyms] } : act) : BASE_ACTIVITIES;
 var BY_ID = new Map(ACTIVITIES.map((act) => [act.id, act]));
 function getActivity(id) {
   return id ? BY_ID.get(id) : void 0;
@@ -2069,15 +3358,15 @@ function isPositiveInt(n) {
 function validateWorkout(content) {
   const issues = [];
   const add = (severity, code, path, message) => issues.push({ severity, code, path, message });
-  if (!SPORTS.includes(content.sport)) add("error", "INVALID_SPORT", "sport", "Unknown sport.");
-  if (!content.title || !content.title.trim()) add("error", "MISSING_TITLE", "title", "The workout needs a title.");
+  if (!SPORTS.includes(content.sport)) add("error", "INVALID_SPORT", "sport", tr("Unknown sport.", "Unbekannte Sportart."));
+  if (!content.title || !content.title.trim()) add("error", "MISSING_TITLE", "title", tr("The workout needs a title.", "Das Workout braucht einen Titel."));
   if (!Array.isArray(content.blocks) || content.blocks.length === 0) {
-    add("error", "NO_BLOCKS", "blocks", "A workout needs at least one section with content.");
+    add("error", "NO_BLOCKS", "blocks", tr("A workout needs at least one section with content.", "Ein Workout braucht mindestens einen Abschnitt mit Inhalt."));
   }
   const seenIds = /* @__PURE__ */ new Set();
   const claimId = (id, path) => {
-    if (!id) add("error", "MISSING_ID", path, "Missing identifier.");
-    else if (seenIds.has(id)) add("error", "DUPLICATE_ID", path, "Identifier is used more than once.");
+    if (!id) add("error", "MISSING_ID", path, tr("Missing identifier.", "Kennung fehlt."));
+    else if (seenIds.has(id)) add("error", "DUPLICATE_ID", path, tr("Identifier is used more than once.", "Kennung wird mehrfach verwendet."));
     else seenIds.add(id);
   };
   (content.blocks ?? []).forEach((block, bi) => {
@@ -2094,76 +3383,76 @@ function validateWorkout(content) {
   };
 }
 function validateBlock(block, path, add, claimId) {
-  if (!BLOCK_TYPES.includes(block.type)) add("error", "INVALID_BLOCK_TYPE", `${path}.type`, "Unknown section type.");
+  if (!BLOCK_TYPES.includes(block.type)) add("error", "INVALID_BLOCK_TYPE", `${path}.type`, tr("Unknown section type.", "Unbekannte Art von Abschnitt."));
   const config = block.config;
   if (!config || !BLOCK_FORMATS.includes(config.format)) {
-    add("error", "INVALID_FORMAT", `${path}.config.format`, "Unknown workout format.");
+    add("error", "INVALID_FORMAT", `${path}.config.format`, tr("Unknown workout format.", "Unbekanntes Workout-Format."));
     return;
   }
   if (!Array.isArray(block.steps) || block.steps.length === 0) {
-    add("error", "EMPTY_BLOCK", `${path}.steps`, "This section has no exercises.");
+    add("error", "EMPTY_BLOCK", `${path}.steps`, tr("This section has no exercises.", "Dieser Abschnitt hat keine Übungen."));
   }
   switch (config.format) {
     case "for_time": {
       if (config.rounds !== void 0 && !isPositiveInt(config.rounds)) {
-        add("error", "INVALID_ROUNDS", `${path}.config.rounds`, "Rounds must be a whole number above zero.");
+        add("error", "INVALID_ROUNDS", `${path}.config.rounds`, tr("Rounds must be a whole number above zero.", "Runden müssen eine ganze Zahl über null sein."));
       }
       if (config.repScheme !== void 0) {
         if (!Array.isArray(config.repScheme) || config.repScheme.length === 0 || !config.repScheme.every(isPositiveInt)) {
-          add("error", "INVALID_REP_SCHEME", `${path}.config.repScheme`, "A rep scheme is whole numbers above zero, like 21-15-9.");
+          add("error", "INVALID_REP_SCHEME", `${path}.config.repScheme`, tr("A rep scheme is whole numbers above zero, like 21-15-9.", "Ein Wiederholungsschema besteht aus ganzen Zahlen über null, etwa 21-15-9."));
         }
         if (config.rounds !== void 0) {
-          add("error", "CONFLICTING_STRUCTURE", `${path}.config`, "Use either a number of rounds or a rep scheme, not both.");
+          add("error", "CONFLICTING_STRUCTURE", `${path}.config`, tr("Use either a number of rounds or a rep scheme, not both.", "Verwende entweder eine Anzahl Runden oder ein Wiederholungsschema, nicht beides."));
         }
       }
       if (config.timeCapSeconds !== void 0 && !isPositive(config.timeCapSeconds)) {
-        add("error", "INVALID_TIME_CAP", `${path}.config.timeCapSeconds`, "The time cap must be above zero.");
+        add("error", "INVALID_TIME_CAP", `${path}.config.timeCapSeconds`, tr("The time cap must be above zero.", "Das Zeitlimit muss über null liegen."));
       }
       break;
     }
     case "amrap": {
       if (!isPositive(config.durationSeconds)) {
-        add("error", "MISSING_DURATION", `${path}.config.durationSeconds`, "AMRAP requires a duration.");
+        add("error", "MISSING_DURATION", `${path}.config.durationSeconds`, tr("AMRAP requires a duration.", "Ein AMRAP braucht eine Dauer."));
       }
       break;
     }
     case "repeating_interval": {
       if (!isPositive(config.intervalSeconds)) {
-        add("error", "MISSING_INTERVAL", `${path}.config.intervalSeconds`, "Interval work requires an interval length.");
+        add("error", "MISSING_INTERVAL", `${path}.config.intervalSeconds`, tr("Interval work requires an interval length.", "Intervalltraining braucht eine Intervalllänge."));
       }
       if (!isPositiveInt(config.rounds)) {
-        add("error", "MISSING_ROUNDS", `${path}.config.rounds`, "Interval work requires a number of intervals.");
+        add("error", "MISSING_ROUNDS", `${path}.config.rounds`, tr("Interval work requires a number of intervals.", "Intervalltraining braucht eine Anzahl Intervalle."));
       }
       if (config.workSeconds !== void 0) {
         if (!isPositive(config.workSeconds)) {
-          add("error", "INVALID_WORK", `${path}.config.workSeconds`, "Work time must be above zero.");
+          add("error", "INVALID_WORK", `${path}.config.workSeconds`, tr("Work time must be above zero.", "Die Belastungszeit muss über null liegen."));
         } else if (isPositive(config.intervalSeconds) && config.workSeconds > config.intervalSeconds) {
-          add("error", "WORK_EXCEEDS_INTERVAL", `${path}.config.workSeconds`, "Work time cannot be longer than the interval.");
+          add("error", "WORK_EXCEEDS_INTERVAL", `${path}.config.workSeconds`, tr("Work time cannot be longer than the interval.", "Die Belastungszeit kann nicht länger als das Intervall sein."));
         }
       }
       break;
     }
     case "sets_reps": {
       if (!isPositiveInt(config.sets)) {
-        add("error", "MISSING_SETS", `${path}.config.sets`, "Sets and reps work requires a number of sets.");
+        add("error", "MISSING_SETS", `${path}.config.sets`, tr("Sets and reps work requires a number of sets.", "Sätze und Wiederholungen brauchen eine Anzahl Sätze."));
       }
       if (config.restSeconds !== void 0 && !(typeof config.restSeconds === "number" && config.restSeconds >= 0)) {
-        add("error", "INVALID_REST", `${path}.config.restSeconds`, "Rest cannot be negative.");
+        add("error", "INVALID_REST", `${path}.config.restSeconds`, tr("Rest cannot be negative.", "Die Pause kann nicht negativ sein."));
       }
       break;
     }
     case "continuous": {
       if (config.durationSeconds !== void 0 && !isPositive(config.durationSeconds)) {
-        add("error", "INVALID_DURATION", `${path}.config.durationSeconds`, "Duration must be above zero.");
+        add("error", "INVALID_DURATION", `${path}.config.durationSeconds`, tr("Duration must be above zero.", "Die Dauer muss über null liegen."));
       }
       if (config.distanceMeters !== void 0 && !isPositive(config.distanceMeters)) {
-        add("error", "INVALID_DISTANCE", `${path}.config.distanceMeters`, "Distance must be above zero.");
+        add("error", "INVALID_DISTANCE", `${path}.config.distanceMeters`, tr("Distance must be above zero.", "Die Strecke muss über null liegen."));
       }
       break;
     }
     case "sequence": {
       if (config.rounds !== void 0 && !isPositiveInt(config.rounds)) {
-        add("error", "INVALID_ROUNDS", `${path}.config.rounds`, "Rounds must be a whole number above zero.");
+        add("error", "INVALID_ROUNDS", `${path}.config.rounds`, tr("Rounds must be a whole number above zero.", "Runden müssen eine ganze Zahl über null sein."));
       }
       break;
     }
@@ -2176,100 +3465,100 @@ function validateSteps(steps, path, depth, format, add, claimId) {
     claimId(step.id, `${p}.id`);
     switch (step.kind) {
       case "exercise": {
-        if (!step.name || !step.name.trim()) add("error", "MISSING_EXERCISE_NAME", `${p}.name`, "An exercise needs a name.");
+        if (!step.name || !step.name.trim()) add("error", "MISSING_EXERCISE_NAME", `${p}.name`, tr("An exercise needs a name.", "Eine Übung braucht einen Namen."));
         if (step.activityId === null || step.activityId === void 0) {
-          add("info", "UNRESOLVED_EXERCISE", `${p}.activityId`, `"${step.name}" is not in the exercise catalog, so it is not tracked in trends.`);
+          add("info", "UNRESOLVED_EXERCISE", `${p}.activityId`, tr(`"${step.name}" is not in the exercise catalog, so it is not tracked in trends.`, `„${step.name}“ ist nicht im Übungskatalog und wird daher nicht in den Trends verfolgt.`));
         } else if (!getActivity(step.activityId)) {
-          add("error", "UNKNOWN_ACTIVITY", `${p}.activityId`, "This exercise points to a catalog entry that does not exist.");
+          add("error", "UNKNOWN_ACTIVITY", `${p}.activityId`, tr("This exercise points to a catalog entry that does not exist.", "Diese Übung verweist auf einen Katalogeintrag, den es nicht gibt."));
         }
         validatePrescription(step.prescription ?? {}, `${p}.prescription`, add);
         if (format === "sets_reps") {
           const rx = step.prescription ?? {};
           if (rx.reps === void 0 && rx.durationSeconds === void 0 && rx.distanceMeters === void 0) {
-            add("warning", "MISSING_TARGET", `${p}.prescription`, `"${step.name}" has no reps or time per set.`);
+            add("warning", "MISSING_TARGET", `${p}.prescription`, tr(`"${step.name}" has no reps or time per set.`, `„${step.name}“ hat keine Wiederholungen oder Zeit pro Satz.`));
           }
         }
         break;
       }
       case "rest": {
         if (!isPositive(step.durationSeconds)) {
-          add("error", "MISSING_DURATION", `${p}.durationSeconds`, "A rest needs a duration.");
+          add("error", "MISSING_DURATION", `${p}.durationSeconds`, tr("A rest needs a duration.", "Eine Pause braucht eine Dauer."));
         }
         break;
       }
       case "transition": {
         if (step.durationSeconds !== void 0 && !isPositive(step.durationSeconds)) {
-          add("error", "INVALID_DURATION", `${p}.durationSeconds`, "Duration must be above zero.");
+          add("error", "INVALID_DURATION", `${p}.durationSeconds`, tr("Duration must be above zero.", "Die Dauer muss über null liegen."));
         }
         break;
       }
       case "group": {
         if (depth >= MAX_GROUP_DEPTH) {
-          add("error", "NESTING_TOO_DEEP", p, `Groups can be nested at most ${MAX_GROUP_DEPTH - 1} levels deep.`);
+          add("error", "NESTING_TOO_DEEP", p, tr(`Groups can be nested at most ${MAX_GROUP_DEPTH - 1} levels deep.`, `Gruppen können höchstens ${MAX_GROUP_DEPTH - 1} Ebenen tief verschachtelt werden.`));
         }
         if (!isPositiveInt(step.rounds)) {
-          add("error", "MISSING_ROUNDS", `${p}.rounds`, "A repeated group needs a number of rounds.");
+          add("error", "MISSING_ROUNDS", `${p}.rounds`, tr("A repeated group needs a number of rounds.", "Eine wiederholte Gruppe braucht eine Anzahl Runden."));
         }
         if (!Array.isArray(step.steps) || step.steps.length === 0) {
-          add("error", "EMPTY_GROUP", `${p}.steps`, "A repeated group needs at least one exercise.");
+          add("error", "EMPTY_GROUP", `${p}.steps`, tr("A repeated group needs at least one exercise.", "Eine wiederholte Gruppe braucht mindestens eine Übung."));
         } else if (depth < MAX_GROUP_DEPTH) {
           validateSteps(step.steps, `${p}.steps`, depth + 1, format, add, claimId);
         }
         break;
       }
       default:
-        add("error", "INVALID_STEP_KIND", `${p}.kind`, "Unknown step kind.");
+        add("error", "INVALID_STEP_KIND", `${p}.kind`, tr("Unknown step kind.", "Unbekannte Art von Schritt."));
     }
   });
 }
 function validatePrescription(rx, path, add) {
   if (rx.reps !== void 0 && rx.reps !== "max") {
-    if (!isPositiveInt(rx.reps)) add("error", "INVALID_REPS", `${path}.reps`, "Reps must be a whole number above zero.");
-    else if (rx.reps > 1e3) add("warning", "IMPLAUSIBLE_REPS", `${path}.reps`, "That is an unusually high rep count.");
+    if (!isPositiveInt(rx.reps)) add("error", "INVALID_REPS", `${path}.reps`, tr("Reps must be a whole number above zero.", "Wiederholungen müssen eine ganze Zahl über null sein."));
+    else if (rx.reps > 1e3) add("warning", "IMPLAUSIBLE_REPS", `${path}.reps`, tr("That is an unusually high rep count.", "Das ist eine ungewöhnlich hohe Zahl an Wiederholungen."));
   }
   if (rx.durationSeconds !== void 0) {
-    if (!isPositive(rx.durationSeconds)) add("error", "INVALID_DURATION", `${path}.durationSeconds`, "Duration must be above zero.");
-    else if (rx.durationSeconds > 6 * 3600) add("warning", "IMPLAUSIBLE_DURATION", `${path}.durationSeconds`, "That is longer than six hours.");
+    if (!isPositive(rx.durationSeconds)) add("error", "INVALID_DURATION", `${path}.durationSeconds`, tr("Duration must be above zero.", "Die Dauer muss über null liegen."));
+    else if (rx.durationSeconds > 6 * 3600) add("warning", "IMPLAUSIBLE_DURATION", `${path}.durationSeconds`, tr("That is longer than six hours.", "Das ist länger als sechs Stunden."));
   }
   if (rx.distanceMeters !== void 0) {
-    if (!isPositive(rx.distanceMeters)) add("error", "INVALID_DISTANCE", `${path}.distanceMeters`, "Distance must be above zero.");
-    else if (rx.distanceMeters > 3e5) add("warning", "IMPLAUSIBLE_DISTANCE", `${path}.distanceMeters`, "That is further than 300 km.");
+    if (!isPositive(rx.distanceMeters)) add("error", "INVALID_DISTANCE", `${path}.distanceMeters`, tr("Distance must be above zero.", "Die Strecke muss über null liegen."));
+    else if (rx.distanceMeters > 3e5) add("warning", "IMPLAUSIBLE_DISTANCE", `${path}.distanceMeters`, tr("That is further than 300 km.", "Das ist weiter als 300 km."));
   }
   if (rx.calories !== void 0 && !isPositive(rx.calories)) {
-    add("error", "INVALID_CALORIES", `${path}.calories`, "Calories must be above zero.");
+    add("error", "INVALID_CALORIES", `${path}.calories`, tr("Calories must be above zero.", "Kalorien müssen über null liegen."));
   }
   if (rx.breaths !== void 0 && !isPositiveInt(rx.breaths)) {
-    add("error", "INVALID_BREATHS", `${path}.breaths`, "Breaths must be a whole number above zero.");
+    add("error", "INVALID_BREATHS", `${path}.breaths`, tr("Breaths must be a whole number above zero.", "Atemzüge müssen eine ganze Zahl über null sein."));
   }
   if (rx.restSeconds !== void 0 && !(typeof rx.restSeconds === "number" && rx.restSeconds >= 0)) {
-    add("error", "INVALID_REST", `${path}.restSeconds`, "Rest cannot be negative.");
+    add("error", "INVALID_REST", `${path}.restSeconds`, tr("Rest cannot be negative.", "Die Pause kann nicht negativ sein."));
   }
   if (rx.side !== void 0 && !["left", "right", "both"].includes(rx.side)) {
-    add("error", "INVALID_SIDE", `${path}.side`, "Side must be left, right or both.");
+    add("error", "INVALID_SIDE", `${path}.side`, tr("Side must be left, right or both.", "Die Seite muss links, rechts oder beide sein."));
   }
   if (rx.load !== void 0) {
     if (rx.load.unit !== "kg" && rx.load.unit !== "percent_1rm") {
-      add("error", "INVALID_UNIT", `${path}.load.unit`, "Load must be in kg or percent of 1RM.");
+      add("error", "INVALID_UNIT", `${path}.load.unit`, tr("Load must be in kg or percent of 1RM.", "Die Last muss in kg oder Prozent des 1RM angegeben sein."));
     } else if (!isPositive(rx.load.value)) {
-      add("error", "INVALID_LOAD", `${path}.load.value`, "Load must be above zero.");
+      add("error", "INVALID_LOAD", `${path}.load.value`, tr("Load must be above zero.", "Die Last muss über null liegen."));
     } else if (rx.load.unit === "percent_1rm") {
-      if (rx.load.value > 200) add("error", "INVALID_LOAD", `${path}.load.value`, "Percent of 1RM cannot exceed 200.");
-      else if (rx.load.value > 100) add("warning", "HIGH_INTENSITY", `${path}.load.value`, "This is above 100% of 1RM. Review the proposed intensity.");
+      if (rx.load.value > 200) add("error", "INVALID_LOAD", `${path}.load.value`, tr("Percent of 1RM cannot exceed 200.", "Prozent des 1RM können 200 nicht überschreiten."));
+      else if (rx.load.value > 100) add("warning", "HIGH_INTENSITY", `${path}.load.value`, tr("This is above 100% of 1RM. Review the proposed intensity.", "Das liegt über 100 % des 1RM. Prüfe die vorgeschlagene Intensität."));
     } else if (rx.load.value > 500) {
-      add("warning", "IMPLAUSIBLE_LOAD", `${path}.load.value`, "That is heavier than 500 kg.");
+      add("warning", "IMPLAUSIBLE_LOAD", `${path}.load.value`, tr("That is heavier than 500 kg.", "Das ist schwerer als 500 kg."));
     }
   }
   if (rx.intensity !== void 0) {
     if (!INTENSITY_TYPES.includes(rx.intensity.type)) {
-      add("error", "INVALID_UNIT", `${path}.intensity.type`, "Unknown intensity type.");
+      add("error", "INVALID_UNIT", `${path}.intensity.type`, tr("Unknown intensity type.", "Unbekannte Art von Intensität."));
     } else if (!isPositive(rx.intensity.value)) {
-      add("error", "INVALID_INTENSITY", `${path}.intensity.value`, "Intensity must be above zero.");
+      add("error", "INVALID_INTENSITY", `${path}.intensity.value`, tr("Intensity must be above zero.", "Die Intensität muss über null liegen."));
     } else if (rx.intensity.type === "rpe" && rx.intensity.value > 10) {
-      add("error", "INVALID_INTENSITY", `${path}.intensity.value`, "RPE runs from 1 to 10.");
+      add("error", "INVALID_INTENSITY", `${path}.intensity.value`, tr("RPE runs from 1 to 10.", "RPE reicht von 1 bis 10."));
     } else if (rx.intensity.type === "hr_zone" && (rx.intensity.value > 5 || !Number.isInteger(rx.intensity.value))) {
-      add("error", "INVALID_INTENSITY", `${path}.intensity.value`, "Heart-rate zones run from 1 to 5.");
+      add("error", "INVALID_INTENSITY", `${path}.intensity.value`, tr("Heart-rate zones run from 1 to 5.", "Herzfrequenzzonen reichen von 1 bis 5."));
     } else if (rx.intensity.type === "ftp_percent" && rx.intensity.value > 150) {
-      add("warning", "HIGH_INTENSITY", `${path}.intensity.value`, "This is above 150% of FTP. Review the proposed intensity.");
+      add("warning", "HIGH_INTENSITY", `${path}.intensity.value`, tr("This is above 150% of FTP. Review the proposed intensity.", "Das liegt über 150 % der FTP. Prüfe die vorgeschlagene Intensität."));
     }
   }
 }
@@ -2786,7 +4075,7 @@ function toFood([id, name, kcal, protein, carbs, fat, fiber, sugar, sodium, serv
   if (extra?.caffeine !== void 0) nutrients.caffeine_mg = extra.caffeine;
   return {
     id: `catalog:${id}`,
-    name,
+    name: language === "de" ? FOOD_NAMES_DE[id] ?? name : name,
     basis: extra?.basis ?? "per_100g",
     nutrients,
     servings,

@@ -1,3 +1,4 @@
+import { tr } from '../i18n/tr';
 import type { Benchmark } from '../athlete/model';
 import type { ExternalActivity } from '../health/model';
 import type { FoodLogEntry } from '../nutrition/model';
@@ -82,7 +83,7 @@ function evidenceFor(goal: Goal, input: ProgressInputs, notes: string[]): Eviden
     case 'one_rep_max': {
       const fromBenchmarks = input.benchmarks
         .filter((b) => !b.deletedAt && b.kind === 'one_rep_max' && b.activityId === m.activityId)
-        .map((b): Evidence => ({ date: b.measuredOn, value: b.value, source: 'benchmark', label: `1RM benchmark (${b.source})`, ref: { type: 'benchmark', id: b.id } }));
+        .map((b): Evidence => ({ date: b.measuredOn, value: b.value, source: 'benchmark', label: tr(`1RM benchmark (${b.source})`, `1RM-Referenzwert (${b.source})`), ref: { type: 'benchmark', id: b.id } }));
       const fromSessions: Evidence[] = [];
       let multiRep = 0;
       for (const s of done) {
@@ -92,18 +93,18 @@ function evidenceFor(goal: Goal, input: ProgressInputs, notes: string[]): Eviden
           for (const r of br.stepResults) {
             if (!ids.has(r.stepId) || !r.completed || !(typeof r.loadKg === 'number' && r.loadKg > 0)) continue;
             // A heavy set of several reps is not a one-rep max; it is not estimated into one either.
-            if (r.reps === 1) fromSessions.push({ date: localDate(s.startedAt), value: r.loadKg, source: 'session', label: `Single in ${s.prescribed.title}`, ref: { type: 'session', id: s.id } });
+            if (r.reps === 1) fromSessions.push({ date: localDate(s.startedAt), value: r.loadKg, source: 'session', label: tr(`Single in ${s.prescribed.title}`, `Einzelwiederholung in ${s.prescribed.title}`), ref: { type: 'session', id: s.id } });
             else multiRep++;
           }
         }
       }
-      if (multiRep) notes.push(`${multiRep} logged ${multiRep === 1 ? 'set' : 'sets'} with more than one rep ${multiRep === 1 ? 'is' : 'are'} not counted as a one-rep max.`);
+      if (multiRep) notes.push(tr(`${multiRep} logged ${multiRep === 1 ? 'set' : 'sets'} with more than one rep ${multiRep === 1 ? 'is' : 'are'} not counted as a one-rep max.`, `${multiRep} ${multiRep === 1 ? 'erfasster Satz' : 'erfasste Sätze'} mit mehr als einer Wiederholung ${multiRep === 1 ? 'zählt' : 'zählen'} nicht als One-Rep-Max.`));
       return [...fromBenchmarks, ...fromSessions];
     }
     case 'benchmark': {
       const list = input.benchmarks.filter((b) => !b.deletedAt && b.kind === m.benchmark);
       const methods = new Set(list.map((b) => b.source));
-      if (methods.size > 1) notes.push(`These values come from different methods (${[...methods].join(', ')}); compare them with care.`);
+      if (methods.size > 1) notes.push(tr(`These values come from different methods (${[...methods].join(', ')}); compare them with care.`, `Diese Werte stammen aus verschiedenen Methoden (${[...methods].join(', ')}); vergleiche sie mit Vorsicht.`));
       return list.map((b) => ({ date: b.measuredOn, value: b.value, source: 'benchmark' as const, label: `${m.benchmark === 'ftp' ? 'FTP' : 'Pace'} (${b.source})`, ref: { type: 'benchmark' as const, id: b.id } }));
     }
     case 'distance_time': {
@@ -111,7 +112,7 @@ function evidenceFor(goal: Goal, input: ProgressInputs, notes: string[]): Eviden
       let other = 0;
       for (const a of input.activities) {
         if (a.deletedAt || a.status === 'duplicate' || a.status === 'ignored' || a.sport !== m.sport || !a.distanceMeters) continue;
-        if (near(a.distanceMeters, m.meters)) out.push({ date: localDate(a.startedAt), value: a.elapsedSeconds, source: 'activity', label: `${Math.round(a.distanceMeters)} m recorded`, ref: { type: 'activity', id: a.id } });
+        if (near(a.distanceMeters, m.meters)) out.push({ date: localDate(a.startedAt), value: a.elapsedSeconds, source: 'activity', label: tr(`${Math.round(a.distanceMeters)} m recorded`, `${Math.round(a.distanceMeters)} m aufgezeichnet`), ref: { type: 'activity', id: a.id } });
         else other++;
       }
       for (const s of done) {
@@ -122,12 +123,12 @@ function evidenceFor(goal: Goal, input: ProgressInputs, notes: string[]): Eviden
           else other++;
         }
       }
-      if (out.length > 1) notes.push('Routes, pools and conditions may differ between these efforts, so small differences may not mean a change in fitness.');
-      if (other) notes.push(`${other} ${other === 1 ? 'effort' : 'efforts'} over other distances ${other === 1 ? 'is' : 'are'} not compared, and no time is estimated from them.`);
+      if (out.length > 1) notes.push(tr('Routes, pools and conditions may differ between these efforts, so small differences may not mean a change in fitness.', 'Strecken, Becken und Bedingungen können sich zwischen diesen Einheiten unterscheiden; kleine Unterschiede bedeuten daher nicht unbedingt eine veränderte Fitness.'));
+      if (other) notes.push(tr(`${other} ${other === 1 ? 'effort' : 'efforts'} over other distances ${other === 1 ? 'is' : 'are'} not compared, and no time is estimated from them.`, `${other} ${other === 1 ? 'Einheit' : 'Einheiten'} über andere Strecken ${other === 1 ? 'wird' : 'werden'} nicht verglichen, und daraus wird keine Zeit geschätzt.`));
       return out;
     }
     case 'event':
-      return goal.completedOn ? [{ date: goal.completedOn, value: 1, source: 'athlete', label: `Finished ${m.name}` }] : [];
+      return goal.completedOn ? [{ date: goal.completedOn, value: 1, source: 'athlete', label: tr(`Finished ${m.name}`, `${m.name} beendet`) }] : [];
     case 'rehab_stage':
       return input.decisions
         .filter((d) => d.episodeId === m.episodeId && d.clinician.verified)
@@ -154,19 +155,19 @@ export function goalProgress(goal: Goal, input: ProgressInputs): Progress {
     const recent = weeks.slice(-4);
     const current = recent.length ? recent.reduce((s, w) => s + w.count, 0) / recent.length : undefined;
     const unit = m.kind === 'sessions_per_week' ? 'sessions' : 'days logged';
-    const summary = weeks.length ? `${met} of ${weeks.length} full ${weeks.length === 1 ? 'week' : 'weeks'} at ${target} or more ${unit}.` : 'The first full week is still running.';
+    const summary = weeks.length ? `${met} of ${weeks.length} full ${weeks.length === 1 ? 'week' : 'weeks'} at ${target} or more ${unit}.` : tr('The first full week is still running.', 'Die erste volle Woche läuft noch.');
     return { evidence: [], current, fraction: weeks.length ? met / weeks.length : undefined, achieved: false, weeks, notes, milestonesReached: [], summary };
   }
 
   const evidence = evidenceFor(goal, input, notes).sort((a, b) => (a.date < b.date ? -1 : 1));
   if (!evidence.length) {
-    const summary = m.kind === 'rehab_stage' ? 'No decision recorded by a verified clinician yet.' : m.kind === 'event' ? 'Not finished yet.' : 'No comparable result yet.';
+    const summary = m.kind === 'rehab_stage' ? tr('No decision recorded by a verified clinician yet.', 'Noch keine Entscheidung einer verifizierten Fachperson erfasst.') : m.kind === 'event' ? tr('Not finished yet.', 'Noch nicht beendet.') : tr('No comparable result yet.', 'Noch kein vergleichbares Ergebnis.');
     return { evidence, achieved: false, notes, milestonesReached: [], summary };
   }
 
   if (dir === 'reach') {
     const achieved = m.kind === 'event' ? true : evidence.some((e) => e.value >= STAGE_RANK[(m as { stage: RtsStage }).stage]);
-    return { evidence, achieved, notes, milestonesReached: [], summary: achieved ? 'Reached.' : 'Not reached yet.' };
+    return { evidence, achieved, notes, milestonesReached: [], summary: achieved ? tr('Reached.', 'Erreicht.') : tr('Not reached yet.', 'Noch nicht erreicht.') };
   }
 
   // Benchmarks describe where the athlete is now: the latest counts. Performances count by the best.
@@ -179,7 +180,7 @@ export function goalProgress(goal: Goal, input: ProgressInputs): Progress {
     fraction = Math.max(0, Math.min(1, raw));
   }
   const latest = evidence[evidence.length - 1];
-  if (input.nowMs - new Date(`${latest.date}T12:00:00`).getTime() > 56 * DAY) notes.push('No new comparable result in the last 8 weeks; a benchmark session would show where you are now.');
+  if (input.nowMs - new Date(`${latest.date}T12:00:00`).getTime() > 56 * DAY) notes.push(tr('No new comparable result in the last 8 weeks; a benchmark session would show where you are now.', 'Kein neues vergleichbares Ergebnis in den letzten 8 Wochen; ein Test würde zeigen, wo du jetzt stehst.'));
   const milestonesReached = goal.milestones.filter((ms) => ms.value !== undefined && better(current, ms.value)).map((ms) => ms.id);
   const n = evidence.length;
   const summary = `${m.kind === 'benchmark' ? 'Latest' : 'Best'}: ${formatGoalValue(m, current)}${goal.target !== undefined ? `, target ${formatGoalValue(m, goal.target)}` : ''}. Based on ${n} ${n === 1 ? 'result' : 'results'}.`;

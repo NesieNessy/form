@@ -1,3 +1,4 @@
+import { tr } from '../i18n/tr';
 /**
  * Movement analysis (docs/concepts/07-stage-5-movement-analysis.md).
  * Coaching observations about what is visible in a clip, from a small
@@ -18,28 +19,28 @@ export type Movement = {
 export const MOVEMENTS: Movement[] = [
   {
     id: 'bodyweight_squat',
-    name: 'Bodyweight Squat',
+    name: tr('Bodyweight Squat', 'Kniebeuge ohne Gewicht'),
     views: [
       {
         view: 'side',
-        title: 'From the side',
+        title: tr('From the side', 'Von der Seite'),
         guide: [
-          'Phone at hip height, about 3 metres away, side-on to you.',
-          'Your whole body in the picture, head to feet, in every repetition.',
-          'Good light from the front or above, not behind you.',
-          'Fitted clothing helps the hips and knees show clearly.',
-          'Do 3 to 8 squats at your normal pace.',
+          tr('Phone at hip height, about 3 metres away, side-on to you.', 'Telefon auf Hüfthöhe, etwa 3 Meter entfernt, seitlich zu dir.'),
+          tr('Your whole body in the picture, head to feet, in every repetition.', 'Dein ganzer Körper im Bild, von Kopf bis Fuß, in jeder Wiederholung.'),
+          tr('Good light from the front or above, not behind you.', 'Gutes Licht von vorn oder oben, nicht hinter dir.'),
+          tr('Fitted clothing helps the hips and knees show clearly.', 'Eng anliegende Kleidung lässt Hüfte und Knie gut erkennen.'),
+          tr('Do 3 to 8 squats at your normal pace.', 'Mach 3 bis 8 Kniebeugen in deinem normalen Tempo.'),
         ],
       },
       {
         view: 'front',
-        title: 'From the front',
+        title: tr('From the front', 'Von vorn'),
         guide: [
-          'Phone at hip height, about 3 metres away, facing you.',
-          'Your whole body in the picture, head to feet, in every repetition.',
-          'Good light from the front or above, not behind you.',
-          'Feet visible on the floor; nothing in front of your legs.',
-          'Do 3 to 8 squats at your normal pace.',
+          tr('Phone at hip height, about 3 metres away, facing you.', 'Telefon auf Hüfthöhe, etwa 3 Meter entfernt, dir zugewandt.'),
+          tr('Your whole body in the picture, head to feet, in every repetition.', 'Dein ganzer Körper im Bild, von Kopf bis Fuß, in jeder Wiederholung.'),
+          tr('Good light from the front or above, not behind you.', 'Gutes Licht von vorn oder oben, nicht hinter dir.'),
+          tr('Feet visible on the floor; nothing in front of your legs.', 'Füße sichtbar auf dem Boden; nichts vor deinen Beinen.'),
+          tr('Do 3 to 8 squats at your normal pace.', 'Mach 3 bis 8 Kniebeugen in deinem normalen Tempo.'),
         ],
       },
     ],
@@ -55,31 +56,31 @@ export type ObservationLabel = (typeof OBSERVATION_LABELS)[number];
 export type Confidence = 'low' | 'moderate' | 'high';
 
 export const OBSERVATION_TITLE: Record<ObservationLabel, string> = {
-  repetitions: 'Repetitions',
-  depth: 'Depth',
-  depth_consistency: 'Depth from rep to rep',
-  torso_lean: 'Torso angle',
-  heel_lift: 'Heels',
-  tempo: 'Tempo',
-  knee_tracking: 'Knee path',
-  hip_symmetry: 'Hip level',
+  repetitions: tr('Repetitions', 'Wiederholungen'),
+  depth: tr('Depth', 'Tiefe'),
+  depth_consistency: tr('Depth from rep to rep', 'Tiefe von Wiederholung zu Wiederholung'),
+  torso_lean: tr('Torso angle', 'Oberkörperwinkel'),
+  heel_lift: tr('Heels', 'Fersen'),
+  tempo: tr('Tempo', 'Tempo'),
+  knee_tracking: tr('Knee path', 'Kniebahn'),
+  hip_symmetry: tr('Hip level', 'Hüfthöhe'),
 };
 
 /** Why footage could not be used, or what limits it. */
 export const LIMITATIONS = {
-  too_short: 'The clip is shorter than 3 seconds.',
-  low_frame_rate: 'Too few frames per second to follow the movement.',
-  person_not_found: 'No person was found in most of the clip.',
-  person_missing_in_parts: 'The person was not found in parts of the clip.',
-  key_joints_not_visible: 'Hips, knees or ankles could not be seen clearly.',
-  partial_occlusion: 'Some joints were hard to see, so confidence is lower.',
-  body_out_of_frame: 'Part of the body left the picture.',
-  camera_view_mismatch: 'The camera angle does not match the chosen view.',
-  camera_view_unclear: 'The camera angle is between side and front, so confidence is lower.',
-  no_repetitions_found: 'No squat repetitions were found.',
-  too_few_repetitions: 'Fewer than 2 repetitions, which is not enough to compare.',
-  feet_not_clear: 'The feet were not clear enough to say anything about the heels.',
-  trimmed_to_60_seconds: 'Only the first 60 seconds were analysed.',
+  too_short: tr('The clip is shorter than 3 seconds.', 'Der Clip ist kürzer als 3 Sekunden.'),
+  low_frame_rate: tr('Too few frames per second to follow the movement.', 'Zu wenige Bilder pro Sekunde, um der Bewegung zu folgen.'),
+  person_not_found: tr('No person was found in most of the clip.', 'In den meisten Teilen des Clips wurde keine Person gefunden.'),
+  person_missing_in_parts: tr('The person was not found in parts of the clip.', 'In Teilen des Clips wurde die Person nicht gefunden.'),
+  key_joints_not_visible: tr('Hips, knees or ankles could not be seen clearly.', 'Hüfte, Knie oder Sprunggelenke waren nicht klar zu sehen.'),
+  partial_occlusion: tr('Some joints were hard to see, so confidence is lower.', 'Einige Gelenke waren schwer zu sehen, daher ist die Sicherheit geringer.'),
+  body_out_of_frame: tr('Part of the body left the picture.', 'Ein Teil des Körpers war nicht mehr im Bild.'),
+  camera_view_mismatch: tr('The camera angle does not match the chosen view.', 'Der Kamerawinkel passt nicht zur gewählten Perspektive.'),
+  camera_view_unclear: tr('The camera angle is between side and front, so confidence is lower.', 'Der Kamerawinkel liegt zwischen seitlich und frontal, daher ist die Sicherheit geringer.'),
+  no_repetitions_found: tr('No squat repetitions were found.', 'Es wurden keine Kniebeugen gefunden.'),
+  too_few_repetitions: tr('Fewer than 2 repetitions, which is not enough to compare.', 'Weniger als 2 Wiederholungen, das reicht nicht für einen Vergleich.'),
+  feet_not_clear: tr('The feet were not clear enough to say anything about the heels.', 'Die Füße waren nicht deutlich genug, um etwas über die Fersen zu sagen.'),
+  trimmed_to_60_seconds: tr('Only the first 60 seconds were analysed.', 'Nur die ersten 60 Sekunden wurden analysiert.'),
 } as const;
 export type Limitation = keyof typeof LIMITATIONS;
 
@@ -98,8 +99,8 @@ export type Analysis = {
   observations: Observation[];
 };
 
-export const CANNOT_ASSESS = 'Cannot assess this clip reliably.';
-export const NOT_A_DIAGNOSIS = 'These are observations about what the camera could see, not a diagnosis or an injury assessment. Camera angle, clothing and light all affect them.';
+export const CANNOT_ASSESS = tr('Cannot assess this clip reliably.', 'Dieser Clip lässt sich nicht verlässlich beurteilen.');
+export const NOT_A_DIAGNOSIS = tr('These are observations about what the camera could see, not a diagnosis or an injury assessment. Camera angle, clothing and light all affect them.', 'Das sind Beobachtungen zu dem, was die Kamera sehen konnte, keine Diagnose und keine Einschätzung von Verletzungen. Kamerawinkel, Kleidung und Licht beeinflussen sie.');
 
 /** One video frame's pose: normalized image coordinates (0 to 1) and visibility, or null when nobody was found. */
 export type Point = { x: number; y: number; v: number };

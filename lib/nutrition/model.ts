@@ -1,3 +1,4 @@
+import { tr } from '../i18n/tr';
 /**
  * Nutrition tracking (docs/concepts/nutrition_training_tracking_concept_en.md).
  *
@@ -14,14 +15,14 @@ export type Nutrients = Partial<Record<NutrientKey, number | null>>;
 export type NutrientMeta = { label: string; unit: 'kcal' | 'g' | 'mg'; decimals: number; /** Upper plausibility bound per 100 g or 100 ml. */ maxPer100: number };
 
 export const NUTRIENTS: Record<NutrientKey, NutrientMeta> = {
-  energy_kcal: { label: 'Energy', unit: 'kcal', decimals: 0, maxPer100: 900 },
-  protein_g: { label: 'Protein', unit: 'g', decimals: 1, maxPer100: 100 },
-  carbohydrate_g: { label: 'Carbohydrate', unit: 'g', decimals: 1, maxPer100: 100 },
-  fat_g: { label: 'Fat', unit: 'g', decimals: 1, maxPer100: 100 },
-  fiber_g: { label: 'Fiber', unit: 'g', decimals: 1, maxPer100: 100 },
-  sugar_g: { label: 'Sugar', unit: 'g', decimals: 1, maxPer100: 100 },
-  sodium_mg: { label: 'Sodium', unit: 'mg', decimals: 0, maxPer100: 40_000 },
-  caffeine_mg: { label: 'Caffeine', unit: 'mg', decimals: 0, maxPer100: 5_000 },
+  energy_kcal: { label: tr('Energy', 'Energie'), unit: 'kcal', decimals: 0, maxPer100: 900 },
+  protein_g: { label: tr('Protein', 'Eiweiß'), unit: 'g', decimals: 1, maxPer100: 100 },
+  carbohydrate_g: { label: tr('Carbohydrate', 'Kohlenhydrate'), unit: 'g', decimals: 1, maxPer100: 100 },
+  fat_g: { label: tr('Fat', 'Fett'), unit: 'g', decimals: 1, maxPer100: 100 },
+  fiber_g: { label: tr('Fiber', 'Ballaststoffe'), unit: 'g', decimals: 1, maxPer100: 100 },
+  sugar_g: { label: tr('Sugar', 'Zucker'), unit: 'g', decimals: 1, maxPer100: 100 },
+  sodium_mg: { label: tr('Sodium', 'Natrium'), unit: 'mg', decimals: 0, maxPer100: 40_000 },
+  caffeine_mg: { label: tr('Caffeine', 'Koffein'), unit: 'mg', decimals: 0, maxPer100: 5_000 },
 };
 
 export const NUTRIENT_ORDER: NutrientKey[] = ['energy_kcal', 'protein_g', 'carbohydrate_g', 'fat_g', 'fiber_g', 'sugar_g', 'sodium_mg', 'caffeine_mg'];
@@ -59,13 +60,13 @@ export type Food = {
 export type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack' | 'pre_workout' | 'during_workout' | 'post_workout';
 
 export const MEAL_TYPES: { key: MealType; label: string }[] = [
-  { key: 'breakfast', label: 'Breakfast' },
-  { key: 'lunch', label: 'Lunch' },
-  { key: 'dinner', label: 'Dinner' },
-  { key: 'snack', label: 'Snack' },
-  { key: 'pre_workout', label: 'Before training' },
-  { key: 'during_workout', label: 'During training' },
-  { key: 'post_workout', label: 'After training' },
+  { key: 'breakfast', label: tr('Breakfast', 'Frühstück') },
+  { key: 'lunch', label: tr('Lunch', 'Mittagessen') },
+  { key: 'dinner', label: tr('Dinner', 'Abendessen') },
+  { key: 'snack', label: tr('Snack', 'Snack') },
+  { key: 'pre_workout', label: tr('Before training', 'Vor dem Training') },
+  { key: 'during_workout', label: tr('During training', 'Während des Trainings') },
+  { key: 'post_workout', label: tr('After training', 'Nach dem Training') },
 ];
 
 export type QuantityUnit = 'g' | 'ml' | 'serving';

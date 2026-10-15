@@ -58,7 +58,7 @@ export default function RehabScreen() {
             }}
           />
         ) : (
-          <GradientButton label={strings.noteInjury} icon={<Icons.plus size={16} color="#fff" strokeWidth={iconStrokeWidth} />} onPress={() => setAdding(true)} />
+          <GradientButton label={strings.noteInjury} icon={<Icons.plus size={16} color={colors.onAction} strokeWidth={iconStrokeWidth} />} onPress={() => setAdding(true)} />
         )}
       </ScrollView>
     </View>

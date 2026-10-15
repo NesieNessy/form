@@ -1,3 +1,4 @@
+import { WEEKDAYS_SHORT } from '@/lib/i18n/tr';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -78,7 +79,7 @@ export default function SharedAthleteScreen() {
             <Line label={strings.yourEquipment} value={ctx.profile.equipment.join(', ') || strings.notSet} />
             <Line
               label={strings.usualTrainingDays}
-              value={ctx.profile.availableDays.map((d) => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d]).join(', ') || strings.notSet}
+              value={ctx.profile.availableDays.map((d) => WEEKDAYS_SHORT[d]).join(', ') || strings.notSet}
             />
             <Line label={strings.weeklyGoal} value={`${ctx.profile.weeklySessionTarget} ${strings.sessionsPerWeek}`} />
           </Card>

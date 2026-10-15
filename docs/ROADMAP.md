@@ -286,24 +286,34 @@ Requested on 2026-10-14. The design it follows is Step 14. Each step so far adde
 
 ## Step 14 — App design: the FORM design system and frontend architecture
 
-Requested on 2026-10-14. Source: [11-frontend-ux-ui-architecture](concepts/11-frontend-ux-ui-architecture.md), [12-form-brand-design-system](concepts/12-form-brand-design-system.md), [form-design-tokens.css](concepts/form-design-tokens.css). This is the design that Step 13's polish is built on. Do the token and component work here first, then the Step 13 screen work against it.
+Requested on 2026-10-14. Source: [11-frontend-ux-ui-architecture](concepts/11-frontend-ux-ui-architecture.md), [12-form-brand-design-system](concepts/12-form-brand-design-system.md), [form-design-tokens.css](concepts/form-design-tokens.css). This is the design that Step 13's polish is built on. Step 14 runs first (decided 2026-10-14), then Step 13 against it.
 
-Where the code differs today: `theme/colors.ts` has a dark-only palette with its own five-colour gradient (not the logo's seven stops), every primary button is a `GradientButton`, there is no light mode, all text is English, and there is no professional desktop layout.
+Where the code started: a dark-only palette with its own five-colour gradient, every primary button a gradient, no light mode, English only, and no professional desktop layout.
 
-- [ ] Tokens: replace `theme/colors.ts` with the layered tokens from the spec. The brand primitives are the seven exact logo stops. Light and dark semantic tokens follow (canvas, surface, raised, text, muted, border, action, focus, success, warning, danger, info), then component tokens. Spacing uses the 4 px scale, radii are 8/12/16, and the type scale is the one in the spec.
-- [ ] Theme: light, dark and system modes with a setting under Profile. The device setting is the default. Respect reduced motion and large text.
-- [ ] Buttons: primary actions become solid action blue. The gradient is kept for the logo, onboarding, completion moments and thin accent rules only. Destructive actions use danger styling. Retire the gradient as the default button and the per-sport accent colours on data.
-- [ ] Numbers: tabular numerals for timers, pace, heart rate, load, watts and nutrition. Large legible timer (56–88 px) and 48–56 px player controls.
+- [x] Tokens: replace `theme/colors.ts` with the layered tokens from the spec. The brand primitives are the seven exact logo stops. Light and dark semantic tokens follow (canvas, surface, raised, text, muted, border, action, focus, success, warning, danger, info), then component tokens. Spacing uses the 4 px scale, radii are 8/12/16, and the type scale is the one in the spec.
+- [x] Theme: light, dark and system modes under More → Appearance & Language (`app/settings.tsx`), with the device setting as the default. The theme is read once at start-up (`lib/preferences*.ts`). The web app reloads when it changes, and phones apply it on the next launch, because screen styles are built when each screen loads.
+- [x] Buttons: primary actions become solid action blue. The gradient is kept for the logo, onboarding, completion moments and thin accent rules only. Destructive actions use danger styling. Retire the gradient as the default button and the per-sport accent colours on data.
+- [x] Numbers: tabular numerals for timers and metric styles (`tabular` and `typography.metric`), and a 68 px player clock. Buttons are at least 48 px high.
 - [ ] Provenance: one shared label for measured, device-estimated, calculated, self-reported and AI-suggested values, used on health, recovery, nutrition and goals.
 - [ ] Status never by colour alone: planned, completed, skipped, warnings and recovery states also carry a label, icon or pattern.
-- [ ] Athlete navigation: settle the tab bar. The blueprint names both Today · Train · Progress · Health · More and Today · Train · Plan · Insights · Profile, so this needs a decision. Nutrition, rehab, goals and Ask FORM become contextual shortcuts on Today.
+- [ ] Athlete navigation: Today · Train · Progress · Health · More (decided 2026-10-14). Nutrition, rehab, goals and Ask FORM become contextual shortcuts on Today.
 - [ ] AI proposal pattern: one shared draft card with summary, sources, assumptions and a before/after diff, plus the job states (working, needs clarification, draft ready, validation issues, awaiting approval, applied or failed). Use it for import, adaptation, meal parsing and chat drafts.
 - [ ] Professional workspace: a workspace switcher (personal, coach, physio) with the client context header (who is viewing whose data, and why) and Request access in place of tabs that are not shared. Add a wider desktop layout for coach and physio screens.
 - [ ] Edge states as designed flows, per section 12 of the blueprint: no wearable, stale data, revoked access while open, offline session, unknown exercise, time-zone mismatch, and the others listed there.
-- [ ] Localisation groundwork: move `lib/strings.ts` to a keyed catalogue with English and German, with locale-aware number, date and unit formats.
+- [x] English and German (decided 2026-10-14):
+  - Catalogues: `lib/i18n/en.ts` and `lib/i18n/de.ts`. The compiler requires every key in both.
+  - Library text uses `tr(en, de)`: server error messages, validation, the movement vocabulary, rehab, goal, recovery and nutrition texts, and the exercise and food names. In German the English exercise name stays a search synonym.
+  - Dates use `locale` and `timeLocale` (24-hour), and weekday names are localised.
+  - Language setting next to the theme; the default follows the device.
+  - Tests run in English (the e2e browser is pinned to en-US).
 - [ ] Privacy blur for sensitive previews (health, rehab, nutrition) with an explicit reveal.
-- [ ] Checks: automated contrast tests on the computed token pairs in both themes, axe checks on the web build, keyboard-only paths, a 320 px width and 200 % text, and screenshots of key screens in both themes in the e2e suite.
+- [ ] Checks: contrast tests on the token pairs in both themes are done (`theme/contrast.test.ts`: text 4.5:1 on every surface, button labels 4.5:1, strong borders 3:1). Still to do:, axe checks on the web build, keyboard-only paths, a 320 px width and 200 % text, and screenshots of key screens in both themes in the e2e suite.
 - [ ] Out of scope for this app for now: the monorepo split and separate professional and studio web apps in section 8.1. The blueprint prefers a modular monolith first, which is what the Expo app is.
+Left over within Step 14 after the first pass (2026-10-14):
+
+- [ ] Texts saved with a record are stored in the language of whoever made them (movement observations, goal progress summaries, recovery details), so a coach using the other language reads them untranslated. Render them from their codes instead.
+- [ ] Still English: the sample-data screens and home cards (``lib/mockData.ts``, replaced in Step 13), the preset workouts, and notifications written by the database.
+- [ ] Respect the device's reduced-motion and large-text settings explicitly.
 
 ## Alongside every step
 

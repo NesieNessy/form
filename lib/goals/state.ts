@@ -1,3 +1,4 @@
+import { tr } from '../i18n/tr';
 import { newUuid } from '../id';
 import { mark, type WorkoutData } from '../workout/state';
 import { directionOf, formatGoalValue, type Goal, type GoalMetric, type GoalStatus, type Milestone } from './model';
@@ -23,15 +24,15 @@ export type GoalInput = {
 };
 
 export function checkGoal(input: Pick<GoalInput, 'title' | 'metric' | 'target' | 'targetDate'>, nowMs: number): string | undefined {
-  if (!input.title.trim()) return 'Give the goal a name.';
-  if (input.title.length > 120) return 'Keep the name under 120 characters.';
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(input.targetDate)) return 'Choose a target date.';
-  if (input.targetDate < today(nowMs)) return 'The target date cannot be in the past.';
+  if (!input.title.trim()) return tr('Give the goal a name.', 'Gib dem Ziel einen Namen.');
+  if (input.title.length > 120) return tr('Keep the name under 120 characters.', 'Halte den Namen unter 120 Zeichen.');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(input.targetDate)) return tr('Choose a target date.', 'Wähle ein Zieldatum.');
+  if (input.targetDate < today(nowMs)) return tr('The target date cannot be in the past.', 'Das Zieldatum kann nicht in der Vergangenheit liegen.');
   const needsTarget = !['event', 'rehab_stage'].includes(input.metric.kind);
-  if (needsTarget && !(typeof input.target === 'number' && input.target > 0)) return 'Enter a target above zero.';
-  if (input.metric.kind === 'sessions_per_week' && (input.target ?? 0) > 14) return 'More than 14 sessions a week is not a sensible target.';
-  if (input.metric.kind === 'nutrition_logging' && (input.target ?? 0) > 7) return 'A week has 7 days.';
-  if (input.metric.kind === 'event' && !input.metric.name.trim()) return 'Name the event.';
+  if (needsTarget && !(typeof input.target === 'number' && input.target > 0)) return tr('Enter a target above zero.', 'Gib ein Ziel über null ein.');
+  if (input.metric.kind === 'sessions_per_week' && (input.target ?? 0) > 14) return tr('More than 14 sessions a week is not a sensible target.', 'Mehr als 14 Einheiten pro Woche sind kein sinnvolles Ziel.');
+  if (input.metric.kind === 'nutrition_logging' && (input.target ?? 0) > 7) return tr('A week has 7 days.', 'Eine Woche hat 7 Tage.');
+  if (input.metric.kind === 'event' && !input.metric.name.trim()) return tr('Name the event.', 'Nenne das Event.');
   return undefined;
 }
 
@@ -59,7 +60,7 @@ export function addGoal(data: WorkoutData, input: GoalInput, nowMs: number): Res
 /** Changes a target, date or name. The old values stay in the revision history; nothing is overwritten silently. */
 export function reviseGoal(data: WorkoutData, goalId: string, patch: { title?: string; target?: number; targetDate?: string }, reason: string, nowMs: number): Result<object> {
   const goal = data.goals[goalId];
-  if (!goal || goal.deletedAt) return { ok: false, error: 'This goal no longer exists.' };
+  if (!goal || goal.deletedAt) return { ok: false, error: tr('This goal no longer exists.', 'Dieses Ziel gibt es nicht mehr.') };
   const next = { ...goal, ...patch };
   const error = checkGoal(next, nowMs);
   if (error) return { ok: false, error };
@@ -85,8 +86,8 @@ export function setGoalStatus(data: WorkoutData, goalId: string, status: Exclude
 /** The athlete records finishing an event goal. */
 export function recordEventFinished(data: WorkoutData, goalId: string, date: string, nowMs: number): Result<object> {
   const goal = data.goals[goalId];
-  if (!goal || goal.metric.kind !== 'event') return { ok: false, error: 'Only an event goal is finished this way.' };
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date > today(nowMs)) return { ok: false, error: 'Choose the day you finished it.' };
+  if (!goal || goal.metric.kind !== 'event') return { ok: false, error: tr('Only an event goal is finished this way.', 'Nur ein Event-Ziel wird auf diese Weise beendet.') };
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date > today(nowMs)) return { ok: false, error: tr('Choose the day you finished it.', 'Wähle den Tag, an dem du es geschafft hast.') };
   return { ok: true, data: put(data, { ...goal, completedOn: date, updatedAt: nowMs }) };
 }
 

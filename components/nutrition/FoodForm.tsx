@@ -1,3 +1,4 @@
+import { tr } from '@/lib/i18n/tr';
 import React, { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
@@ -12,12 +13,12 @@ import { strings } from '@/lib/strings';
 import { colors, fontFamily, spacing } from '@/theme/colors';
 
 const FIELDS: { key: NutrientKey; label: string; suffix: string }[] = [
-  { key: 'protein_g', label: 'Protein', suffix: 'g' },
-  { key: 'carbohydrate_g', label: 'Carbohydrate', suffix: 'g' },
-  { key: 'fat_g', label: 'Fat', suffix: 'g' },
-  { key: 'fiber_g', label: 'Fiber', suffix: 'g' },
-  { key: 'sugar_g', label: 'Sugar', suffix: 'g' },
-  { key: 'sodium_mg', label: 'Sodium', suffix: 'mg' },
+  { key: 'protein_g', label: tr('Protein', 'Eiweiß'), suffix: 'g' },
+  { key: 'carbohydrate_g', label: tr('Carbohydrate', 'Kohlenhydrate'), suffix: 'g' },
+  { key: 'fat_g', label: tr('Fat', 'Fett'), suffix: 'g' },
+  { key: 'fiber_g', label: tr('Fiber', 'Ballaststoffe'), suffix: 'g' },
+  { key: 'sugar_g', label: tr('Sugar', 'Zucker'), suffix: 'g' },
+  { key: 'sodium_mg', label: tr('Sodium', 'Natrium'), suffix: 'mg' },
 ];
 
 type Props = {

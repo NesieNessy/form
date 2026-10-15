@@ -1,3 +1,5 @@
+import { WEEKDAY_INITIALS } from '@/lib/i18n/tr';
+import { locale } from '@/lib/strings';
 import React, { useEffect, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { buildMonthGrid, isSameDay } from '@/lib/date';
@@ -11,7 +13,7 @@ type Props = {
   onSelect: (date: Date) => void;
 };
 
-const WEEKDAY_LABELS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+const WEEKDAY_LABELS = WEEKDAY_INITIALS;
 
 export function DatePickerModal({ visible, date, onClose, onSelect }: Props) {
   const [viewMonth, setViewMonth] = useState(() => new Date(date.getFullYear(), date.getMonth(), 1));
@@ -22,7 +24,7 @@ export function DatePickerModal({ visible, date, onClose, onSelect }: Props) {
 
   const today = new Date();
   const days = buildMonthGrid(viewMonth);
-  const monthLabel = viewMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  const monthLabel = viewMonth.toLocaleDateString(locale, { month: 'long', year: 'numeric' });
   const goMonth = (delta: number) => setViewMonth((m) => new Date(m.getFullYear(), m.getMonth() + delta, 1));
 
   return (
@@ -120,9 +122,9 @@ const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap' },
   dayCell: { width: `${100 / 7}%`, aspectRatio: 1, alignItems: 'center', justifyContent: 'center' },
   dayInner: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
-  daySelected: { backgroundColor: colors.blue },
+  daySelected: { backgroundColor: colors.action },
   dayToday: { borderWidth: 1, borderColor: colors.borderStrong },
   dayLabel: { color: colors.text, fontSize: 13, fontFamily: fontFamily.medium },
   dayLabelMuted: { color: colors.textTertiary },
-  dayLabelSelected: { color: '#fff', fontFamily: fontFamily.bold },
+  dayLabelSelected: { color: colors.onAction, fontFamily: fontFamily.bold },
 });

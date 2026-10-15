@@ -1,5 +1,7 @@
 import type { Benchmark, Profile } from '../athlete/model';
 import type { Goal } from '../goals/model';
+import { tr } from '../i18n/tr';
+import { language } from '../strings';
 import { supabase } from '../supabase';
 import {
   rowToBenchmark,
@@ -26,9 +28,9 @@ export type Result<T> = { ok: true; data: T } | { ok: false; error: string };
 export type RelationshipType = 'training_coach' | 'physiotherapist' | 'dietitian';
 
 export const RELATIONSHIP_TYPES: { key: RelationshipType; label: string; purpose: string }[] = [
-  { key: 'training_coach', label: 'Coach', purpose: 'training coaching' },
-  { key: 'physiotherapist', label: 'Physiotherapist', purpose: 'rehabilitation' },
-  { key: 'dietitian', label: 'Dietitian', purpose: 'nutrition coaching' },
+  { key: 'training_coach', label: 'Coach', purpose: tr('training coaching', 'das Trainings-Coaching') },
+  { key: 'physiotherapist', label: tr('Physiotherapist', 'Physiotherapie'), purpose: tr('rehabilitation', 'die Rehabilitation') },
+  { key: 'dietitian', label: tr('Dietitian', 'Ernährungsberatung'), purpose: tr('nutrition coaching', 'die Ernährungsberatung') },
 ];
 
 export function relationshipLabel(type: RelationshipType): string {
@@ -110,7 +112,7 @@ export type SharedContext = {
   summary?: PerformanceSummary;
 };
 
-const MESSAGES: Record<string, string> = {
+const MESSAGES_EN: Record<string, string> = {
   NOT_AUTHENTICATED: 'You need to be signed in.',
   FORBIDDEN: 'You do not have access to that.',
   INVALID_EMAIL: 'Enter a valid email address.',
@@ -162,14 +164,71 @@ const MESSAGES: Record<string, string> = {
   ANALYSIS_NOT_ALLOWED: 'Analysis is switched off for this clip.',
   INVALID_ANALYSIS: 'The analysis could not be saved.',
   SHARE_VIDEO_FIRST: 'Share this clip, and the Video category with this person under Sharing & Privacy, first.',
-  INVALID_TIME: 'The time must be within the clip.',};
+  INVALID_TIME: 'The time must be within the clip.',
+};
+const MESSAGES_DE: Record<string, string> = {
+  NOT_AUTHENTICATED: 'Du musst angemeldet sein.',
+  FORBIDDEN: 'Darauf hast du keinen Zugriff.',
+  INVALID_EMAIL: 'Gib eine gültige E-Mail-Adresse ein.',
+  CANNOT_INVITE_YOURSELF: 'Das ist deine eigene E-Mail-Adresse.',
+  ALREADY_INVITED: 'Mit dieser Adresse gibt es schon eine offene Einladung oder Verbindung.',
+  INVALID_RELATIONSHIP_TYPE: 'Wähle, um welche Art von Fachperson es sich handelt.',
+  INVITE_NOT_VALID: 'Dieser Code gilt nicht für dieses Konto. Prüfe den Code, ob er abgelaufen ist und ob du mit der eingeladenen E-Mail-Adresse angemeldet bist.',
+  RELATIONSHIP_ENDED: 'Diese Verbindung wurde beendet.',
+  CATEGORY_NOT_AVAILABLE: 'Diese Art von Daten kann noch nicht geteilt werden.',
+  EXPIRY_IN_PAST: 'Das Enddatum muss in der Zukunft liegen.',
+  ONLY_COACHES_ASSIGN: 'Nur ein Coach kann Workouts senden.',
+  VERSION_NOT_FOUND: 'Dieses Workout ist noch nicht auf dem Server. Warte auf die Synchronisierung und versuche es erneut.',
+  VERSION_NOT_PUBLISHED: 'Stelle das Workout vor dem Senden fertig; Entwürfe können nicht zugewiesen werden.',
+  DATE_IN_PAST: 'Wähle ein Datum, das nicht in der Vergangenheit liegt.',
+  ASSIGNMENT_ALREADY_DECIDED: 'Dieses Workout wurde bereits angenommen, abgelehnt oder zurückgezogen.',
+  SCHEDULE_REQUIRED: 'Beim Eintragen in deinen Kalender ist etwas schiefgegangen. Versuche es erneut.',
+  INVALID_COMMENT: 'Schreib einen Kommentar mit bis zu 2000 Zeichen.',
+  INVALID_NAME: 'Gib einen Namen mit bis zu 80 Zeichen ein.',
+  INVALID_ROLE: 'Wähle eine Rolle.',
+  NO_STAFF_SEATS: 'Alle Teamplätze sind belegt. Füge Plätze hinzu oder entferne zuerst jemanden.',
+  SEATS_IN_USE: 'Es sind mehr Teamplätze belegt.',
+  INVALID_SEATS: 'Wähle zwischen 1 und 500 Plätzen.',
+  CANNOT_REMOVE_OWNER: 'Die Inhaberin oder der Inhaber kann nicht entfernt werden, und nur sie oder er kann eine Leitung entfernen.',
+  OWNER_CANNOT_LEAVE: 'Die Inhaberin oder der Inhaber kann das eigene Studio nicht verlassen.',
+  NOT_A_MEMBER: 'Diese Person ist nicht in diesem Studio.',
+  INVALID_PLAN: 'Prüfe den Tarif: Ein Kurspaket braucht eine Anzahl Kurse, andere Tarife nicht.',
+  INVALID_PRICE: 'Gib einen Preis von null oder mehr ein.',
+  MEMBERSHIP_ENDED: 'Diese Mitgliedschaft ist beendet.',
+  INVALID_STATUS: 'Wähle einen gültigen Status.',
+  ONLY_OWN_CLASSES: 'Trainerinnen und Trainer planen ihre eigenen Kurse; die Leitung kann für andere planen.',
+  INSTRUCTOR_NOT_STAFF: 'Die Trainerin oder der Trainer muss zum Team des Studios gehören.',
+  INVALID_CLASS: 'Prüfe den Kurs: 10 bis 480 Minuten, 1 bis 500 Plätze, 1 bis 26 Wochen.',
+  CLASS_CANCELLED: 'Dieser Kurs wurde abgesagt.',
+  CLASS_STARTED: 'Dieser Kurs hat schon begonnen.',
+  ALREADY_BOOKED: 'Du bist bereits gebucht oder auf der Warteliste.',
+  NO_ACTIVE_MEMBERSHIP: 'Du brauchst für dieses Datum eine aktive Mitgliedschaft mit verbleibenden Kursen. Frag im Studio nach.',
+  NOT_BOOKED: 'Nur gebuchte Plätze können eingecheckt werden.',
+  TOO_EARLY: 'Die Anwesenheit kann ab 30 Minuten vor dem Kurs erfasst werden.',
+  NOT_STAFF: 'Schichten gibt es nur für das Team.',
+  INVALID_SHIFT: 'Eine Schicht endet nach ihrem Beginn und dauert höchstens 16 Stunden.',
+  SHIFT_OVERLAPS: 'Das überschneidet sich mit einer anderen Schicht dieser Person.',
+  RANGE_TOO_LONG: 'Wähle einen kürzeren Zeitraum.',
+  RECORDING_CONSENT_REQUIRED: 'Bestätige, dass alle im Clip Sichtbaren dem Filmen zugestimmt haben.',
+  INVALID_RETENTION: 'Wähle, wie lange der Clip aufbewahrt wird.',
+  UNSUPPORTED_VIDEO: 'Verwende ein MP4-, MOV- oder WebM-Video.',
+  VIDEO_TOO_LARGE: 'Das Video ist größer als 100 MB. Nimm einen kürzeren Clip auf.',
+  UNKNOWN_MOVEMENT: 'Wähle eine Bewegung und eine Kameraperspektive.',
+  NOT_UPLOADED: 'Der Upload wurde nicht abgeschlossen. Versuche es erneut.',
+  ANALYSIS_NOT_ALLOWED: 'Die Analyse ist für diesen Clip ausgeschaltet.',
+  INVALID_ANALYSIS: 'Die Analyse konnte nicht gespeichert werden.',
+  SHARE_VIDEO_FIRST: 'Teile zuerst diesen Clip und unter Teilen & Datenschutz den Bereich Video mit dieser Person.',
+  INVALID_TIME: 'Die Zeit muss innerhalb des Clips liegen.',
+};
+
+const MESSAGES = language === 'de' ? MESSAGES_DE : MESSAGES_EN;
 
 function friendly(message: string | undefined): string {
-  if (!message) return 'Something went wrong. Try again.';
+  if (!message) return tr('Something went wrong. Try again.', 'Etwas ist schiefgegangen. Versuche es erneut.');
   const code = Object.keys(MESSAGES).find((key) => message.includes(key));
   if (code) return MESSAGES[code];
-  if (/fetch|network/i.test(message)) return 'No connection. Sharing settings need to be online.';
-  return 'Something went wrong. Try again.';
+  if (/fetch|network/i.test(message)) return tr('No connection. This needs to be online.', 'Keine Verbindung. Dafür musst du online sein.');
+  return tr('Something went wrong. Try again.', 'Etwas ist schiefgegangen. Versuche es erneut.');
 }
 
 /** Calls a database function and turns its error codes into messages for people. */

@@ -117,8 +117,8 @@ test('coaching screens explain they need an account', async () => {
 test('deleting device data needs the typed word, then wipes everything', async () => {
   const { page, see, click } = app;
   await click('Delete Data on This Device');
-  await click('Delete Forever'); // nothing typed: nothing happens
-  await page.waitForTimeout(500);
+  // Nothing typed yet: the button is shown as unavailable.
+  await expect(page.getByRole('button', { name: 'Delete Forever' }).filter({ visible: true })).toBeDisabled();
   await see('Type DELETE to confirm.');
   await page.getByPlaceholder('DELETE').fill('DELETE');
   await click('Delete Forever');
