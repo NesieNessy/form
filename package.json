@@ -34,6 +34,7 @@
     "zustand": "^5.0.15"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@electric-sql/pglite": "^0.5.9",
     "@mediapipe/tasks-vision": "^1.1.0",
     "@playwright/test": "^1.64.0",

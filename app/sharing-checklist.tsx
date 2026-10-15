@@ -47,7 +47,7 @@ export default function SharingChecklistScreen() {
         {categories.map((c) => {
           const on = selected.includes(c.id);
           return (
-            <TouchableOpacity key={c.id} onPress={() => toggle(c.id)} activeOpacity={0.8} accessibilityRole="checkbox" accessibilityState={{ checked: on }} accessibilityLabel={c.label}>
+            <TouchableOpacity key={c.id} onPress={() => toggle(c.id)} activeOpacity={0.8} accessibilityRole="checkbox" accessibilityState={{ checked: on }} aria-checked={on} accessibilityLabel={c.label}>
               <Card style={[styles.row, on && styles.rowOn]}>
                 <View style={[styles.box, on && styles.boxOn]} />
                 <View style={{ flex: 1 }}>

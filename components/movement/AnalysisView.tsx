@@ -3,6 +3,7 @@ import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
 import type { ClipAnalysis } from '@/lib/movement/api';
+import { observationText } from '@/lib/movement/describe';
 import { LIMITATIONS, NOT_A_DIAGNOSIS, OBSERVATION_TITLE } from '@/lib/movement/model';
 import { strings } from '@/lib/strings';
 import { colors, fontFamily, radius, spacing } from '@/theme/colors';
@@ -30,7 +31,7 @@ export function AnalysisView({ analysis, onSeek }: { analysis: ClipAnalysis; onS
               <Text style={styles.obsTitle}>{OBSERVATION_TITLE[o.label] ?? o.label}</Text>
               <Text style={styles.meta}>{strings.confidenceLabel[o.confidence]}</Text>
             </View>
-            <Text style={styles.body}>{o.summary}</Text>
+            <Text style={styles.body}>{observationText(o)}</Text>
             {o.timestamps.length && o.label !== 'repetitions' ? (
               <View style={styles.wrap}>
                 {o.timestamps.map((t) => (

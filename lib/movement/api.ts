@@ -17,7 +17,7 @@ export type ClipAnalysis = {
   limitations: Limitation[];
   repetitions: number;
   analysed_seconds: number;
-  observations: { label: ObservationLabel; summary: string; confidence: Confidence; timestamps: number[] }[];
+  observations: { label: ObservationLabel; variant?: string; params?: Record<string, number | string>; summary: string; confidence: Confidence; timestamps: number[] }[];
   created_at: string;
 };
 export type Clip = {

@@ -1,3 +1,4 @@
+import { progressText } from '@/lib/goals/describe';
 import { router, useFocusEffect } from 'expo-router';
 import React, { useCallback } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -57,7 +58,7 @@ export default function ProgressScreen() {
                       <View style={[styles.fill, { width: `${pct}%` }]} />
                     </View>
                   ) : null}
-                  {g.progress ? <Text style={styles.meta}>{g.progress.summary}</Text> : null}
+                  {g.progress ? <Text style={styles.meta}>{progressText(g)}</Text> : null}
                 </TouchableOpacity>
               );
             })}

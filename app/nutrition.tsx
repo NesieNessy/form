@@ -49,11 +49,11 @@ export default function NutritionScreen() {
       <DetailHeader title={strings.nutritionTitle} subtitle={strings.nutritionSubtitle} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <View style={styles.dayRow}>
-          <TouchableOpacity onPress={() => setDate(shiftDate(date, -1))} hitSlop={10} accessibilityLabel={strings.previousDay}>
+          <TouchableOpacity onPress={() => setDate(shiftDate(date, -1))} hitSlop={10} accessibilityRole="button" accessibilityLabel={strings.previousDay}>
             <Icons.chevronLeft size={22} color={colors.text} strokeWidth={iconStrokeWidth} />
           </TouchableOpacity>
           <Text style={styles.dayLabel}>{formatDayLabel(date, today)}</Text>
-          <TouchableOpacity onPress={() => date < today && setDate(shiftDate(date, 1))} hitSlop={10} accessibilityLabel={strings.nextDay} disabled={date >= today}>
+          <TouchableOpacity onPress={() => date < today && setDate(shiftDate(date, 1))} hitSlop={10} accessibilityRole="button" accessibilityLabel={strings.nextDay} disabled={date >= today}>
             <Icons.chevronRight size={22} color={date >= today ? colors.textTertiary : colors.text} strokeWidth={iconStrokeWidth} />
           </TouchableOpacity>
         </View>

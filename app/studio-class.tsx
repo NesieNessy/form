@@ -123,7 +123,7 @@ export default function StudioClassScreen() {
                     style={[s.pill, r.attended === true && { backgroundColor: `${colors.teal}44` }]}
                     onPress={() => void run(() => markAttendance(r.booking_id, r.attended !== true))}
                     accessibilityRole="checkbox"
-                    accessibilityState={{ checked: r.attended === true }}
+                    accessibilityState={{ checked: r.attended === true }} aria-checked={r.attended === true}
                     accessibilityLabel={`${strings.checkIn}: ${r.name ?? ''}`}
                   >
                     <Text style={s.pillText}>{r.attended === true ? strings.attended : r.attended === false ? strings.noShow : strings.checkIn}</Text>

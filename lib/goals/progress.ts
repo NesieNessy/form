@@ -1,3 +1,4 @@
+import { describeProgress, type ProgressCode } from './describe';
 import { tr } from '../i18n/tr';
 import type { Benchmark } from '../athlete/model';
 import type { ExternalActivity } from '../health/model';
@@ -32,6 +33,8 @@ export type Progress = {
   weeks?: WeekCount[];
   notes: string[];
   milestonesReached: string[];
+  /** What the summary says, as data (lib/goals/describe.ts). */
+  code: ProgressCode;
   summary: string;
 };
 
@@ -154,20 +157,20 @@ export function goalProgress(goal: Goal, input: ProgressInputs): Progress {
     const met = weeks.filter((w) => w.met).length;
     const recent = weeks.slice(-4);
     const current = recent.length ? recent.reduce((s, w) => s + w.count, 0) / recent.length : undefined;
-    const unit = m.kind === 'sessions_per_week' ? 'sessions' : 'days logged';
-    const summary = weeks.length ? `${met} of ${weeks.length} full ${weeks.length === 1 ? 'week' : 'weeks'} at ${target} or more ${unit}.` : tr('The first full week is still running.', 'Die erste volle Woche läuft noch.');
-    return { evidence: [], current, fraction: weeks.length ? met / weeks.length : undefined, achieved: false, weeks, notes, milestonesReached: [], summary };
+    const code: ProgressCode = weeks.length ? { kind: 'habit', met, weeks: weeks.length, target, unit: m.kind === 'sessions_per_week' ? 'sessions' : 'days' } : { kind: 'habit_first_week' };
+    return { evidence: [], current, fraction: weeks.length ? met / weeks.length : undefined, achieved: false, weeks, notes, milestonesReached: [], code, summary: describeProgress(code, m) };
   }
 
   const evidence = evidenceFor(goal, input, notes).sort((a, b) => (a.date < b.date ? -1 : 1));
   if (!evidence.length) {
-    const summary = m.kind === 'rehab_stage' ? tr('No decision recorded by a verified clinician yet.', 'Noch keine Entscheidung einer verifizierten Fachperson erfasst.') : m.kind === 'event' ? tr('Not finished yet.', 'Noch nicht beendet.') : tr('No comparable result yet.', 'Noch kein vergleichbares Ergebnis.');
-    return { evidence, achieved: false, notes, milestonesReached: [], summary };
+    const code: ProgressCode = { kind: 'no_evidence', what: m.kind === 'rehab_stage' ? 'rehab' : m.kind === 'event' ? 'event' : 'result' };
+    return { evidence, achieved: false, notes, milestonesReached: [], code, summary: describeProgress(code, m) };
   }
 
   if (dir === 'reach') {
     const achieved = m.kind === 'event' ? true : evidence.some((e) => e.value >= STAGE_RANK[(m as { stage: RtsStage }).stage]);
-    return { evidence, achieved, notes, milestonesReached: [], summary: achieved ? tr('Reached.', 'Erreicht.') : tr('Not reached yet.', 'Noch nicht erreicht.') };
+    const code: ProgressCode = { kind: 'reach', achieved };
+    return { evidence, achieved, notes, milestonesReached: [], code, summary: describeProgress(code, m) };
   }
 
   // Benchmarks describe where the athlete is now: the latest counts. Performances count by the best.
@@ -183,10 +186,10 @@ export function goalProgress(goal: Goal, input: ProgressInputs): Progress {
   if (input.nowMs - new Date(`${latest.date}T12:00:00`).getTime() > 56 * DAY) notes.push(tr('No new comparable result in the last 8 weeks; a benchmark session would show where you are now.', 'Kein neues vergleichbares Ergebnis in den letzten 8 Wochen; ein Test würde zeigen, wo du jetzt stehst.'));
   const milestonesReached = goal.milestones.filter((ms) => ms.value !== undefined && better(current, ms.value)).map((ms) => ms.id);
   const n = evidence.length;
-  const summary = `${m.kind === 'benchmark' ? 'Latest' : 'Best'}: ${formatGoalValue(m, current)}${goal.target !== undefined ? `, target ${formatGoalValue(m, goal.target)}` : ''}. Based on ${n} ${n === 1 ? 'result' : 'results'}.`;
-  return { evidence, current, fraction, achieved, notes, milestonesReached, summary };
+  const code: ProgressCode = { kind: 'value', latest: m.kind === 'benchmark', current, ...(goal.target !== undefined ? { target: goal.target } : {}), n };
+  return { evidence, current, fraction, achieved, notes, milestonesReached, code, summary: describeProgress(code, m) };
 }
 
 export function snapshot(p: Progress, nowMs: number): ProgressSnapshot {
-  return { ...(p.current !== undefined ? { current: p.current } : {}), ...(p.fraction !== undefined ? { fraction: p.fraction } : {}), evidenceCount: p.evidence.length || (p.weeks?.length ?? 0), summary: p.summary, calculatedAt: nowMs };
+  return { ...(p.current !== undefined ? { current: p.current } : {}), ...(p.fraction !== undefined ? { fraction: p.fraction } : {}), evidenceCount: p.evidence.length || (p.weeks?.length ?? 0), code: p.code, summary: p.summary, calculatedAt: nowMs };
 }

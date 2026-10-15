@@ -87,7 +87,16 @@ export type Limitation = keyof typeof LIMITATIONS;
 /** Limitations that make the clip unusable on their own. */
 export const BLOCKING: Limitation[] = ['too_short', 'low_frame_rate', 'person_not_found', 'key_joints_not_visible', 'body_out_of_frame', 'camera_view_mismatch', 'no_repetitions_found', 'too_few_repetitions'];
 
-export type Observation = { label: ObservationLabel; summary: string; confidence: Confidence; timestamps: number[] };
+export type Observation = {
+  label: ObservationLabel;
+  /** Which sentence, with values, so it can be shown in the reader's language (lib/movement/describe.ts). */
+  variant?: string;
+  params?: Record<string, number | string>;
+  /** The sentence in the language it was made in; the fallback for older analyses. */
+  summary: string;
+  confidence: Confidence;
+  timestamps: number[];
+};
 
 export type Analysis = {
   engineVersion: string;

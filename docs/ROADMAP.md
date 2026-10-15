@@ -311,13 +311,18 @@ Where the code started: a dark-only palette with its own five-colour gradient, e
   - Language setting next to the theme; the default follows the device.
   - Tests run in English (the e2e browser is pinned to en-US).
 - [x] Privacy blur: "Hide health values until tapped" under Appearance & Language. While it is on, measurement, recovery, nutrition and symptom values show as dots until tapped.
-- [ ] Checks: contrast tests on the token pairs in both themes are done (`theme/contrast.test.ts`: text 4.5:1 on every surface, button labels 4.5:1, strong borders 3:1). Still to do:, axe checks on the web build, keyboard-only paths, a 320 px width and 200 % text, and screenshots of key screens in both themes in the e2e suite.
+- [x] Checks:
+  - Contrast on the token pairs in both themes (`theme/contrast.test.ts`).
+  - axe (WCAG 2.2 A/AA, serious and critical findings) on nine key screens in both themes (`e2e/a11y.spec.ts`). It found and fixed day arrows with a label but no role, and checkboxes missing `aria-checked` when unticked.
+  - No sideways scrolling at 320 px. This is the WCAG reflow case, equivalent to 400 % zoom at 1280 px.
+  - The main action on Today works by keyboard.
+  - Screenshots of key screens in both themes were checked during this step, not yet stored for comparison.
 - [ ] Out of scope for this app for now: the monorepo split and separate professional and studio web apps in section 8.1. The blueprint prefers a modular monolith first, which is what the Expo app is.
 Left over within Step 14 after the first pass (2026-10-14):
 
-- [ ] Texts saved with a record are stored in the language of whoever made them (movement observations, goal progress summaries, recovery details), so a coach using the other language reads them untranslated. Render them from their codes instead.
+- [x] Saved texts in the reader's language. Movement observations store a variant and values (`lib/movement/describe.ts`), and goal snapshots store a progress code (`lib/goals/describe.ts`), so each reader sees the sentence in their own language. Older records keep their stored sentence. Recovery already stored only codes.
 - [ ] Still English: the sample-data screens and home cards (``lib/mockData.ts``, replaced in Step 13), the preset workouts, and notifications written by the database.
-- [ ] Respect the device's reduced-motion and large-text settings explicitly.
+- [x] Reduced motion: screens switch instead of sliding and toasts appear without fading (`lib/useReducedMotion.ts`). Toasts are announced to screen readers. Large text: nothing turns off font scaling, so the device's text size applies.
 
 ## Alongside every step
 

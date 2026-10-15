@@ -104,7 +104,7 @@ export function BlockResultEditor({ block, result, onChange }: Props) {
                           onPress={() => patchStep(index, { completed: !r.completed })}
                           style={[styles.check, r.completed && styles.checkOn]}
                           accessibilityRole="checkbox"
-                          accessibilityState={{ checked: r.completed }}
+                          accessibilityState={{ checked: r.completed }} aria-checked={r.completed}
                           accessibilityLabel={strings.setNumber((r.setIndex ?? 0) + 1)}
                         >
                           {r.completed ? <Icons.checkCircle size={18} color={colors.onAction} strokeWidth={iconStrokeWidth} /> : null}

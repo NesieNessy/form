@@ -1,3 +1,4 @@
+import type { ProgressCode } from './describe';
 import { tr } from '../i18n/tr';
 import type { RtsStage } from '../rehab/model';
 
@@ -41,6 +42,8 @@ export type ProgressSnapshot = {
   /** 0 to 1 from baseline to target, when both are known. */
   fraction?: number;
   evidenceCount: number;
+  /** What the summary says, as data, so it can be shown in the reader's language. Absent on older snapshots. */
+  code?: ProgressCode;
   summary: string;
   calculatedAt: number;
 };

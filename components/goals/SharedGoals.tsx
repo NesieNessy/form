@@ -1,3 +1,4 @@
+import { progressText } from '@/lib/goals/describe';
 import React, { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
@@ -44,7 +45,7 @@ export function SharedGoals({ athleteId, onError }: { athleteId: string; onError
                 <View style={[styles.fill, { width: `${pct}%` }]} />
               </View>
             ) : null}
-            {g.progress ? <Text style={styles.body}>{g.progress.summary}</Text> : null}
+            {g.progress ? <Text style={styles.body}>{progressText(g)}</Text> : null}
             {g.revisions.length ? <Text style={styles.hint}>{`${strings.goalHistory}: ${g.revisions.length}`}</Text> : null}
             {reviews.map((r) => (
               <View key={r.id} style={styles.review}>

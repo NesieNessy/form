@@ -119,7 +119,7 @@ export default function RehabCaseScreen() {
           {(Object.keys(RED_FLAGS) as RedFlag[]).map((f) => {
             const on = flags.includes(f);
             return (
-              <TouchableOpacity key={f} style={styles.toggle} onPress={() => setFlags((cur) => (on ? cur.filter((x) => x !== f) : [...cur, f]))} accessibilityRole="checkbox" accessibilityState={{ checked: on }}>
+              <TouchableOpacity key={f} style={styles.toggle} onPress={() => setFlags((cur) => (on ? cur.filter((x) => x !== f) : [...cur, f]))} accessibilityRole="checkbox" accessibilityState={{ checked: on }} aria-checked={on}>
                 <View style={[styles.box, on && styles.boxOn]} />
                 <Text style={styles.toggleText}>{RED_FLAGS[f]}</Text>
               </TouchableOpacity>

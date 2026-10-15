@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { analyseSquat, ENGINE_VERSION } from './analysis';
 import { OBSERVATION_LABELS, type CameraView, type Frame, type Point, type PoseClip } from './model';
+import { describeObservation, observationText } from './describe';
 import { checkAnalysis } from './validate';
 
 /**
@@ -148,5 +149,12 @@ describe('squat analysis', () => {
       assert.ok(a.observations.every((o) => !/diagnos|injur|risk|clear(ed|ance)|pain/i.test(o.summary)));
     }
     assert.match(checkAnalysis({ ...analyseSquat(clip({ view: 'side' }), 'side'), observations: [{ label: 'injury_risk' as never, summary: 'x', confidence: 'high', timestamps: [] }] }) ?? '', /label/);
+  });
+
+  it('rebuilds each sentence from its variant and values, so it can be shown in the reader’s language', () => {
+    const a = analyseSquat(clip({ view: 'side', reps: 4, depth: [0.1, -0.5, 0.1, -0.45] }), 'side');
+    for (const o of a.observations) assert.equal(describeObservation(o.label, o.variant!, o.params!), o.summary);
+    assert.equal(observationText({ label: 'depth', summary: 'stored text', variant: 'some', params: { n: 5, count: 3 } }), 'Hips reached about knee height in 3 of 5 repetitions.');
+    assert.equal(observationText({ label: 'depth', summary: 'stored text' }), 'stored text', 'older analyses keep their sentence');
   });
 });

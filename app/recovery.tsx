@@ -88,7 +88,7 @@ export default function RecoveryScreen() {
                   <SegmentedTabs options={SCALE} value={answers[q.key] !== undefined ? String(answers[q.key]) : ''} onChange={(k) => setAnswers((a) => ({ ...a, [q.key]: Number(k) }))} scrollable size="sm" />
                 </View>
               ))}
-              <TouchableOpacity style={styles.toggle} onPress={() => setAnswers((a) => ({ ...a, unwell: !a.unwell }))} accessibilityRole="checkbox" accessibilityState={{ checked: !!answers.unwell }}>
+              <TouchableOpacity style={styles.toggle} onPress={() => setAnswers((a) => ({ ...a, unwell: !a.unwell }))} accessibilityRole="checkbox" accessibilityState={{ checked: !!answers.unwell }} aria-checked={!!answers.unwell}>
                 <View style={[styles.box, answers.unwell && styles.boxOn]} />
                 <Text style={styles.toggleText}>{strings.checkInUnwell}</Text>
               </TouchableOpacity>

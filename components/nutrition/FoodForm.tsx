@@ -103,7 +103,7 @@ export function FoodForm({ onSave, onCancel }: Props) {
         ))}
       </View>
       {basis !== 'per_100ml' ? (
-        <TouchableOpacity style={styles.toggle} onPress={() => setIsFluid(!isFluid)} accessibilityRole="checkbox" accessibilityState={{ checked: isFluid }}>
+        <TouchableOpacity style={styles.toggle} onPress={() => setIsFluid(!isFluid)} accessibilityRole="checkbox" accessibilityState={{ checked: isFluid }} aria-checked={isFluid}>
           <View style={[styles.box, isFluid && styles.boxOn]} />
           <Text style={styles.toggleText}>{strings.isDrink}</Text>
         </TouchableOpacity>

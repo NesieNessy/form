@@ -1,3 +1,4 @@
+import { progressText } from '@/lib/goals/describe';
 import { router, useFocusEffect } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -60,7 +61,7 @@ export default function GoalsScreen() {
                     <View style={[styles.fill, { width: `${pct}%` }]} />
                   </View>
                 ) : null}
-                {g.progress ? <Text style={styles.body}>{g.progress.summary}</Text> : null}
+                {g.progress ? <Text style={styles.body}>{progressText(g)}</Text> : null}
               </Card>
             </TouchableOpacity>
           );

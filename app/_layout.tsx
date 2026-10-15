@@ -6,6 +6,7 @@ import {
   Inter_800ExtraBold,
   useFonts,
 } from '@expo-google-fonts/inter';
+import { useReducedMotion } from '@/lib/useReducedMotion';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
@@ -38,6 +39,7 @@ export default function RootLayout() {
 
   const authStatus = useAuthStore((s) => s.status);
   const ready = fontsLoaded && authStatus !== 'loading';
+  const reducedMotion = useReducedMotion();
 
   useEffect(() => {
     initAuth();
@@ -62,7 +64,7 @@ export default function RootLayout() {
               screenOptions={{
                 headerShown: false,
                 contentStyle: { backgroundColor: colors.bg },
-                animation: 'slide_from_right',
+                animation: reducedMotion ? 'none' : 'slide_from_right',
               }}
             >
               <Stack.Screen name="(tabs)" />
