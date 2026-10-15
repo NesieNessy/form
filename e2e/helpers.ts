@@ -11,7 +11,7 @@ export const readFixture = (name: string) => JSON.parse(readFileSync(fixture(nam
  * stored state, plus the small vocabulary the tests are written in. Inactive
  * screens stay mounted on the web, so every lookup is limited to visible text.
  */
-export async function openApp(browser: Browser, seed?: unknown) {
+export async function openApp(browser: Browser, seed?: unknown, options: { firstRun?: boolean } = {}) {
   // English, whatever the machine's language: the tests read the English text.
   const context = await browser.newContext({ viewport: { width: 420, height: 900 }, locale: 'en-US' });
   if (seed) {
@@ -22,6 +22,8 @@ export async function openApp(browser: Browser, seed?: unknown) {
       }
     }, seed);
   }
+  // The first-run setup is tested on its own; everywhere else it is already done.
+  if (!options.firstRun) await context.addInitScript(() => localStorage.setItem('form-pref-onboarded', 'done'));
   const page = await context.newPage();
   const problems: string[] = [];
   page.on('pageerror', (e) => problems.push(`pageerror: ${e.message}`));

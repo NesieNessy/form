@@ -1,3 +1,4 @@
+import { SPORT_LABEL, equipmentLabel } from '@/lib/athlete/labels';
 import { WEEKDAYS_SHORT } from '@/lib/i18n/tr';
 import React, { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -21,22 +22,10 @@ import { useWorkoutsStore } from '@/lib/workoutsStore';
 import { colors, fontFamily, iconStrokeWidth, spacing } from '@/theme/colors';
 import { Icons } from '@/theme/icons';
 
-const SPORT_LABEL: Record<Sport, string> = {
-  crossfit: 'CrossFit',
-  strength: 'Strength',
-  endurance: 'Endurance',
-  running: 'Running',
-  cycling: 'Cycling',
-  swimming: 'Swimming',
-  triathlon: 'Triathlon',
-  yoga: 'Yoga',
-  hiit: 'HIIT',
-  other: 'Other',
-};
 
 const SPORT_OPTIONS = SPORTS.map((s) => ({ key: s, label: SPORT_LABEL[s] }));
 const DAY_OPTIONS = [1, 2, 3, 4, 5, 6, 0].map((d) => ({ key: d, label: WEEKDAYS_SHORT[d] }));
-const EQUIPMENT_CHIPS = EQUIPMENT_OPTIONS.map((e) => ({ key: e, label: e.charAt(0).toUpperCase() + e.slice(1) }));
+const EQUIPMENT_CHIPS = EQUIPMENT_OPTIONS.map((e) => ({ key: e, label: equipmentLabel(e) }));
 
 function toggle<T>(list: T[], item: T): T[] {
   return list.includes(item) ? list.filter((x) => x !== item) : [...list, item];

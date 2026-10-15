@@ -1,3 +1,4 @@
+import { CheckBox } from '@/components/ui/Checkbox';
 import { DraftStatus } from '@/components/ui/DraftStatus';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useMemo, useState } from 'react';
@@ -311,7 +312,7 @@ function ContextFields({ ctx, setCtx }: { ctx: LogContext; setCtx: (c: LogContex
         }}
       />
       <TouchableOpacity style={styles.toggle} onPress={() => setCtx({ ...ctx, estimated: !ctx.estimated })} accessibilityRole="checkbox" accessibilityState={{ checked: !!ctx.estimated }} aria-checked={!!ctx.estimated}>
-        <View style={[styles.box, ctx.estimated && styles.boxOn]} />
+        <CheckBox checked={!!(ctx.estimated)} />
         <Text style={styles.toggleText}>{strings.estimateToggle}</Text>
       </TouchableOpacity>
       <FieldCard label={strings.noteOptional} value={ctx.note ?? ''} onChangeText={(note) => setCtx({ ...ctx, note })} placeholder={strings.notePlaceholder} cardStyle={{ marginBottom: 0 }} />
@@ -461,7 +462,7 @@ function DescribeTab({ ctx, setCtx }: { ctx: LogContext; setCtx: (c: LogContext)
         <Card key={r.key} style={[styles.card, !r.include && styles.excluded]}>
           <View style={styles.itemHead}>
             <TouchableOpacity style={styles.toggle} onPress={() => update(r.key, { include: !r.include })} accessibilityRole="checkbox" accessibilityState={{ checked: r.include }} aria-checked={r.include} accessibilityLabel={`${strings.include}: ${r.name}`}>
-              <View style={[styles.box, r.include && styles.boxOn]} />
+              <CheckBox checked={!!(r.include)} />
             </TouchableOpacity>
             <View style={{ flex: 1 }}>
               <Text style={styles.foodName}>{r.food?.name ?? r.name}</Text>

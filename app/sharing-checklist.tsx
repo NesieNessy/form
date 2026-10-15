@@ -1,3 +1,4 @@
+import { CheckBox } from '@/components/ui/Checkbox';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -49,7 +50,7 @@ export default function SharingChecklistScreen() {
           return (
             <TouchableOpacity key={c.id} onPress={() => toggle(c.id)} activeOpacity={0.8} accessibilityRole="checkbox" accessibilityState={{ checked: on }} aria-checked={on} accessibilityLabel={c.label}>
               <Card style={[styles.row, on && styles.rowOn]}>
-                <View style={[styles.box, on && styles.boxOn]} />
+                <CheckBox checked={!!(on)} />
                 <View style={{ flex: 1 }}>
                   <Text style={styles.title}>
                     {c.label}

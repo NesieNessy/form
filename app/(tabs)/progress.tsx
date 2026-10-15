@@ -14,15 +14,13 @@ const MAIN: MenuItem[] = [
   { icon: Icons.target, color: colors.teal, title: strings.goalsTitle, subtitle: strings.goalsMenuSubtitle, route: '/goals-forecast' },
   { icon: Icons.lineChart, color: colors.blue, title: strings.yourTrends, subtitle: strings.trendsMenuSubtitle, route: '/trends' },
 ];
-const SAMPLES: MenuItem[] = [
+const MORE: MenuItem[] = [
   { icon: Icons.barChart, color: colors.blue, title: strings.performanceOverviewTitle, subtitle: strings.performanceOverviewSubtitle, route: '/performance-overview' },
-  { icon: Icons.lineChart, color: colors.orange, title: strings.longTermProgressTitle, subtitle: strings.longTermProgressSubtitle, route: '/long-term-progress' },
-  { icon: Icons.sparkles, color: colors.purple, title: strings.comparisonTitle, subtitle: strings.comparisonSubtitle, route: '/comparison' },
   { icon: Icons.personStanding, color: colors.pink, title: strings.bodyDevelopmentTitle, subtitle: strings.bodyDevelopmentSubtitle, route: '/body-development' },
   { icon: Icons.lightbulb, color: colors.amber, title: strings.insightsTipsTitle, subtitle: strings.insightsTipsSubtitle, route: '/insights' },
 ];
 
-/** Progress: goals first, then trends; the sample-data analyses are listed apart until Step 13 replaces them. */
+/** Progress: goals first, then trends and the other views of the athlete's own records. */
 export default function ProgressScreen() {
   const goals = useWorkoutsStore((s) => s.goals);
   const refreshGoals = useWorkoutsStore((s) => s.refreshGoals);
@@ -65,8 +63,7 @@ export default function ProgressScreen() {
           </Card>
         ) : null}
         <MenuList items={MAIN} />
-        <Text style={styles.section}>{strings.moreAnalyses}</Text>
-        <MenuList items={SAMPLES} />
+        <MenuList items={MORE} />
       </ScrollView>
     </View>
   );

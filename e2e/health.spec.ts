@@ -127,7 +127,8 @@ test('with a week of history the baseline appears and an unusual value is pointe
 test('body development shows the real weight trend instead of the sample', async () => {
   await app.page.goto('/body-development');
   await app.see('74.1 kg');
-  await app.see('-0.7 kg since');
+  await app.see('74.8 kg'); // the first value in the period, shown as "Before"
+  await app.see(/measurements in this period/);
   await app.notSee('Sample');
   await app.notSee('kg kg');
 });

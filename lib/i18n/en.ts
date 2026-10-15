@@ -4,11 +4,6 @@
  * translation. Each value appears once: if the same text is used in
  * multiple screens/components, they all reference the same key here
  * instead of repeating the literal.
- *
- * Not included: content that comes from data (lib/mockData.ts) — sample
- * workout names, insight bodies, chart values, etc. That's demo content
- * standing in for a real backend, not app chrome, so it isn't part of
- * this translatable-strings resource.
  */
 export const en = {
   // Common actions
@@ -1202,7 +1197,27 @@ export const en = {
   accessEndedBody: 'They ended the connection or stopped sharing. What you saw before is not shown again. They can share again at any time.',
   staleValue: (days: number) => `Last value ${days} days ago, so it is not used for today.`,
   limitedDataHelp: 'A check-in takes a few seconds and is enough for a first picture. A connected device or imported recordings add measurements.',
-  connectData: 'Add Measurements',  // Workout fuel
+  connectData: 'Add Measurements',  range4w: '4 Weeks',
+  range3m: '3 Months',
+  range1y: '1 Year',
+  noBodyDataYet: 'No measurements in this period. Add them under Health & Activities.',
+  bodyMeasuredHint: (n: number) => `${n} ${n === 1 ? 'measurement' : 'measurements'} in this period. Single days vary with water and food, so look at the line rather than one point.`,
+  todaysPlan: 'Today’s plan',
+  fuelToday: 'Food today',
+  protein: 'Protein',
+  welcomeTitle: 'Welcome to FORM',
+  welcomeBody: 'Plan and log your training, see real progress, and work with a coach or physio if you want to.',
+  welcomeOwnData: 'Your data is yours. It is stored on this device and, when you sign in, in your account. Nothing is shared by default.',
+  welcomeSharing: 'You decide who sees what, area by area, and you can see every time someone looks.',
+  welcomeAi: 'The assistant only writes drafts. Nothing changes in your plan until you approve it.',
+  onboardingStep: (n: number, total: number) => `Step ${n} of ${total}`,
+  onboardingSportsBody: 'So suggestions and analyses fit what you do. Pick any number.',
+  onboardingEquipmentBody: 'So workouts only use what you have. Leave it empty if you train with whatever is there.',
+  onboardingRhythmBody: 'Used for your weekly goal and to spread planned workouts. It is a target, not a rule.',
+  onboardingDone: 'Start Training',
+  onboardingSkipStep: 'Skip this step',
+  onboardingSkipAll: 'Skip the setup',
+  onboardingLater: 'You can change all of this later under More → Profile.',  // Workout fuel
   fuelTitle: 'Training Fuel',  logFuel: 'Log Fuel',
   noFuelYet: 'Nothing logged for this session.',
 } as const;

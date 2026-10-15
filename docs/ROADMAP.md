@@ -274,16 +274,23 @@ Left over from Step 12:
 
 ## Step 13 — A polished frontend for the athlete
 
-Requested on 2026-10-14. The design it follows is Step 14. Each step so far added screens that work and are tested, but the app has grown screen by screen; this step makes it one coherent, pleasant product.
+Requested on 2026-10-14. Built on the Step 14 design system (done first, as decided).
 
-- [ ] Navigation: the More list has grown long (health, nutrition, recovery, rehab, coaching, chat). Group features into a clear home and tab structure, with today's essentials (planned workout, recovery, check-in, fuel) on the home screen.
-- [ ] Replace the remaining sample-data screens (Trends, Insights, Comparison, Long-Term Progress; Goals became real in Step 10) with real data or remove them.
-- [ ] A shared design system: consistent cards, headers, empty states, loading and error states, form controls (one checkbox, one 0–10 scale, one date/time field), spacing and typography.
-- [ ] Onboarding: first-run flow (sports, equipment, goals, optional account), and explanations of consent and AI where they first appear.
-- [ ] Phone-first polish: test on iOS and Android devices (so far only a desktop browser), safe areas, keyboard handling, haptics, dark/light, large text.
-- [ ] Accessibility pass: screen-reader labels and order, contrast, touch targets, reduced motion.
-- [ ] Visual regression screenshots in the end-to-end suite so later changes cannot quietly break layouts.
-
+- [x] Navigation: Today · Train · Progress · Health · More (see Step 14). Today now starts with the next action and shortcuts, then today's plan, recovery, food against targets, the nearest goal and the week. Every number on it comes from the athlete's own records.
+- [x] No sample data left: ``lib/mockData.ts`` and the components only it used are gone.
+  - Trends: weight and body fat from measurements, plus strength and endurance from sessions, each with an empty state until there is data. Muscle mass and BMI were dropped, since nothing records them.
+  - Body Development: first and latest value in the period, with the line between.
+  - Insights and Performance Overview: real data or an empty state.
+  - Comparison and Long-Term Progress were removed; Trends and Performance Overview cover them.
+- [x] Shared controls:
+  - One checkbox, whose ticked state shows a check mark, not only colour.
+  - One 0–10 scale: all eleven values fit on a phone (before, 9 and 10 were cut off), and screen readers hear a radio group.
+  - Dates and times already used the shared pickers.
+  - Sport and equipment names are shared and translated.
+- [x] Onboarding: on a new device without data, a four-step setup. It explains what happens to the athlete's data, sharing and the assistant, then asks for sports, equipment, weekly target and usual days. Every step can be skipped, and it is shown once. Consent and AI are also explained where they first appear (the sharing checklist and the draft status).
+- [x] Accessibility (see the Step 14 checks).
+- [ ] Phone-first polish on real iOS and Android devices: safe areas, keyboard, haptics, native playback and pose analysis. So far everything is tested in a desktop browser at phone width.
+- [ ] Visual regression screenshots stored in the suite. Screenshots differ between Windows and the Linux CI runner, so the stored images have to be made on CI.
 ## Step 14 — App design: the FORM design system and frontend architecture
 
 Requested on 2026-10-14. Source: [11-frontend-ux-ui-architecture](concepts/11-frontend-ux-ui-architecture.md), [12-form-brand-design-system](concepts/12-form-brand-design-system.md), [form-design-tokens.css](concepts/form-design-tokens.css). This is the design that Step 13's polish is built on. Step 14 runs first (decided 2026-10-14), then Step 13 against it.

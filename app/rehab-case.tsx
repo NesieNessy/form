@@ -1,3 +1,5 @@
+import { ScaleInput } from '@/components/ui/ScaleInput';
+import { CheckBox } from '@/components/ui/Checkbox';
 import { Sensitive } from '@/components/ui/Sensitive';
 import { tr } from '@/lib/i18n/tr';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -23,7 +25,6 @@ import { syncNow } from '@/lib/sync';
 import { useWorkoutsStore } from '@/lib/workoutsStore';
 import { colors, fontFamily, spacing } from '@/theme/colors';
 
-const SCALE = Array.from({ length: 11 }, (_, i) => ({ key: String(i), label: String(i) }));
 const STATUSES = (Object.keys(EPISODE_STATUS_LABEL) as EpisodeStatus[]).map((k) => ({ key: k, label: EPISODE_STATUS_LABEL[k] }));
 const day = (ms: number) => new Date(ms).toLocaleDateString(locale, { month: 'short', day: 'numeric' });
 const who = (i: Issuer) => `${i.name ?? strings.someone} · ${i.role}, ${i.verified ? strings.verifiedClinician : strings.unverifiedClinician}`;
@@ -111,16 +112,16 @@ export default function RehabCaseScreen() {
         <Card style={styles.card}>
           <Text style={styles.cardTitle}>{strings.logSymptoms}</Text>
           <Text style={styles.label}>{strings.symptomIntensity}</Text>
-          <SegmentedTabs options={SCALE} value={intensity !== undefined ? String(intensity) : ''} onChange={(k) => setIntensity(Number(k))} scrollable size="sm" />
+          <ScaleInput label={strings.symptomIntensity} value={intensity} onChange={setIntensity} />
           <Text style={styles.label}>{strings.symptomFunction}</Text>
-          <SegmentedTabs options={SCALE} value={fn !== undefined ? String(fn) : ''} onChange={(k) => setFn(Number(k))} scrollable size="sm" />
+          <ScaleInput label={strings.symptomFunction} value={fn} onChange={setFn} />
           <FieldCard label={strings.symptomContext} value={context} onChangeText={setContext} placeholder={strings.symptomContextPlaceholder} cardStyle={styles.inset} />
           <Text style={styles.label}>{strings.redFlagsTitle}</Text>
           {(Object.keys(RED_FLAGS) as RedFlag[]).map((f) => {
             const on = flags.includes(f);
             return (
               <TouchableOpacity key={f} style={styles.toggle} onPress={() => setFlags((cur) => (on ? cur.filter((x) => x !== f) : [...cur, f]))} accessibilityRole="checkbox" accessibilityState={{ checked: on }} aria-checked={on}>
-                <View style={[styles.box, on && styles.boxOn]} />
+                <CheckBox checked={!!(on)} />
                 <Text style={styles.toggleText}>{RED_FLAGS[f]}</Text>
               </TouchableOpacity>
             );

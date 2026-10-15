@@ -1,3 +1,5 @@
+import { ScaleInput } from '@/components/ui/ScaleInput';
+import { CheckBox } from '@/components/ui/Checkbox';
 import { Sensitive } from '@/components/ui/Sensitive';
 import { SourceTag } from '@/components/ui/SourceTag';
 import { signalSource } from '@/lib/provenance';
@@ -17,7 +19,6 @@ import { strings } from '@/lib/strings';
 import { getWorkoutData, useWorkoutsStore } from '@/lib/workoutsStore';
 import { colors, fontFamily, spacing } from '@/theme/colors';
 
-const SCALE = Array.from({ length: 11 }, (_, i) => ({ key: String(i), label: String(i) }));
 const QUESTIONS: { key: 'fatigue' | 'soreness' | 'stress' | 'energy'; label: string }[] = [
   { key: 'fatigue', label: strings.checkInFatigue },
   { key: 'soreness', label: strings.checkInSoreness },
@@ -85,11 +86,11 @@ export default function RecoveryScreen() {
               {QUESTIONS.map((q) => (
                 <View key={q.key} style={styles.question}>
                   <Text style={styles.label}>{q.label}</Text>
-                  <SegmentedTabs options={SCALE} value={answers[q.key] !== undefined ? String(answers[q.key]) : ''} onChange={(k) => setAnswers((a) => ({ ...a, [q.key]: Number(k) }))} scrollable size="sm" />
+                  <ScaleInput label={q.label} value={answers[q.key]} onChange={(v) => setAnswers((a) => ({ ...a, [q.key]: v }))} />
                 </View>
               ))}
               <TouchableOpacity style={styles.toggle} onPress={() => setAnswers((a) => ({ ...a, unwell: !a.unwell }))} accessibilityRole="checkbox" accessibilityState={{ checked: !!answers.unwell }} aria-checked={!!answers.unwell}>
-                <View style={[styles.box, answers.unwell && styles.boxOn]} />
+                <CheckBox checked={!!(answers.unwell)} />
                 <Text style={styles.toggleText}>{strings.checkInUnwell}</Text>
               </TouchableOpacity>
               <GradientButton

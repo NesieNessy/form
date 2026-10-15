@@ -151,7 +151,7 @@ test.describe('targets and fuel around training', () => {
   test('fuel is logged against the completed workout', async () => {
     await app.page.goto('/');
     await app.click('Train');
-    await app.visible('Long Ride').first().click();
+    await app.click('Long Ride');
     await app.see('Training Fuel');
     await app.see('Nothing logged for this session.');
     await app.click('Log Fuel');

@@ -1,3 +1,4 @@
+import { CheckBox } from '@/components/ui/Checkbox';
 import { tr } from '@/lib/i18n/tr';
 import React, { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -104,7 +105,7 @@ export function FoodForm({ onSave, onCancel }: Props) {
       </View>
       {basis !== 'per_100ml' ? (
         <TouchableOpacity style={styles.toggle} onPress={() => setIsFluid(!isFluid)} accessibilityRole="checkbox" accessibilityState={{ checked: isFluid }} aria-checked={isFluid}>
-          <View style={[styles.box, isFluid && styles.boxOn]} />
+          <CheckBox checked={!!(isFluid)} />
           <Text style={styles.toggleText}>{strings.isDrink}</Text>
         </TouchableOpacity>
       ) : null}
